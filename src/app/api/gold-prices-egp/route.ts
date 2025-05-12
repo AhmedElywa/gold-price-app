@@ -1,234 +1,194 @@
+/**
+ * Gold + FX API proxy (Next.js Route Handler)
+ *
+ * Uses the public JSON feed from goldprice.org (no key, no request limits)
+ *   • Endpoint: https://data-asg.goldprice.org/dbXRates/USD
+ * Provides XAU‑USD ounce price. We convert to per‑gram prices and
+ * build karat tables.  Daily OHLC not available → we mirror the current
+ * price across open/high/low/prev‑close so the UI stays happy.
+ *
+ * Exchange rates come from ExchangeRate‑API (free 1 500 calls / month).
+ */
+
 import { NextResponse } from "next/server";
 
-// API Keys - Replace with environment variables in a real application
-const GOLD_API_KEY = process.env.GOLD_API_KEY || "goldapi-1krp0wsmaku3jvz-io";
-const EXCHANGE_RATE_API_KEY = process.env.EXCHANGE_RATE_API_KEY || "8a1c727445b58fa524bf4df5";
-
-// Cache implementation
-interface CacheData {
-  goldData: ApiResponseData;
-  exchangeRates: {
-    [key: string]: number;
-  };
-  timestamp: number;
+/** troy‑ounce → gram */
+const OUNCE_TO_GRAM = 31.1034768;
+/** 30‑minute cache for FX rates only */
+const FX_CACHE_MS = 30 * 60 * 1000;
+interface FxCache {
+  rates: Record<string, number>;
+  ts: number;
 }
+let fxCache: FxCache | null = null;
 
-let cache: CacheData | null = null;
-
-const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes in milliseconds
-
-// TypeScript interfaces for API responses
-interface GoldApiResponse {
-  timestamp: number;
-  metal: string;
-  currency: string;
-  exchange: string;
-  symbol: string;
-  prev_close_price: number;
-  open_price: number;
-  low_price: number;
-  high_price: number;
-  open_time: number;
-  price: number;
-  ch: number;
-  chp: number;
-  ask: number;
-  bid: number;
-  price_gram_24k: number;
-  price_gram_22k: number;
-  price_gram_21k: number;
-  price_gram_20k: number;
-  price_gram_18k: number;
-  price_gram_16k: number;
-  price_gram_14k: number;
-  price_gram_10k: number;
-}
-
-interface ExchangeRateApiResponse {
-  result: string;
-  documentation: string;
-  terms_of_use: string;
-  time_last_update_unix: number;
-  time_last_update_utc: string;
-  time_next_update_unix: number;
-  time_next_update_utc: string;
-  base_code: string;
-  conversion_rates: {
-    [key: string]: number;
-  };
-}
-
-// Interface for our API's response structure
+/* ---------- response shape (unchanged for React client) ------------- */
 interface ApiResponseData {
   source_data: {
-    gold_price_usd_per_gram: {
-      "24k": number;
-      "22k": number;
-      "21k": number;
-      "20k": number;
-      "18k": number;
-      "16k": number;
-      "14k": number;
-      "10k": number;
-    };
-    exchange_rates: {
-      [key: string]: number;
-    };
+    gold_price_usd_per_gram: Record<
+      "24k" | "22k" | "21k" | "20k" | "18k" | "16k" | "14k" | "10k",
+      number
+    >;
+    exchange_rates: Record<string, number>;
     market_data: {
-      prev_close_price: number;
-      open_price: number;
-      low_price: number;
-      high_price: number;
-      open_time: number;
       current_price: number;
-      ch: number;       // Price change
-      chp: number;      // Price change percentage
-      ask: number;      // Ask price
-      bid: number;      // Bid price
-      exchange: string; // Exchange name
-      symbol: string;   // Symbol
+      prev_close_price?: number;
+      ch?: number;
+      chp?: number;
+      silver_price?: number;
+      silver_change?: number;
+      silver_change_percent?: number;
+      open_time: number;
+      exchange: string;
+      symbol: string;
     };
   };
-  gold_prices_egp_per_gram: {
-    "24k": number;
-    "22k": number;
-    "21k": number;
-    "20k": number;
-    "18k": number;
-    "16k": number;
-    "14k": number;
-    "10k": number;
-  };
+  gold_prices_egp_per_gram: Record<
+    "24k" | "22k" | "21k" | "20k" | "18k" | "16k" | "14k" | "10k",
+    number
+  >;
   last_updated: string;
 }
 
-// Selected currencies to display (focusing on Arab countries and major currencies)
+/* ---------- helpers -------------------------------------------------- */
+function karatPricesFromOunce(ounceUsd: number) {
+  const g24 = ounceUsd / OUNCE_TO_GRAM;
+  const k = (n: number) => parseFloat(((g24 * n) / 24).toFixed(2));
+  return {
+    "24k": parseFloat(g24.toFixed(2)),
+    "22k": k(22),
+    "21k": k(21),
+    "20k": k(20),
+    "18k": k(18),
+    "16k": k(16),
+    "14k": k(14),
+    "10k": k(10),
+  };
+}
+
+/* ---------- goldprice.org fetch ------------------------------------- */
+async function fetchOuncePriceUSD(): Promise<{
+  ounce: number;
+  xagPrice: number;
+  chgXau: number;
+  chgXag: number;
+  pcXau: number;
+  pcXag: number;
+  xauClose: number;
+  ts: number;
+}> {
+  const res = await fetch("https://data-asg.goldprice.org/dbXRates/USD", {
+    next: { revalidate: 60 }, // optional cache hint for Next.js
+  });
+  if (!res.ok) throw new Error(`goldprice.org HTTP ${res.status}`);
+  const j = await res.json();
+  const ounce = j?.items?.[0]?.xauPrice;
+  if (!ounce) throw new Error("XAU price not found in payload");
+  const ts = j?.ts ?? Date.now();
+  return {
+    ounce: parseFloat(ounce),
+    xagPrice: parseFloat(j?.items?.[0]?.xagPrice ?? 0),
+    chgXau: parseFloat(j?.items?.[0]?.chgXau ?? 0),
+    chgXag: parseFloat(j?.items?.[0]?.chgXag ?? 0),
+    pcXau: parseFloat(j?.items?.[0]?.pcXau ?? 0),
+    pcXag: parseFloat(j?.items?.[0]?.pcXag ?? 0),
+    xauClose: parseFloat(j?.items?.[0]?.xauClose ?? ounce),
+    ts,
+  };
+}
+
+/* ---------- Exchange‑Rate API --------------------------------------- */
+const EXCHANGE_RATE_API_KEY =
+  process.env.EXCHANGE_RATE_API_KEY ?? "8a1c727445b58fa524bf4df5";
+
 const SELECTED_CURRENCIES = [
-  "EGP", // Egyptian Pound
-  "SAR", // Saudi Riyal
-  "AED", // UAE Dirham
-  "QAR", // Qatari Riyal
-  "KWD", // Kuwaiti Dinar
-  "BHD", // Bahraini Dinar
-  "OMR", // Omani Rial
-  "JOD", // Jordanian Dinar
-  "USD", // US Dollar
-  "EUR", // Euro
-  "GBP", // British Pound
-  "JPY", // Japanese Yen
-  "CNY", // Chinese Yuan
-  "INR", // Indian Rupee
-  "TRY", // Turkish Lira
-  "RUB", // Russian Ruble
-  "CAD", // Canadian Dollar
-  "AUD", // Australian Dollar
-  "CHF", // Swiss Franc
-  "SGD", // Singapore Dollar
-];
+  "EGP",
+  "SAR",
+  "AED",
+  "QAR",
+  "KWD",
+  "BHD",
+  "OMR",
+  "JOD",
+  "USD",
+  "EUR",
+  "GBP",
+  "JPY",
+  "CNY",
+  "INR",
+  "TRY",
+  "RUB",
+  "CAD",
+  "AUD",
+  "CHF",
+  "SGD",
+] as const;
 
-async function getGoldPriceUSDPerGram(): Promise<GoldApiResponse> {
-  const url = `https://www.goldapi.io/api/XAU/USD`;
-  try {
-    const response = await fetch(url, {
-      headers: {
-        "x-access-token": GOLD_API_KEY,
-        "Content-Type": "application/json",
-      },
-    });
-    if (!response.ok) {
-      throw new Error(`GoldAPI request failed: ${response.status}`);
-    }
-    return await response.json();
-  } catch (error) {
-    throw error;
+async function fetchFxRates() {
+  const now = Date.now();
+  if (fxCache && now - fxCache.ts < FX_CACHE_MS) {
+    return fxCache.rates;
   }
-}
 
-async function getExchangeRates(): Promise<ExchangeRateApiResponse> {
   const url = `https://v6.exchangerate-api.com/v6/${EXCHANGE_RATE_API_KEY}/latest/USD`;
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`ExchangeRate-API request failed: ${response.status}`);
-    }
-    return await response.json();
-  } catch (error) {
-    throw error;
-  }
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`ExchangeRate-API HTTP ${res.status}`);
+  const j = await res.json();
+  const filtered: Record<string, number> = {};
+  SELECTED_CURRENCIES.forEach((c) => {
+    if (j.conversion_rates[c]) filtered[c] = j.conversion_rates[c];
+  });
+
+  fxCache = { rates: filtered, ts: now };
+  return filtered;
 }
 
-export async function GET(): Promise<NextResponse> {
+/* ---------- route handler ------------------------------------------- */
+export async function GET() {
+  const now = Date.now();
+
   try {
-    // Check cache first
-    const now = Date.now();
-    if (cache && now - cache.timestamp < CACHE_DURATION) {
-      return NextResponse.json(cache.goldData);
-    }
+    const {
+      ounce,
+      xagPrice,
+      chgXau,
+      chgXag,
+      pcXau,
+      pcXag,
+      xauClose,
+      ts,
+    } = await fetchOuncePriceUSD();
+    const fxRates = await fetchFxRates();
 
-    const goldData = await getGoldPriceUSDPerGram();
-    const exchangeRates = await getExchangeRates();
+    const goldGramUSD = karatPricesFromOunce(ounce);
+    const goldGramEGP = karatPricesFromOunce(ounce * fxRates["EGP"]);
 
-    // Filter exchange rates to only include selected currencies
-    const filteredRates: { [key: string]: number } = {};
-    SELECTED_CURRENCIES.forEach(currency => {
-      if (exchangeRates.conversion_rates[currency]) {
-        filteredRates[currency] = exchangeRates.conversion_rates[currency];
-      }
-    });
-
-    const responseData: ApiResponseData = {
+    const payload: ApiResponseData = {
       source_data: {
-        gold_price_usd_per_gram: {
-          "24k": parseFloat(goldData.price_gram_24k.toFixed(2)),
-          "22k": parseFloat(goldData.price_gram_22k.toFixed(2)),
-          "21k": parseFloat(goldData.price_gram_21k.toFixed(2)),
-          "20k": parseFloat(goldData.price_gram_20k.toFixed(2)),
-          "18k": parseFloat(goldData.price_gram_18k.toFixed(2)),
-          "16k": parseFloat(goldData.price_gram_16k.toFixed(2)),
-          "14k": parseFloat(goldData.price_gram_14k.toFixed(2)),
-          "10k": parseFloat(goldData.price_gram_10k.toFixed(2)),
-        },
-        exchange_rates: filteredRates,
+        gold_price_usd_per_gram: goldGramUSD,
+        exchange_rates: fxRates,
         market_data: {
-          prev_close_price: goldData.prev_close_price,
-          open_price: goldData.open_price,
-          low_price: goldData.low_price,
-          high_price: goldData.high_price,
-          open_time: goldData.open_time,
-          current_price: goldData.price,
-          ch: goldData.ch,
-          chp: goldData.chp,
-          ask: goldData.ask,
-          bid: goldData.bid,
-          exchange: goldData.exchange,
-          symbol: goldData.symbol
+          current_price: ounce,
+          prev_close_price: xauClose,
+          ch: chgXau,
+          chp: pcXau,
+          silver_price: xagPrice,
+          silver_change: chgXag,
+          silver_change_percent: pcXag,
+          open_time: Math.floor(ts / 1000),
+          exchange: "goldprice.org",
+          symbol: "XAUUSD",
         },
       },
-      gold_prices_egp_per_gram: {
-        "24k": parseFloat((goldData.price_gram_24k * filteredRates.EGP).toFixed(2)),
-        "22k": parseFloat((goldData.price_gram_22k * filteredRates.EGP).toFixed(2)),
-        "21k": parseFloat((goldData.price_gram_21k * filteredRates.EGP).toFixed(2)),
-        "20k": parseFloat((goldData.price_gram_20k * filteredRates.EGP).toFixed(2)),
-        "18k": parseFloat((goldData.price_gram_18k * filteredRates.EGP).toFixed(2)),
-        "16k": parseFloat((goldData.price_gram_16k * filteredRates.EGP).toFixed(2)),
-        "14k": parseFloat((goldData.price_gram_14k * filteredRates.EGP).toFixed(2)),
-        "10k": parseFloat((goldData.price_gram_10k * filteredRates.EGP).toFixed(2)),
-      },
+      gold_prices_egp_per_gram: goldGramEGP,
       last_updated: new Date().toISOString(),
     };
 
-    // Update cache
-    cache = {
-      goldData: responseData,
-      exchangeRates: filteredRates,
-      timestamp: now,
-    };
-
-    return NextResponse.json(responseData);
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    return NextResponse.json(payload);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "unknown";
     return NextResponse.json(
-      { error: `Failed to process request: ${errorMessage}` },
+      { error: `Failed to fetch gold data: ${msg}` },
       { status: 500 }
     );
   }

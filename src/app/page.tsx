@@ -18,19 +18,16 @@ interface GoldData {
       [key: string]: number;
     };
     market_data?: {
-      prev_close_price: number;
-      open_price: number;
-      low_price: number;
-      high_price: number;
-      open_time: number;
       current_price?: number;
-      price?: number;
-      ch?: number;      // Price change
-      chp?: number;     // Price change percentage
-      ask?: number;     // Ask price
-      bid?: number;     // Bid price
-      exchange?: string; // Exchange name
-      symbol?: string;   // Symbol
+      prev_close_price?: number;
+      ch?: number;
+      chp?: number;
+      silver_price?: number;
+      silver_change?: number;
+      silver_change_percent?: number;
+      open_time: number;
+      exchange?: string;
+      symbol?: string;
     };
   };
   gold_prices_egp_per_gram: {
@@ -162,6 +159,41 @@ export default function GoldPricePage() {
           !error &&
           goldData?.source_data?.gold_price_usd_per_gram && (
             <>
+              {goldData.source_data.market_data && (
+                <div className="mt-8 flex justify-between items-center bg-white bg-opacity-30 rounded-lg p-6">
+                  <div className="flex gap-4 items-center">
+                    <p className="text-sm text-gray-800">
+                      Current Ounce Price (USD)
+                    </p>
+                    <p className="text-xl font-bold text-gray-900">
+                      $
+                      {goldData.source_data.market_data.current_price?.toFixed(
+                        2
+                      )}
+                      {goldData.source_data.market_data.ch !== undefined && (
+                        <span
+                          className={`ml-3 text-lg font-semibold ${
+                            goldData.source_data.market_data.ch >= 0
+                              ? "text-green-700"
+                              : "text-red-700"
+                          }`}
+                        >
+                          {goldData.source_data.market_data.ch >= 0 ? "+" : ""}
+                          {goldData.source_data.market_data.ch.toFixed(2)} (
+                          {goldData.source_data.market_data.chp?.toFixed(2)}%)
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <p className="text-xs text-gray-600 text-center">
+                    Data timestamp:&nbsp;
+                    {new Date(
+                      goldData.source_data.market_data.open_time * 1000
+                    ).toLocaleString()}
+                  </p>
+                </div>
+              )}
+
               <div className="overflow-x-auto">
                 <table className="w-full bg-white bg-opacity-30 rounded-lg overflow-hidden">
                   <thead>
@@ -202,125 +234,36 @@ export default function GoldPricePage() {
                   </tbody>
                 </table>
               </div>
-
-              {goldData.source_data.market_data && (
-                <div className="mt-8 bg-white bg-opacity-30 rounded-lg p-6">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">
-                    Market Information
-                  </h2>
-                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    <div className="bg-yellow-500 bg-opacity-30 p-4 rounded-lg col-span-1 md:col-span-5 mb-2">
-                      <div className="flex flex-col md:flex-row md:justify-between md:items-center">
-                        <div>
-                          <p className="text-sm text-gray-800">Current Price</p>
-                          <p className="text-2xl font-bold text-gray-900">
-                            $
-                            {goldData.source_data.market_data.current_price
-                              ? goldData.source_data.market_data.current_price.toFixed(
-                                  2
-                                )
-                              : goldData.source_data.gold_price_usd_per_gram[
-                                  "24k"
-                                ].toFixed(2)}
-                          </p>
-                          {goldData.source_data.market_data.symbol && (
-                            <p className="text-xs text-gray-600">
-                              {goldData.source_data.market_data.symbol}{" "}
-                              {goldData.source_data.market_data.exchange &&
-                                `(${goldData.source_data.market_data.exchange})`}
-                            </p>
-                          )}
-                        </div>
-                        {goldData.source_data.market_data.ch &&
-                          goldData.source_data.market_data.chp && (
-                            <div
-                              className={`mt-2 md:mt-0 px-3 py-1 rounded-md ${
-                                goldData.source_data.market_data.ch >= 0
-                                  ? "bg-green-100 text-green-800"
-                                  : "bg-red-100 text-red-800"
-                              }`}
-                            >
-                              <p className="font-semibold">
-                                {goldData.source_data.market_data.ch >= 0
-                                  ? "+"
-                                  : ""}
-                                {goldData.source_data.market_data.ch.toFixed(2)}{" "}
-                                (
-                                {goldData.source_data.market_data.ch >= 0
-                                  ? "+"
-                                  : ""}
-                                {goldData.source_data.market_data.chp.toFixed(
-                                  2
-                                )}
-                                %)
-                              </p>
-                            </div>
-                          )}
-                      </div>
-                    </div>
-
-                    {goldData.source_data.market_data.bid &&
-                      goldData.source_data.market_data.ask && (
-                        <div className="bg-gray-100 bg-opacity-50 p-4 rounded-lg col-span-2">
-                          <div className="flex justify-between">
-                            <div>
-                              <p className="text-sm text-gray-600">Bid</p>
-                              <p className="text-lg font-semibold text-gray-800">
-                                $
-                                {goldData.source_data.market_data.bid.toFixed(
-                                  2
-                                )}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-600">Ask</p>
-                              <p className="text-lg font-semibold text-gray-800">
-                                $
-                                {goldData.source_data.market_data.ask.toFixed(
-                                  2
-                                )}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                    <div className="bg-white bg-opacity-30 p-4 rounded-lg">
-                      <p className="text-sm text-gray-600">Previous Close</p>
-                      <p className="text-lg font-semibold text-gray-800">
-                        $
-                        {goldData.source_data.market_data.prev_close_price.toFixed(
-                          2
-                        )}
-                      </p>
-                    </div>
-                    <div className="bg-white bg-opacity-30 p-4 rounded-lg">
-                      <p className="text-sm text-gray-600">Open Price</p>
-                      <p className="text-lg font-semibold text-gray-800">
-                        $
-                        {goldData.source_data.market_data.open_price.toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="bg-white bg-opacity-30 p-4 rounded-lg">
-                      <p className="text-sm text-gray-600">Day&apos;s Low</p>
-                      <p className="text-lg font-semibold text-gray-800">
-                        ${goldData.source_data.market_data.low_price.toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="bg-white bg-opacity-30 p-4 rounded-lg">
-                      <p className="text-sm text-gray-600">Day&apos;s High</p>
-                      <p className="text-lg font-semibold text-gray-800">
-                        $
-                        {goldData.source_data.market_data.high_price.toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-600 mt-4 text-center">
-                    Market opened at:{" "}
-                    {new Date(
-                      goldData.source_data.market_data.open_time * 1000
-                    ).toLocaleString()}
+              {goldData.source_data.market_data?.silver_price !== undefined && (
+                <div className="mt-4 flex gap-4 items-center">
+                  <p className="text-sm text-gray-800">
+                    Silver Ounce Price (USD)
                   </p>
+                  <p className="text-xl font-bold text-gray-900">
+                    ${goldData.source_data.market_data.silver_price?.toFixed(2)}
+                  </p>
+                  {goldData.source_data.market_data.silver_change !==
+                    undefined && (
+                    <span
+                      className={`text-lg font-semibold ${
+                        goldData.source_data.market_data.silver_change >= 0
+                          ? "text-green-700"
+                          : "text-red-700"
+                      }`}
+                    >
+                      {goldData.source_data.market_data.silver_change >= 0
+                        ? "+"
+                        : ""}
+                      {goldData.source_data.market_data.silver_change.toFixed(
+                        2
+                      )}{" "}
+                      (
+                      {goldData.source_data.market_data.silver_change_percent?.toFixed(
+                        2
+                      )}
+                      %)
+                    </span>
+                  )}
                 </div>
               )}
             </>
