@@ -39,48 +39,22 @@ export default function GoldPricePage() {
   const [mounted, setMounted] = useState(false);
 
   const fetchGoldPrices = async () => {
-    console.log("fetchGoldPrices: Starting fetch...");
     try {
       setLoading(true);
       setError(null);
-      console.log("fetchGoldPrices: About to fetch /api/gold-prices-egp");
       const response = await fetch("/api/gold-prices-egp");
-      console.log(
-        "fetchGoldPrices: Fetch response received, status:",
-        response.status
-      );
 
       if (!response.ok) {
-        console.error(
-          "fetchGoldPrices: Response not OK, status:",
-          response.status
-        );
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      console.log("fetchGoldPrices: Response OK, about to parse JSON.");
       const data = await response.json();
-      console.log("fetchGoldPrices: JSON parsed, data:", data);
-      
-      // Debug log to check data structure
-      console.log("Data structure:", {
-        hasSourceData: !!data.source_data,
-        hasGoldPrices: !!data.source_data?.gold_price_usd_per_gram,
-        hasExchangeRates: !!data.source_data?.exchange_rates,
-        goldPrices: data.source_data?.gold_price_usd_per_gram,
-        exchangeRates: data.source_data?.exchange_rates
-      });
-
       setGoldData(data);
-      console.log("fetchGoldPrices: goldData state updated.");
-    } catch (e: any) {
-      console.error("fetchGoldPrices: Error caught:", e.message, e);
-      setError(
-        e.message || "Failed to load gold prices. Please try again later."
-      );
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : 'Failed to load gold prices. Please try again later.';
+      setError(errorMessage);
       setGoldData(null);
     } finally {
-      console.log("fetchGoldPrices: Finally block, setting loading to false.");
       setLoading(false);
     }
   };
@@ -88,10 +62,7 @@ export default function GoldPricePage() {
   useEffect(() => {
     setMounted(true);
     fetchGoldPrices(); // Initial fetch
-    const interval = setInterval(() => {
-      console.log("fetchGoldPrices: Interval triggered, fetching new data...");
-      fetchGoldPrices();
-    }, 300000); // 300,000 ms = 5 minutes
+    const interval = setInterval(fetchGoldPrices, 300000); // 300,000 ms = 5 minutes
 
     return () => clearInterval(interval); // Cleanup interval on component unmount
   }, []);
@@ -100,6 +71,14 @@ export default function GoldPricePage() {
     if (!goldData?.source_data?.exchange_rates) return 0;
     const rate = goldData.source_data.exchange_rates[selectedCurrency];
     return parseFloat((priceUSD * rate).toFixed(2));
+  };
+
+  const getExchangeRate = (currency: string) => {
+    if (!goldData?.source_data?.exchange_rates) return 0;
+    const selectedRate = goldData.source_data.exchange_rates[selectedCurrency];
+    const targetRate = goldData.source_data.exchange_rates[currency];
+    // Calculate how many units of selected currency you get for 1 unit of the target currency
+    return parseFloat((selectedRate / targetRate).toFixed(4));
   };
 
   const karatColors = {
@@ -117,16 +96,6 @@ export default function GoldPricePage() {
   if (!mounted) {
     return null;
   }
-
-  // Debug render to check data
-  console.log("Render state:", {
-    loading,
-    error,
-    hasGoldData: !!goldData,
-    hasSourceData: !!goldData?.source_data,
-    hasGoldPrices: !!goldData?.source_data?.gold_price_usd_per_gram,
-    hasExchangeRates: !!goldData?.source_data?.exchange_rates
-  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-600 flex flex-col items-center justify-center p-4 text-white">
@@ -215,20 +184,20 @@ export default function GoldPricePage() {
         {!loading && goldData?.source_data?.exchange_rates && (
           <div className="mt-8">
             <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">
-              Exchange Rates
+              Exchange Rates (1 X = {selectedCurrency})
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {Object.entries(goldData.source_data.exchange_rates).map(
-                ([currency, rate]) => (
+              {Object.entries(goldData.source_data.exchange_rates)
+                .filter(([currency]) => currency !== selectedCurrency)
+                .map(([currency]) => (
                   <div
                     key={currency}
                     className="bg-white bg-opacity-30 p-3 rounded-lg text-center"
                   >
-                    <p className="font-semibold text-gray-800">{currency}</p>
-                    <p className="text-gray-700">{rate.toFixed(4)}</p>
+                    <p className="font-semibold text-gray-800">1 {currency}</p>
+                    <p className="text-gray-700">= {getExchangeRate(currency)} {selectedCurrency}</p>
                   </div>
-                )
-              )}
+                ))}
             </div>
           </div>
         )}
@@ -237,25 +206,6 @@ export default function GoldPricePage() {
           <p className="text-xs text-gray-700 mt-8 text-center">
             Last updated: {new Date(goldData.last_updated).toLocaleString()}
           </p>
-        )}
-
-        {/* Debug information */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="mt-4 p-4 bg-gray-800 bg-opacity-50 rounded-lg text-xs text-gray-300">
-            <pre>
-              {JSON.stringify({
-                loading,
-                error,
-                hasGoldData: !!goldData,
-                hasSourceData: !!goldData?.source_data,
-                hasGoldPrices: !!goldData?.source_data?.gold_price_usd_per_gram,
-                hasExchangeRates: !!goldData?.source_data?.exchange_rates,
-                selectedCurrency,
-                goldPrices: goldData?.source_data?.gold_price_usd_per_gram,
-                exchangeRates: goldData?.source_data?.exchange_rates
-              }, null, 2)}
-            </pre>
-          </div>
         )}
       </div>
 

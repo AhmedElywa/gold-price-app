@@ -5,11 +5,15 @@ const GOLD_API_KEY = process.env.GOLD_API_KEY || "goldapi-1krp0wsmaku3jvz-io";
 const EXCHANGE_RATE_API_KEY = process.env.EXCHANGE_RATE_API_KEY || "8a1c727445b58fa524bf4df5";
 
 // Cache implementation
-let cache: {
-  goldData: any;
-  exchangeRates: any;
+interface CacheData {
+  goldData: ApiResponseData;
+  exchangeRates: {
+    [key: string]: number;
+  };
   timestamp: number;
-} | null = null;
+}
+
+let cache: CacheData | null = null;
 
 const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes in milliseconds
 
@@ -139,7 +143,7 @@ async function getExchangeRates(): Promise<ExchangeRateApiResponse> {
   }
 }
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export async function GET(_request: NextRequest): Promise<NextResponse> {
   try {
     // Check cache first
     const now = Date.now();
@@ -193,9 +197,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     };
 
     return NextResponse.json(responseData);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return NextResponse.json(
-      { error: `Failed to process request: ${error.message}` },
+      { error: `Failed to process request: ${errorMessage}` },
       { status: 500 }
     );
   }
