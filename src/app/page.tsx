@@ -63,7 +63,10 @@ export default function GoldPricePage() {
       const data = await response.json();
       setGoldData(data);
     } catch (e: unknown) {
-      const errorMessage = e instanceof Error ? e.message : 'Failed to load gold prices. Please try again later.';
+      const errorMessage =
+        e instanceof Error
+          ? e.message
+          : "Failed to load gold prices. Please try again later.";
       setError(errorMessage);
       setGoldData(null);
     } finally {
@@ -188,7 +191,7 @@ export default function GoldPricePage() {
                   <p className="text-xs text-gray-600 text-center">
                     Data timestamp:&nbsp;
                     {new Date(
-                      goldData.source_data.market_data.open_time * 1000
+                      goldData.source_data.market_data.open_time
                     ).toLocaleString()}
                   </p>
                 </div>

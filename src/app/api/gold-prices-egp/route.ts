@@ -173,13 +173,13 @@ export async function GET() {
           silver_price: xagPrice,
           silver_change: chgXag,
           silver_change_percent: pcXag,
-          open_time: Math.floor(ts / 1000),
+          open_time: ts,
           exchange: "goldprice.org",
           symbol: "XAUUSD",
         },
       },
       gold_prices_egp_per_gram: goldGramEGP,
-      last_updated: new Date().toISOString(),
+      last_updated: new Date(fxCache?.ts ?? Date.now()).toISOString(),
     };
 
     return NextResponse.json(payload);
