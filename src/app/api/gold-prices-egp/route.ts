@@ -145,8 +145,6 @@ async function fetchFxRates() {
 
 /* ---------- route handler ------------------------------------------- */
 export async function GET() {
-  const now = Date.now();
-
   try {
     const {
       ounce,
