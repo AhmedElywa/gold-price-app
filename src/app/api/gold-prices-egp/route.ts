@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 // API Keys - Replace with environment variables in a real application
 const GOLD_API_KEY = process.env.GOLD_API_KEY || "goldapi-1krp0wsmaku3jvz-io";
@@ -143,7 +143,7 @@ async function getExchangeRates(): Promise<ExchangeRateApiResponse> {
   }
 }
 
-export async function GET(_request: NextRequest): Promise<NextResponse> {
+export async function GET(): Promise<NextResponse> {
   try {
     // Check cache first
     const now = Date.now();
