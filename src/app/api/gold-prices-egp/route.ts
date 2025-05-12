@@ -74,6 +74,20 @@ interface ApiResponseData {
     exchange_rates: {
       [key: string]: number;
     };
+    market_data: {
+      prev_close_price: number;
+      open_price: number;
+      low_price: number;
+      high_price: number;
+      open_time: number;
+      current_price: number;
+      ch: number;       // Price change
+      chp: number;      // Price change percentage
+      ask: number;      // Ask price
+      bid: number;      // Bid price
+      exchange: string; // Exchange name
+      symbol: string;   // Symbol
+    };
   };
   gold_prices_egp_per_gram: {
     "24k": number;
@@ -175,6 +189,20 @@ export async function GET(): Promise<NextResponse> {
           "10k": parseFloat(goldData.price_gram_10k.toFixed(2)),
         },
         exchange_rates: filteredRates,
+        market_data: {
+          prev_close_price: goldData.prev_close_price,
+          open_price: goldData.open_price,
+          low_price: goldData.low_price,
+          high_price: goldData.high_price,
+          open_time: goldData.open_time,
+          current_price: goldData.price,
+          ch: goldData.ch,
+          chp: goldData.chp,
+          ask: goldData.ask,
+          bid: goldData.bid,
+          exchange: goldData.exchange,
+          symbol: goldData.symbol
+        },
       },
       gold_prices_egp_per_gram: {
         "24k": parseFloat((goldData.price_gram_24k * filteredRates.EGP).toFixed(2)),

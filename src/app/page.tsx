@@ -17,6 +17,21 @@ interface GoldData {
     exchange_rates: {
       [key: string]: number;
     };
+    market_data?: {
+      prev_close_price: number;
+      open_price: number;
+      low_price: number;
+      high_price: number;
+      open_time: number;
+      current_price?: number;
+      price?: number;
+      ch?: number;      // Price change
+      chp?: number;     // Price change percentage
+      ask?: number;     // Ask price
+      bid?: number;     // Bid price
+      exchange?: string; // Exchange name
+      symbol?: string;   // Symbol
+    };
   };
   gold_prices_egp_per_gram: {
     "24k": number;
@@ -83,13 +98,13 @@ export default function GoldPricePage() {
 
   const karatColors = {
     "24k": "bg-yellow-500",
-    "22k": "bg-yellow-400",
+    "22k": "",
     "21k": "bg-yellow-300",
-    "20k": "bg-yellow-200",
+    "20k": "",
     "18k": "bg-amber-400",
-    "16k": "bg-amber-300",
+    "16k": "",
     "14k": "bg-amber-200",
-    "10k": "bg-orange-300",
+    "10k": "",
   };
 
   // Don't render anything until the component is mounted
@@ -114,11 +129,13 @@ export default function GoldPricePage() {
                 onChange={(e) => setSelectedCurrency(e.target.value)}
                 className="bg-white text-gray-800 px-4 py-2 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
               >
-                {Object.keys(goldData.source_data.exchange_rates).map((currency) => (
-                  <option key={currency} value={currency}>
-                    {currency}
-                  </option>
-                ))}
+                {Object.keys(goldData.source_data.exchange_rates).map(
+                  (currency) => (
+                    <option key={currency} value={currency}>
+                      {currency}
+                    </option>
+                  )
+                )}
               </select>
             </div>
           )}
@@ -141,45 +158,139 @@ export default function GoldPricePage() {
           </div>
         )}
 
-        {!loading && !error && goldData?.source_data?.gold_price_usd_per_gram && (
-          <div className="overflow-x-auto">
-            <table className="w-full bg-white bg-opacity-30 rounded-lg overflow-hidden">
-              <thead>
-                <tr className="bg-yellow-600 text-white">
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                    Karat
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
-                    USD Price
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
-                    {selectedCurrency} Price
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-yellow-200">
-                {Object.entries(goldData.source_data.gold_price_usd_per_gram).map(
-                  ([karat, priceUSD]) => (
-                    <tr
-                      key={karat}
-                      className={`${karatColors[karat as keyof typeof karatColors]} bg-opacity-50 hover:bg-opacity-70 transition-colors`}
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {karat} Gold
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
-                        ${priceUSD.toFixed(2)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
-                        {selectedCurrency} {getPriceInSelectedCurrency(priceUSD)}
-                      </td>
+        {!loading &&
+          !error &&
+          goldData?.source_data?.gold_price_usd_per_gram && (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full bg-white bg-opacity-30 rounded-lg overflow-hidden">
+                  <thead>
+                    <tr className="bg-yellow-600 text-white font-bold">
+                      <th className="px-6 py-3 text-left text-xs uppercase tracking-wider">
+                        Karat
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs uppercase tracking-wider">
+                        USD Price
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs uppercase tracking-wider">
+                        {selectedCurrency} Price
+                      </th>
                     </tr>
-                  )
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
+                  </thead>
+                  <tbody className="divide-y divide-yellow-200">
+                    {Object.entries(
+                      goldData.source_data.gold_price_usd_per_gram
+                    ).map(([karat, priceUSD]) => (
+                      <tr
+                        key={karat}
+                        className={`${
+                          karatColors[karat as keyof typeof karatColors]
+                        } bg-opacity-50 hover:bg-opacity-70 transition-colors border border-yellow-200 font-bold`}
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {karat} Gold
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
+                          ${priceUSD.toFixed(2)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
+                          {selectedCurrency}{" "}
+                          {getPriceInSelectedCurrency(priceUSD)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {goldData.source_data.market_data && (
+                <div className="mt-8 bg-white bg-opacity-30 rounded-lg p-6">
+                  <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">
+                    Market Information
+                  </h2>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div className="bg-yellow-500 bg-opacity-30 p-4 rounded-lg col-span-1 md:col-span-5 mb-2">
+                      <div className="flex flex-col md:flex-row md:justify-between md:items-center">
+                        <div>
+                          <p className="text-sm text-gray-800">Current Price</p>
+                          <p className="text-2xl font-bold text-gray-900">
+                            ${goldData.source_data.market_data.current_price ? goldData.source_data.market_data.current_price.toFixed(2) : goldData.source_data.gold_price_usd_per_gram["24k"].toFixed(2)}
+                          </p>
+                          {goldData.source_data.market_data.symbol && (
+                            <p className="text-xs text-gray-600">
+                              {goldData.source_data.market_data.symbol} {goldData.source_data.market_data.exchange && `(${goldData.source_data.market_data.exchange})`}
+                            </p>
+                          )}
+                        </div>
+                        {goldData.source_data.market_data.ch && goldData.source_data.market_data.chp && (
+                          <div className={`mt-2 md:mt-0 px-3 py-1 rounded-md ${goldData.source_data.market_data.ch >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                            <p className="font-semibold">
+                              {goldData.source_data.market_data.ch >= 0 ? '+' : ''}{goldData.source_data.market_data.ch.toFixed(2)} ({goldData.source_data.market_data.ch >= 0 ? '+' : ''}{goldData.source_data.market_data.chp.toFixed(2)}%)
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {goldData.source_data.market_data.bid && goldData.source_data.market_data.ask && (
+                      <div className="bg-gray-100 bg-opacity-50 p-4 rounded-lg col-span-2">
+                        <div className="flex justify-between">
+                          <div>
+                            <p className="text-sm text-gray-600">Bid</p>
+                            <p className="text-lg font-semibold text-gray-800">
+                              ${goldData.source_data.market_data.bid.toFixed(2)}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600">Ask</p>
+                            <p className="text-lg font-semibold text-gray-800">
+                              ${goldData.source_data.market_data.ask.toFixed(2)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="bg-white bg-opacity-30 p-4 rounded-lg">
+                      <p className="text-sm text-gray-600">Previous Close</p>
+                      <p className="text-lg font-semibold text-gray-800">
+                        $
+                        {goldData.source_data.market_data.prev_close_price.toFixed(
+                          2
+                        )}
+                      </p>
+                    </div>
+                    <div className="bg-white bg-opacity-30 p-4 rounded-lg">
+                      <p className="text-sm text-gray-600">Open Price</p>
+                      <p className="text-lg font-semibold text-gray-800">
+                        $
+                        {goldData.source_data.market_data.open_price.toFixed(2)}
+                      </p>
+                    </div>
+                    <div className="bg-white bg-opacity-30 p-4 rounded-lg">
+                      <p className="text-sm text-gray-600">Day's Low</p>
+                      <p className="text-lg font-semibold text-gray-800">
+                        ${goldData.source_data.market_data.low_price.toFixed(2)}
+                      </p>
+                    </div>
+                    <div className="bg-white bg-opacity-30 p-4 rounded-lg">
+                      <p className="text-sm text-gray-600">Day's High</p>
+                      <p className="text-lg font-semibold text-gray-800">
+                        $
+                        {goldData.source_data.market_data.high_price.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-4 text-center">
+                    Market opened at:{" "}
+                    {new Date(
+                      goldData.source_data.market_data.open_time * 1000
+                    ).toLocaleString()}
+                  </p>
+                </div>
+              )}
+            </>
+          )}
 
         {!loading && goldData?.source_data?.exchange_rates && (
           <div className="mt-8">
@@ -195,7 +306,9 @@ export default function GoldPricePage() {
                     className="bg-white bg-opacity-30 p-3 rounded-lg text-center"
                   >
                     <p className="font-semibold text-gray-800">1 {currency}</p>
-                    <p className="text-gray-700">= {getExchangeRate(currency)} {selectedCurrency}</p>
+                    <p className="text-gray-700">
+                      = {getExchangeRate(currency)} {selectedCurrency}
+                    </p>
                   </div>
                 ))}
             </div>
