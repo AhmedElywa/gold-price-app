@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Script from 'next/script';
 import PwaClientWrapper from './PwaClientWrapper';
 
 interface BodyWrapperProps {
@@ -23,7 +22,7 @@ export default function BodyWrapper({ children }: BodyWrapperProps) {
       {isMounted && (
         <>
           <PwaClientWrapper />
-          <Script src="/register-sw.js" strategy="lazyOnload" />
+          {/* ServiceWorkerRegistration component already handles SW registration. */}
         </>
       )}
     </>

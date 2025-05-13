@@ -42,7 +42,7 @@ export function TestNotification() {
   }
 
   return (
-    <div className="fixed top-4 right-4 z-50 bg-white bg-opacity-90 shadow-lg rounded-lg p-4 border border-gray-200 max-w-xs">
+    <div className="fixed top-4 min-w-80 right-4 z-50 bg-white bg-opacity-90 shadow-lg rounded-lg p-4 border border-gray-200 max-w-xs">
       <h3 className="font-bold text-gray-800 mb-2">Test Push Notification</h3>
       <div className="mb-3">
         <input
@@ -50,7 +50,7 @@ export function TestNotification() {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Enter notification message"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+          className="w-full text-gray-700 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
         />
       </div>
       <button

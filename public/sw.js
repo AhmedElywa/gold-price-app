@@ -4,10 +4,9 @@
 const IS_DEVELOPMENT = self.location.hostname === 'localhost' || 
                        self.location.hostname === '127.0.0.1';
 
-const CACHE_NAME = 'gold-price-app-v1';
+const CACHE_NAME = 'gold-price-app-v2';
 const ASSETS = [
   '/',
-  '/index.html',
   '/manifest.json',
   '/icon.png',
   '/apple-icon.png',
@@ -59,6 +58,9 @@ self.addEventListener('activate', (event) => {
       self.clients.claim()
     ])
   );
+
+  // Optionally, claim clients immediately so the new SW controls pages
+  self.clients.claim();
 });
 
 // Fetch event - serve from cache if available, otherwise fetch from network
@@ -141,4 +143,11 @@ self.addEventListener('notificationclick', (event) => {
   event.waitUntil(
     clients.openWindow('/')
   );
+});
+
+// Allow the app to trigger SW updates programmatically
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 }); 

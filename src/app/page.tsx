@@ -51,6 +51,7 @@ export default function GoldPricePage() {
   const [selectedCurrency, setSelectedCurrency] = useState("EGP");
   const [mounted, setMounted] = useState(false);
   const [nextUpdateTime, setNextUpdateTime] = useState<Date | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState<string>("");
 
   const fetchGoldPrices = useCallback(async () => {
     try {
@@ -71,6 +72,11 @@ export default function GoldPricePage() {
       const nextUpdate = new Date();
       nextUpdate.setMinutes(nextUpdate.getMinutes() + 30);
       setNextUpdateTime(nextUpdate);
+      
+      // Initialize the time remaining display
+      const minutes = 30;
+      const seconds = 0;
+      setTimeRemaining(`${minutes}m ${seconds}s`);
     } catch (e: unknown) {
       const errorMessage =
         e instanceof Error
@@ -82,6 +88,26 @@ export default function GoldPricePage() {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    // Update the countdown timer every second
+    const timerInterval = setInterval(() => {
+      if (nextUpdateTime) {
+        const now = new Date();
+        const diff = nextUpdateTime.getTime() - now.getTime();
+        
+        if (diff <= 0) {
+          setTimeRemaining("Updating soon...");
+        } else {
+          const minutes = Math.floor(diff / 60000);
+          const seconds = Math.floor((diff % 60000) / 1000);
+          setTimeRemaining(`${minutes}m ${seconds}s`);
+        }
+      }
+    }, 1000);
+    
+    return () => clearInterval(timerInterval);
+  }, [nextUpdateTime]);
 
   useEffect(() => {
     setMounted(true);
@@ -105,20 +131,6 @@ export default function GoldPricePage() {
     const targetRate = goldData.source_data.exchange_rates[currency];
     // Calculate how many units of selected currency you get for 1 unit of the target currency
     return parseFloat((selectedRate / targetRate).toFixed(4));
-  };
-
-  const formatTimeRemaining = () => {
-    if (!nextUpdateTime) return "";
-    
-    const now = new Date();
-    const diff = nextUpdateTime.getTime() - now.getTime();
-    
-    if (diff <= 0) return "Updating soon...";
-    
-    const minutes = Math.floor(diff / 60000);
-    const seconds = Math.floor((diff % 60000) / 1000);
-    
-    return `${minutes}m ${seconds}s`;
   };
 
   const karatColors = {
@@ -170,7 +182,7 @@ export default function GoldPricePage() {
           {nextUpdateTime && (
             <div className="mt-2 text-center">
               <p className="text-xs text-gray-700">
-                Next auto-update in: {formatTimeRemaining()}
+                Next auto-update in: {timeRemaining}
               </p>
             </div>
           )}
