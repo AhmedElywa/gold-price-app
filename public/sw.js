@@ -7,13 +7,16 @@ const IS_DEVELOPMENT = self.location.hostname === 'localhost' ||
 const CACHE_NAME = 'gold-price-app-v1';
 const ASSETS = [
   '/',
+  '/index.html',
+  '/manifest.json',
+  '/icon.png',
+  '/apple-icon.png',
+  '/favicon.ico',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
   '/icons/apple-touch-icon.png',
   '/icons/favicon-32x32.png',
-  '/icons/favicon-16x16.png',
-  '/site.webmanifest',
-  '/manifest.json'
+  '/icons/favicon-16x16.png'
 ];
 
 // When the service worker is installed
@@ -36,27 +39,25 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate event - clean up old caches
+// Activate event - clean up old caches and take control
 self.addEventListener('activate', (event) => {
   // Take control of all clients immediately
-  event.waitUntil(self.clients.claim());
-  
-  if (IS_DEVELOPMENT) {
-    console.log('Development mode: Skipping cache cleanup');
-    return;
-  }
-  
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    Promise.all([
+      // Clean up old caches
+      caches.keys().then(cacheNames => {
+        return Promise.all(
+          cacheNames.map(cacheName => {
+            if (cacheName !== CACHE_NAME) {
+              console.log('Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      }),
+      // Take control of all clients
+      self.clients.claim()
+    ])
   );
 });
 
@@ -93,6 +94,18 @@ self.addEventListener('fetch', (event) => {
               });
 
             return response;
+          })
+          .catch(() => {
+            // If fetch fails (e.g., offline), try to return a fallback page
+            // For API requests, you might want to show an offline message
+            if (event.request.url.includes('/api/')) {
+              return new Response(JSON.stringify({ error: 'You are offline' }), {
+                headers: { 'Content-Type': 'application/json' }
+              });
+            }
+            
+            // For page navigation, you could return a simple offline page
+            return caches.match('/');
           });
       })
   );
@@ -105,7 +118,7 @@ self.addEventListener('push', (event) => {
       const data = event.data.json();
       const options = {
         body: data.body || 'New gold price update!',
-        icon: data.icon || '/icons/icon-192x192.png',
+        icon: '/icons/icon-192x192.png',
         badge: '/icons/favicon-32x32.png',
         vibrate: [100, 50, 100],
         data: {

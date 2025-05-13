@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import PwaClientWrapper from './components/PwaClientWrapper';
+import BodyWrapper from './components/BodyWrapper';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Gold Price in Egypt",
   description: "Live gold prices in Egypt and around the world. Check the latest gold prices by karat and currency.",
-  metadataBase: new URL('https://gold-price-app.vercel.app'), // Replace with your actual domain
+  metadataBase: new URL('https://gold.ahmedelywa.com'), // Your actual domain
   manifest: '/manifest.json',
   icons: {
     icon: '/icon.png',
@@ -46,9 +46,11 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
       >
-        {children}
-        <PwaClientWrapper />
+        <BodyWrapper>
+          {children}
+        </BodyWrapper>
       </body>
     </html>
   );

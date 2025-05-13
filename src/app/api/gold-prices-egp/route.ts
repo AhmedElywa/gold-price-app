@@ -7,10 +7,11 @@
  * build karat tables.  Daily OHLC not available → we mirror the current
  * price across open/high/low/prev‑close so the UI stays happy.
  *
- * Exchange rates come from ExchangeRate‑API (free 1 500 calls / month).
+ * Exchange rates come from ExchangeRate‑API (free 1 500 calls / month).
  */
 
 import { NextResponse } from "next/server";
+import { sendNotification } from "../../actions";
 
 /** troy‑ounce → gram */
 const OUNCE_TO_GRAM = 31.1034768;
@@ -21,6 +22,14 @@ interface FxCache {
   ts: number;
 }
 let fxCache: FxCache | null = null;
+
+// For tracking price changes
+let lastGoldPrice: number | null = null;
+let lastNotificationSent: number = 0;
+// Minimum price change to trigger notification (in percentage)
+const NOTIFICATION_THRESHOLD_PERCENT = 0.25;
+// Minimum time between notifications (3 hours in milliseconds)
+const NOTIFICATION_COOLDOWN_MS = 3 * 60 * 60 * 1000;
 
 /* ---------- response shape (unchanged for React client) ------------- */
 interface ApiResponseData {
@@ -64,6 +73,34 @@ function karatPricesFromOunce(ounceUsd: number) {
     "14k": k(14),
     "10k": k(10),
   };
+}
+
+// Function to check if price change warrants a notification
+function shouldSendNotification(newPrice: number): boolean {
+  // If we don't have a previous price, update it but don't notify
+  if (lastGoldPrice === null) {
+    lastGoldPrice = newPrice;
+    return false;
+  }
+  
+  // Calculate percentage change
+  const priceDiffPercent = Math.abs((newPrice - lastGoldPrice) / lastGoldPrice * 100);
+  
+  // Check if the price change exceeds threshold and if we're not in cooldown period
+  const now = Date.now();
+  const enoughTimeElapsed = now - lastNotificationSent > NOTIFICATION_COOLDOWN_MS;
+  const significantChange = priceDiffPercent >= NOTIFICATION_THRESHOLD_PERCENT;
+  
+  // If conditions are met, update the notification timestamp and return true
+  if (significantChange && enoughTimeElapsed) {
+    lastNotificationSent = now;
+    return true;
+  }
+  
+  // Update the last price regardless
+  lastGoldPrice = newPrice;
+  
+  return false;
 }
 
 /* ---------- goldprice.org fetch ------------------------------------- */
@@ -181,6 +218,20 @@ export async function GET() {
       gold_prices_egp_per_gram: goldGramEGP,
       last_updated: new Date(fxCache?.ts ?? Date.now()).toISOString(),
     };
+
+    // Check if we should send a notification about price change
+    if (shouldSendNotification(ounce)) {
+      const direction = lastGoldPrice && ounce > lastGoldPrice ? 'increased' : 'decreased';
+      const message = `Gold price has ${direction} to $${ounce.toFixed(2)} per ounce (EGP ${goldGramEGP["24k"].toFixed(2)} per gram for 24k)`;
+      
+      // Send push notification to subscribers
+      try {
+        await sendNotification(message);
+        console.log("Price change notification sent:", message);
+      } catch (error) {
+        console.error("Failed to send price notification:", error);
+      }
+    }
 
     return NextResponse.json(payload);
   } catch (err) {

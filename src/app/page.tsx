@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import PriceRefreshButton from "./components/PriceRefreshButton";
 
 interface GoldData {
   source_data: {
@@ -49,12 +50,15 @@ export default function GoldPricePage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedCurrency, setSelectedCurrency] = useState("EGP");
   const [mounted, setMounted] = useState(false);
+  const [nextUpdateTime, setNextUpdateTime] = useState<Date | null>(null);
 
-  const fetchGoldPrices = async () => {
+  const fetchGoldPrices = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch("/api/gold-prices-egp");
+      const response = await fetch("/api/gold-prices-egp", {
+        cache: "no-store", // Ensure we get fresh data
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -62,6 +66,11 @@ export default function GoldPricePage() {
 
       const data = await response.json();
       setGoldData(data);
+      
+      // Set the next update time to 30 minutes from now
+      const nextUpdate = new Date();
+      nextUpdate.setMinutes(nextUpdate.getMinutes() + 30);
+      setNextUpdateTime(nextUpdate);
     } catch (e: unknown) {
       const errorMessage =
         e instanceof Error
@@ -72,15 +81,17 @@ export default function GoldPricePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     setMounted(true);
     fetchGoldPrices(); // Initial fetch
-    const interval = setInterval(fetchGoldPrices, 300000); // 300,000 ms = 5 minutes
+    
+    // Set up auto-refresh every 30 minutes
+    const interval = setInterval(fetchGoldPrices, 30 * 60 * 1000);
 
     return () => clearInterval(interval); // Cleanup interval on component unmount
-  }, []);
+  }, [fetchGoldPrices]);
 
   const getPriceInSelectedCurrency = (priceUSD: number) => {
     if (!goldData?.source_data?.exchange_rates) return 0;
@@ -94,6 +105,20 @@ export default function GoldPricePage() {
     const targetRate = goldData.source_data.exchange_rates[currency];
     // Calculate how many units of selected currency you get for 1 unit of the target currency
     return parseFloat((selectedRate / targetRate).toFixed(4));
+  };
+
+  const formatTimeRemaining = () => {
+    if (!nextUpdateTime) return "";
+    
+    const now = new Date();
+    const diff = nextUpdateTime.getTime() - now.getTime();
+    
+    if (diff <= 0) return "Updating soon...";
+    
+    const minutes = Math.floor(diff / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+    
+    return `${minutes}m ${seconds}s`;
   };
 
   const karatColors = {
@@ -122,8 +147,8 @@ export default function GoldPricePage() {
           <p className="text-sm text-center text-gray-700 mt-2">
             Prices per gram in selected currency
           </p>
-          {goldData?.source_data?.exchange_rates && (
-            <div className="mt-4 flex justify-center">
+          <div className="mt-4 flex flex-col md:flex-row justify-center items-center gap-4">
+            {goldData?.source_data?.exchange_rates && (
               <select
                 value={selectedCurrency}
                 onChange={(e) => setSelectedCurrency(e.target.value)}
@@ -137,11 +162,21 @@ export default function GoldPricePage() {
                   )
                 )}
               </select>
+            )}
+            
+            <PriceRefreshButton onRefresh={fetchGoldPrices} />
+          </div>
+          
+          {nextUpdateTime && (
+            <div className="mt-2 text-center">
+              <p className="text-xs text-gray-700">
+                Next auto-update in: {formatTimeRemaining()}
+              </p>
             </div>
           )}
         </header>
 
-        {loading && !error && (
+        {loading && !goldData && (
           <div className="text-center text-gray-700">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
             <p className="mt-4">Loading prices...</p>
