@@ -65,8 +65,26 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - serve from cache if available, otherwise fetch from network
 self.addEventListener('fetch', (event) => {
-  // Skip caching in development
+  // Skip SW handling entirely in development
   if (IS_DEVELOPMENT) {
+    return;
+  }
+
+  // Always bypass cache for API requests (dynamic data)
+  if (event.request.url.includes('/api/')) {
+    event.respondWith(
+      fetch(event.request).catch(() =>
+        new Response(
+          JSON.stringify({ error: 'Offline or network error' }),
+          { headers: { 'Content-Type': 'application/json' }, status: 503 }
+        )
+      )
+    );
+    return;
+  }
+
+  // Only handle GET requests for static assets
+  if (event.request.method !== 'GET') {
     return;
   }
   

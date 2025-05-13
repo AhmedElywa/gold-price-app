@@ -31,6 +31,23 @@ export function ServiceWorkerRegistration() {
       const registration = await navigator.serviceWorker.register('/sw.js');
       console.log('Service Worker registered with scope:', registration.scope);
       setIsRegistered(true);
+
+      // Listen for updates and prompt the waiting SW to activate immediately
+      if (registration.waiting) {
+        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        if (newWorker) {
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && registration.waiting) {
+              console.log('New service worker installed. Activating...');
+              registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+          });
+        }
+      });
     } catch (error) {
       console.error('Service Worker registration failed:', error);
     }
