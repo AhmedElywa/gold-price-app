@@ -163,8 +163,8 @@ export default function GoldPricePage() {
           goldData?.source_data?.gold_price_usd_per_gram && (
             <>
               {goldData.source_data.market_data && (
-                <div className="mt-8 flex justify-between items-center bg-white bg-opacity-30 rounded-lg p-6">
-                  <div className="flex gap-4 items-center">
+                <div className="mt-8 flex flex-col md:flex-row justify-between items-center bg-white bg-opacity-30 rounded-lg p-6">
+                  <div className="flex flex-col md:flex-row md:gap-4 gap-2 items-center">
                     <p className="text-sm text-gray-800">
                       Current Ounce Price (USD)
                     </p>
@@ -238,35 +238,35 @@ export default function GoldPricePage() {
                 </table>
               </div>
               {goldData.source_data.market_data?.silver_price !== undefined && (
-                <div className="mt-4 flex gap-4 items-center">
+                <div className="mt-4 flex flex-col md:flex-row md:gap-4 gap-2 items-center">
                   <p className="text-sm text-gray-800">
                     Silver Ounce Price (USD)
                   </p>
                   <p className="text-xl font-bold text-gray-900">
-                    ${goldData.source_data.market_data.silver_price?.toFixed(2)}
+                    ${goldData.source_data.market_data.silver_price?.toFixed(2)}{" "}
+                    {goldData.source_data.market_data.silver_change !==
+                      undefined && (
+                      <span
+                        className={`text-lg font-semibold ${
+                          goldData.source_data.market_data.silver_change >= 0
+                            ? "text-green-700"
+                            : "text-red-700"
+                        }`}
+                      >
+                        {goldData.source_data.market_data.silver_change >= 0
+                          ? "+"
+                          : ""}
+                        {goldData.source_data.market_data.silver_change.toFixed(
+                          2
+                        )}{" "}
+                        (
+                        {goldData.source_data.market_data.silver_change_percent?.toFixed(
+                          2
+                        )}
+                        %)
+                      </span>
+                    )}
                   </p>
-                  {goldData.source_data.market_data.silver_change !==
-                    undefined && (
-                    <span
-                      className={`text-lg font-semibold ${
-                        goldData.source_data.market_data.silver_change >= 0
-                          ? "text-green-700"
-                          : "text-red-700"
-                      }`}
-                    >
-                      {goldData.source_data.market_data.silver_change >= 0
-                        ? "+"
-                        : ""}
-                      {goldData.source_data.market_data.silver_change.toFixed(
-                        2
-                      )}{" "}
-                      (
-                      {goldData.source_data.market_data.silver_change_percent?.toFixed(
-                        2
-                      )}
-                      %)
-                    </span>
-                  )}
                 </div>
               )}
             </>
