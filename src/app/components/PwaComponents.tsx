@@ -132,7 +132,15 @@ export function PushNotificationManager() {
     try {
       const registration = await navigator.serviceWorker.ready;
       const existingSubscription = await registration.pushManager.getSubscription();
-      setSubscription(existingSubscription);
+      if (existingSubscription) {
+        setSubscription(existingSubscription);
+        // Ensure the server knows about this subscription (handles hot reloads / cold starts)
+        try {
+          await subscribeUser(serializeSubscription(existingSubscription));
+        } catch (err) {
+          console.error('Failed to sync existing subscription with server:', err);
+        }
+      }
     } catch (error) {
       console.error('Error checking for existing subscription:', error);
     }

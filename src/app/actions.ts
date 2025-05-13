@@ -23,8 +23,13 @@ let subscriptions: SerializablePushSubscription[] = [];
 
 export async function subscribeUser(subscription: SerializablePushSubscription) {
   // In a production app, save to database
-  subscriptions.push(subscription);
-  console.log('New subscription added:', subscription.endpoint);
+  const exists = subscriptions.some((sub) => sub.endpoint === subscription.endpoint);
+  if (!exists) {
+    subscriptions.push(subscription);
+    console.log('Subscription stored:', subscription.endpoint);
+  } else {
+    console.log('Subscription already stored:', subscription.endpoint);
+  }
   return { success: true };
 }
 
@@ -59,12 +64,12 @@ export async function sendNotification(message: string) {
       console.error('Error sending push notification:', error);
       failureCount++;
       
-      // Check if the error is a WebPushError with status 410 (Gone)
+      // Check if the error is a WebPushError with status 410 (Gone) or 404 (Not Found)
       if (
-        error && 
-        typeof error === 'object' && 
-        'statusCode' in error && 
-        error.statusCode === 410
+        error &&
+        typeof error === 'object' &&
+        'statusCode' in error &&
+        (error.statusCode === 410 || error.statusCode === 404)
       ) {
         // Subscription is no longer valid, remove it
         subscriptions = subscriptions.filter(sub => sub.endpoint !== subscription.endpoint);
