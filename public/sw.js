@@ -5,6 +5,7 @@ const IS_DEVELOPMENT = self.location.hostname === 'localhost' ||
                        self.location.hostname === '127.0.0.1';
 
 const CACHE_NAME = 'gold-price-app-v2';
+const API_CACHE = 'api-cache';
 const ASSETS = [
   '/',
   '/manifest.json',
@@ -59,8 +60,6 @@ self.addEventListener('activate', (event) => {
     ])
   );
 
-  // Optionally, claim clients immediately so the new SW controls pages
-  self.clients.claim();
 });
 
 // Fetch event - serve from cache if available, otherwise fetch from network
@@ -71,6 +70,18 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Always bypass cache for API requests (dynamic data)
+  if (event.request.url.includes('/api/gold-prices-egp')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((res) => {
+          const clone = res.clone();
+          caches.open(API_CACHE).then((c) => c.put(event.request, clone));
+          return res;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
   if (event.request.url.includes('/api/')) {
     event.respondWith(
       fetch(event.request).catch(() =>

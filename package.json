@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "prepare": "husky",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "test": "node test/shouldSendNotification.test.js"
   },
   "dependencies": {
     "next": "15.3.2",

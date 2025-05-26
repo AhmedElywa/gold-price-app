@@ -25,7 +25,7 @@ let fxCache: FxCache | null = null;
 
 // For tracking price changes
 let lastGoldPrice: number | null = null;
-let lastNotificationSent: number = 0;
+let lastNotificationAt: number = 0;
 // Minimum price change to trigger notification (in percentage)
 const NOTIFICATION_THRESHOLD_PERCENT = 0.25;
 // Minimum time between notifications (3 hours in milliseconds)
@@ -88,12 +88,13 @@ function shouldSendNotification(newPrice: number): boolean {
   
   // Check if the price change exceeds threshold and if we're not in cooldown period
   const now = Date.now();
-  const enoughTimeElapsed = now - lastNotificationSent > NOTIFICATION_COOLDOWN_MS;
+  const enoughTimeElapsed = now - lastNotificationAt > NOTIFICATION_COOLDOWN_MS;
   const significantChange = priceDiffPercent >= NOTIFICATION_THRESHOLD_PERCENT;
   
   // If conditions are met, update the notification timestamp and return true
   if (significantChange && enoughTimeElapsed) {
-    lastNotificationSent = now;
+    lastGoldPrice = newPrice;
+    lastNotificationAt = now;
     return true;
   }
   
@@ -135,8 +136,10 @@ async function fetchOuncePriceUSD(): Promise<{
 }
 
 /* ---------- Exchange‑Rate API --------------------------------------- */
-const EXCHANGE_RATE_API_KEY =
-  process.env.EXCHANGE_RATE_API_KEY ?? "8a1c727445b58fa524bf4df5";
+const EXCHANGE_RATE_API_KEY = process.env.EXCHANGE_RATE_API_KEY;
+if (!EXCHANGE_RATE_API_KEY) {
+  throw new Error('EXCHANGE_RATE_API_KEY is not defined');
+}
 
 const SELECTED_CURRENCIES = [
   "EGP",
