@@ -2,12 +2,13 @@
 
 import webpush from 'web-push';
 
-// Configure web-push with your VAPID keys
-webpush.setVapidDetails(
-  'mailto:ahmed.elywa@icloud.com', // Replace with your email
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-);
+function configureWebPush() {
+  webpush.setVapidDetails(
+    'mailto:ahmed.elywa@icloud.com',
+    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+    process.env.VAPID_PRIVATE_KEY!
+  );
+}
 
 // Define a serializable subscription type
 export type SerializablePushSubscription = {
@@ -18,10 +19,12 @@ export type SerializablePushSubscription = {
   };
 };
 
-// In a production app, this would be stored in a database
+// In a production app, this would be stored in a database.
+// TODO: replace with persistent storage (e.g. Prisma + SQLite)
 let subscriptions: SerializablePushSubscription[] = [];
 
 export async function subscribeUser(subscription: SerializablePushSubscription) {
+  configureWebPush();
   // In a production app, save to database
   const exists = subscriptions.some((sub) => sub.endpoint === subscription.endpoint);
   if (!exists) {
@@ -34,6 +37,7 @@ export async function subscribeUser(subscription: SerializablePushSubscription) 
 }
 
 export async function unsubscribeUser(endpoint: string) {
+  configureWebPush();
   // In a production app, remove from database
   subscriptions = subscriptions.filter(sub => sub.endpoint !== endpoint);
   console.log('Subscription removed:', endpoint);
@@ -41,6 +45,7 @@ export async function unsubscribeUser(endpoint: string) {
 }
 
 export async function sendNotification(message: string) {
+  configureWebPush();
   if (subscriptions.length === 0) {
     return { success: false, error: 'No subscriptions available' };
   }

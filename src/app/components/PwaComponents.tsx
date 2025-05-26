@@ -109,6 +109,7 @@ export function PushNotificationManager() {
   const [subscription, setSubscription] = useState<PushSubscription | null>(null);
   const [supported, setSupported] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
+  const [toast, setToast] = useState('');
 
   useEffect(() => {
     setIsMounted(true);
@@ -162,12 +163,13 @@ export function PushNotificationManager() {
   async function subscribeToPush() {
     try {
       const registration = await navigator.serviceWorker.ready;
-      
+
       // Get the VAPID public key
       const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-      
+
       if (!vapidPublicKey) {
-        console.error('VAPID public key is not defined');
+        setToast('VAPID key missing');
+        setTimeout(() => setToast(''), 3000);
         return;
       }
       
@@ -182,6 +184,9 @@ export function PushNotificationManager() {
       
       // Send serialized subscription to server
       await subscribeUser(serializeSubscription(newSubscription));
+
+      setToast('Price alerts enabled');
+      setTimeout(() => setToast(''), 3000);
       
     } catch (error) {
       console.error('Error subscribing to push notifications:', error);
@@ -213,24 +218,32 @@ export function PushNotificationManager() {
   if (permission === 'granted' && subscription) {
     return (
       <div className="fixed bottom-4 right-4 z-50">
-        <button 
+        <button
           onClick={handleUnsubscribe}
           className="bg-red-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-red-600"
         >
           Disable Price Alerts
         </button>
+        {toast && (
+          <div className="mt-2 bg-black text-white px-2 py-1 rounded">{toast}</div>
+        )}
       </div>
     );
   }
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
-      <button 
+      <button
         onClick={handleRequestPermission}
-        className="bg-yellow-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-yellow-600"
+        disabled={permission === 'denied'}
+        title={permission === 'denied' ? 'Notifications blocked – enable in browser settings.' : undefined}
+        className={`bg-yellow-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-yellow-600 ${permission === 'denied' ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         Enable Price Alerts
       </button>
+      {toast && (
+        <div className="mt-2 bg-black text-white px-2 py-1 rounded">{toast}</div>
+      )}
     </div>
   );
 }
