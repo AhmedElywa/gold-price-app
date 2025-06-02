@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import {
   subscribeUser,
-  unsubscribeUser,
   type SerializablePushSubscription,
 } from "../actions";
 
@@ -210,18 +209,6 @@ export function PushNotificationManager() {
     }
   }
 
-  async function handleUnsubscribe() {
-    try {
-      if (subscription) {
-        const endpoint = subscription.endpoint;
-        await subscription.unsubscribe();
-        await unsubscribeUser(endpoint);
-        setSubscription(null);
-      }
-    } catch (error) {
-      console.error("Error unsubscribing from push notifications:", error);
-    }
-  }
 
   // Don't render during SSR
   if (!isMounted) {
@@ -233,21 +220,11 @@ export function PushNotificationManager() {
   }
 
   if (permission === "granted" && subscription) {
-    return (
+    return toast ? (
       <div className="fixed bottom-4 end-4 z-50">
-        <button
-          onClick={handleUnsubscribe}
-          className="bg-red-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-red-600"
-        >
-          Disable Price Alerts
-        </button>
-        {toast && (
-          <div className="mt-2 bg-black text-white px-2 py-1 rounded">
-            {toast}
-          </div>
-        )}
+        <div className="mt-2 bg-black text-white px-2 py-1 rounded">{toast}</div>
       </div>
-    );
+    ) : null;
   }
 
   return (

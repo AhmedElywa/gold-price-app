@@ -66,13 +66,13 @@ describe("Notification Actions", () => {
   }
 
   beforeEach(async () => {
+    // Clear any existing subscriptions
+    await clearAllSubscriptions();
+
     jest.clearAllMocks();
     mockConsole.log.mockClear();
     mockConsole.error.mockClear();
     mockConsole.warn.mockClear();
-
-    // Clear any existing subscriptions
-    await clearAllSubscriptions();
 
     // Reset environment variables
     process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY = "test-vapid-public";
