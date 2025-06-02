@@ -11,7 +11,7 @@ export function Header() {
   return (
     <header className="bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg">
       <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row items-center justify-between">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-8 h-8" />
             <h1 className="text-2xl font-bold">{t("app.brand")}</h1>

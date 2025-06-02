@@ -14,10 +14,11 @@
     "today": "heute"
   },
   "app": {
-    "name": "Goldpreis in Ägypten",
+    "name": "Globaler Gold-Tracker",
     "shortName": "Goldpreis",
     "brand": "GoldTracker Pro",
-    "description": "Live-Goldpreise in Ägypten und weltweit. Überprüfen Sie die neuesten Goldpreise nach Karat und Währung."
+    "description": "Live-Goldpreise weltweit. Überprüfen Sie die neuesten Goldpreise nach Karat und Währung für alle unterstützten Länder und Währungen.",
+    "keywords": "Goldpreise, Live-Goldkurse, Gold-Tracker, Edelmetalle, Goldmarkt, internationale Goldpreise, Goldwechselkurse, Goldinvestition, Barrenpreise, Gold-Spot"
   },
   "navigation": {
     "goldPrices": "Goldpreise",
@@ -189,11 +190,13 @@
     "quickLinks": "Schnelllinks",
     "historicalData": "Historische Daten",
     "contactInfo": "Kontaktinformationen",
-    "email": "info@goldtracker.com",
-    "phone": "+1 (555) 123-4567",
-    "location": "New York, NY",
+    "email": "a@ahmedelywa.com",
+    "phone": "+201207336666",
+    "location": "Globaler Service",
     "privacyPolicy": "Datenschutzrichtlinie",
     "termsOfService": "Nutzungsbedingungen",
-    "copyright": "© {year} GoldTracker Pro. Alle Rechte vorbehalten."
+    "copyright": "© {year} GoldTracker Pro. Alle Rechte vorbehalten.",
+    "poweredBy": "Powered by Next.js & Tailwind CSS. Daten von Live-Markt-APIs abgerufen.",
+    "disclaimer": "Haftungsausschluss: Preise sind indikativ und unterliegen Echtzeit-Marktschwankungen. Konsultieren Sie immer einen Finanzberater für Investitionsentscheidungen."
   }
 }

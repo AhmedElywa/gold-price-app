@@ -14,10 +14,11 @@
     "today": "oz"
   },
   "app": {
-    "name": "Pretsch da l'aur en Egipta",
+    "name": "Tracker global da l'aur",
     "shortName": "Pretsch da l'aur",
     "brand": "GoldTracker Pro",
-    "description": "Pretschs da l'aur en direct en Egipta ed en tut il mund. Controllescha ils ultims pretschs da l'aur tenor carat e valuta."
+    "description": "Pretschs da l'aur en direct en tut il mund. Controllescha ils ultims pretschs da l'aur tenor carat e valuta per tut ils pajais e las valutas sustegnidas.",
+    "keywords": "pretschs da l'aur, curs da l'aur en direct, tracker da l'aur, metalls preziusas, martgà da l'aur, pretschs internaziunals da l'aur, curs da barter da l'aur, investiment en aur, pretschs da vergias, aur spot"
   },
   "navigation": {
     "goldPrices": "Pretschs da l'aur",
@@ -175,11 +176,13 @@
     "quickLinks": "Links sperts",
     "historicalData": "Datas istoricas",
     "contactInfo": "Infurmaziuns da contact",
-    "email": "info@goldtracker.com",
-    "phone": "+1 (555) 123-4567",
-    "location": "New York, NY",
+    "email": "a@ahmedelywa.com",
+    "phone": "+201207336666",
+    "location": "Servetsch global",
     "privacyPolicy": "Directivas da protecziun da datas",
     "termsOfService": "Cundiziuns da servetsch",
-    "copyright": "© {year} GoldTracker Pro. Tuts dretgs reservads."
+    "copyright": "© {year} GoldTracker Pro. Tuts dretgs reservads.",
+    "poweredBy": "Sustegnì da Next.js & Tailwind CSS. Datas retschavidas da APIs da martgà en direct.",
+    "disclaimer": "Decleraziun: Ils pretschs èn indicativs e suttastattan a fluctuaziuns dal martgà en temp real. Consultescha adina in cusseglier finanzial per decisiuns d'investiment."
   }
 }

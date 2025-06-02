@@ -14,10 +14,11 @@
     "today": "hari ini"
   },
   "app": {
-    "name": "Harga Emas di Mesir",
+    "name": "Penjejak Emas Global",
     "shortName": "Harga Emas",
     "brand": "GoldTracker Pro",
-    "description": "Harga emas langsung di Mesir dan seluruh dunia. Semak harga emas terkini mengikut karat dan mata wang."
+    "description": "Harga emas langsung di seluruh dunia. Semak harga emas terkini mengikut karat dan mata wang untuk semua negara dan mata wang yang disokong.",
+    "keywords": "harga emas, kadar emas langsung, penjejak emas, logam berharga, pasaran emas, harga emas antarabangsa, kadar pertukaran emas, pelaburan emas, harga jongkong, emas spot"
   },
   "navigation": {
     "goldPrices": "Harga Emas",
@@ -175,11 +176,13 @@
     "quickLinks": "Pautan Pantas",
     "historicalData": "Data Sejarah",
     "contactInfo": "Maklumat Hubungan",
-    "email": "info@goldtracker.com",
-    "phone": "+1 (555) 123-4567",
-    "location": "New York, NY",
+    "email": "a@ahmedelywa.com",
+    "phone": "+201207336666",
+    "location": "Perkhidmatan Global",
     "privacyPolicy": "Dasar Privasi",
     "termsOfService": "Syarat Perkhidmatan",
-    "copyright": "© {year} GoldTracker Pro. Hak cipta terpelihara."
+    "copyright": "© {year} GoldTracker Pro. Hak cipta terpelihara.",
+    "poweredBy": "Dikuasakan oleh Next.js & Tailwind CSS. Data diambil dari API pasaran langsung.",
+    "disclaimer": "Penafian: Harga adalah indikatif dan tertakluk kepada turun naik pasaran masa nyata. Sentiasa berunding dengan penasihat kewangan untuk keputusan pelaburan."
   }
 }

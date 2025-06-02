@@ -14,10 +14,11 @@
     "today": "今日"
   },
   "app": {
-    "name": "エジプトの金価格",
+    "name": "グローバル金トラッカー",
     "shortName": "金価格",
     "brand": "ゴールドトラッカープロ",
-    "description": "エジプトと世界中のライブ金価格。カラットと通貨別の最新金価格をチェック。"
+    "description": "世界中のライブ金価格。サポートされているすべての国と通貨でカラットと通貨別の最新金価格をチェック。",
+    "keywords": "金価格, ライブ金レート, 金トラッカー, 貴金属, 金市場, 国際金価格, 金為替レート, 金投資, 地金価格, スポット金"
   },
   "navigation": {
     "goldPrices": "金価格",
@@ -189,11 +190,13 @@
     "quickLinks": "クイックリンク",
     "historicalData": "履歴データ",
     "contactInfo": "連絡先情報",
-    "email": "info@goldtracker.com",
-    "phone": "+1 (555) 123-4567",
-    "location": "ニューヨーク, NY",
+    "email": "a@ahmedelywa.com",
+    "phone": "+201207336666",
+    "location": "グローバルサービス",
     "privacyPolicy": "プライバシーポリシー",
     "termsOfService": "利用規約",
-    "copyright": "© {year} ゴールドトラッカープロ。全著作権所有。"
+    "copyright": "© {year} ゴールドトラッカープロ。全著作権所有。",
+    "poweredBy": "Next.js と Tailwind CSS で動作。データはライブマーケット API から取得。",
+    "disclaimer": "免責事項：価格は参考値であり、リアルタイムの市場変動の影響を受けます。投資判断については必ず金融アドバイザーにご相談ください。"
   }
 }

@@ -22,7 +22,7 @@ export function ServiceWorkerRegistration() {
 
   useEffect(() => {
     setIsMounted(true);
-    setIsDev(process.env.NODE_ENV === "development");
+    setIsDev(process.env.TEST_NOTIFICATIONS === "true");
 
     // Safe to access browser APIs in useEffect
     if ("serviceWorker" in navigator) {
@@ -32,7 +32,7 @@ export function ServiceWorkerRegistration() {
 
   async function registerSW() {
     try {
-      const registration = await navigator.serviceWorker.register("/sw.js");
+      const registration = await navigator.serviceWorker.register("/api/sw");
       console.log("Service Worker registered with scope:", registration.scope);
       setIsRegistered(true);
 

@@ -14,10 +14,11 @@
     "today": "aujourd'hui"
   },
   "app": {
-    "name": "Prix de l'Or en Égypte",
+    "name": "Tracker Or Global",
     "shortName": "Prix de l'Or",
     "brand": "GoldTracker Pro",
-    "description": "Prix de l'or en temps réel en Égypte et dans le monde. Consultez les derniers prix de l'or par carat et devise."
+    "description": "Prix de l'or en temps réel dans le monde. Consultez les derniers prix de l'or par carat et devise pour tous les pays et devises supportés.",
+    "keywords": "prix de l'or, taux or en direct, tracker or, métaux précieux, marché de l'or, prix internationaux de l'or, taux de change or, investissement or, prix lingots, or spot"
   },
   "navigation": {
     "goldPrices": "Prix de l'Or",
@@ -189,11 +190,13 @@
     "quickLinks": "Liens Rapides",
     "historicalData": "Données Historiques",
     "contactInfo": "Informations Contact",
-    "email": "info@goldtracker.com",
-    "phone": "+1 (555) 123-4567",
-    "location": "New York, NY",
+    "email": "a@ahmedelywa.com",
+    "phone": "+201207336666",
+    "location": "Service Global",
     "privacyPolicy": "Politique de Confidentialité",
     "termsOfService": "Conditions de Service",
-    "copyright": "© {year} GoldTracker Pro. Tous droits réservés."
+    "copyright": "© {year} GoldTracker Pro. Tous droits réservés.",
+    "poweredBy": "Alimenté par Next.js et Tailwind CSS. Données récupérées depuis des API de marché en direct.",
+    "disclaimer": "Avertissement : Les prix sont indicatifs et sujets aux fluctuations du marché en temps réel. Consultez toujours un conseiller financier pour les décisions d'investissement."
   }
 }

@@ -32,6 +32,7 @@ export async function generateMetadata({
   return {
     title: dict.app.name,
     description: dict.app.description,
+    keywords: dict.app.keywords,
     metadataBase: new URL("https://gold.ahmedelywa.com"), // Your actual domain
     manifest: "/manifest.json",
     icons: {

@@ -14,10 +14,11 @@
     "today": "今天"
   },
   "app": {
-    "name": "埃及黄金价格",
+    "name": "全球黄金追踪器",
     "shortName": "黄金价格",
     "brand": "黄金追踪专业版",
-    "description": "埃及及全球实时黄金价格。按克拉和货币查看最新黄金价格。"
+    "description": "全球实时黄金价格。查看所有支持国家和货币按克拉和货币分类的最新黄金价格。",
+    "keywords": "黄金价格, 实时黄金汇率, 黄金追踪器, 贵金属, 黄金市场, 国际黄金价格, 黄金汇率, 黄金投资, 金条价格, 现货黄金"
   },
   "navigation": {
     "goldPrices": "黄金价格",
@@ -189,11 +190,13 @@
     "quickLinks": "快速链接",
     "historicalData": "历史数据",
     "contactInfo": "联系信息",
-    "email": "info@goldtracker.com",
-    "phone": "+1 (555) 123-4567",
-    "location": "纽约, NY",
+    "email": "a@ahmedelywa.com",
+    "phone": "+201207336666",
+    "location": "全球服务",
     "privacyPolicy": "隐私政策",
     "termsOfService": "服务条款",
-    "copyright": "© {year} 黄金追踪专业版。保留所有权利。"
+    "copyright": "© {year} 黄金追踪专业版。保留所有权利。",
+    "poweredBy": "由 Next.js 和 Tailwind CSS 提供支持。数据来自实时市场 API。",
+    "disclaimer": "免责声明：价格仅供参考，受实时市场波动影响。投资决策请务必咨询财务顾问。"
   }
 }

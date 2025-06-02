@@ -14,10 +14,11 @@
     "today": "bugün"
   },
   "app": {
-    "name": "Mısır'da Altın Fiyatları",
+    "name": "Küresel Altın Takipçisi",
     "shortName": "Altın Fiyatları",
     "brand": "GoldTracker Pro",
-    "description": "Mısır ve dünya çapında canlı altın fiyatları. Ayar ve para birimine göre en son altın fiyatlarını kontrol edin."
+    "description": "Dünya çapında canlı altın fiyatları. Desteklenen tüm ülkeler ve para birimleri için ayar ve para birimine göre en son altın fiyatlarını kontrol edin.",
+    "keywords": "altın fiyatları, canlı altın kurları, altın takipçisi, kıymetli madenler, altın piyasası, uluslararası altın fiyatları, altın döviz kurları, altın yatırımı, külçe fiyatları, spot altın"
   },
   "navigation": {
     "goldPrices": "Altın Fiyatları",
@@ -189,11 +190,13 @@
     "quickLinks": "Hızlı Bağlantılar",
     "historicalData": "Geçmiş Veriler",
     "contactInfo": "İletişim Bilgileri",
-    "email": "info@goldtracker.com",
-    "phone": "+1 (555) 123-4567",
-    "location": "New York, NY",
+    "email": "a@ahmedelywa.com",
+    "phone": "+201207336666",
+    "location": "Küresel Hizmet",
     "privacyPolicy": "Gizlilik Politikası",
     "termsOfService": "Hizmet Şartları",
-    "copyright": "© {year} GoldTracker Pro. Tüm hakları saklıdır."
+    "copyright": "© {year} GoldTracker Pro. Tüm hakları saklıdır.",
+    "poweredBy": "Next.js ve Tailwind CSS tarafından desteklenmektedir. Veriler canlı piyasa API'lerinden alınmaktadır.",
+    "disclaimer": "Sorumluluk Reddi: Fiyatlar gösterge niteliğindedir ve gerçek zamanlı piyasa dalgalanmalarına tabidir. Yatırım kararları için her zaman bir finansal danışmana başvurun."
   }
 }

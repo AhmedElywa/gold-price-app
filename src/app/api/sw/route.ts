@@ -1,12 +1,24 @@
-// This is the service worker for Gold Price App
+import { NextRequest, NextResponse } from "next/server";
+
+export async function GET(request: NextRequest) {
+  const { VERCEL_DEPLOYMENT_ID, VERCEL_GIT_COMMIT_SHA, VERCEL_GIT_COMMIT_REF } =
+    process.env;
+
+  const cacheVersion =
+    VERCEL_DEPLOYMENT_ID ||
+    VERCEL_GIT_COMMIT_SHA ||
+    VERCEL_GIT_COMMIT_REF ||
+    Date.now().toString();
+
+  const serviceWorkerCode = `// This is the service worker for Gold Price App
 
 // Skip caching in development mode
 const IS_DEVELOPMENT =
   self.location.hostname === "localhost" ||
   self.location.hostname === "127.0.0.1";
 
-const CACHE_NAME = "gold-price-app-v3";
-const API_CACHE = "api-cache";
+const CACHE_NAME = "gold-price-app-v${cacheVersion}";
+const API_CACHE = "api-cache-v${cacheVersion}";
 const ASSETS = [
   "/",
   "/manifest.json",
@@ -48,7 +60,7 @@ self.addEventListener("activate", (event) => {
       caches.keys().then((cacheNames) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
-            if (cacheName !== CACHE_NAME) {
+            if (cacheName !== CACHE_NAME && cacheName !== API_CACHE) {
               console.log("Deleting old cache:", cacheName);
               return caches.delete(cacheName);
             }
@@ -183,3 +195,14 @@ self.addEventListener("message", (event) => {
     self.skipWaiting();
   }
 });
+`;
+
+  return new NextResponse(serviceWorkerCode, {
+    headers: {
+      "Content-Type": "application/javascript",
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      Pragma: "no-cache",
+      Expires: "0",
+    },
+  });
+}

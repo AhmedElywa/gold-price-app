@@ -35,8 +35,9 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+
       {
-        source: "/sw.js",
+        source: "/api/sw",
         headers: [
           {
             key: "Content-Type",
@@ -45,6 +46,10 @@ const nextConfig: NextConfig = {
           {
             key: "Cache-Control",
             value: "no-cache, no-store, must-revalidate",
+          },
+          {
+            key: "Service-Worker-Allowed",
+            value: "/",
           },
         ],
       },

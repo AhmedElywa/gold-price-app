@@ -14,10 +14,11 @@
     "today": "vandaag"
   },
   "app": {
-    "name": "Goudprijs in Egypte",
+    "name": "Wereldwijde Goud Tracker",
     "shortName": "Goudprijs",
     "brand": "GoldTracker Pro",
-    "description": "Live goudprijzen in Egypte en wereldwijd. Bekijk de nieuwste goudprijzen per karaat en valuta."
+    "description": "Live goudprijzen wereldwijd. Bekijk de nieuwste goudprijzen per karaat en valuta voor alle ondersteunde landen en valuta's.",
+    "keywords": "goudprijzen, live goudkoersen, goud tracker, edele metalen, goudmarkt, internationale goudprijzen, goud wisselkoersen, goudinvestering, staafprijzen, spot goud"
   },
   "navigation": {
     "goldPrices": "Goudprijzen",
@@ -189,11 +190,13 @@
     "quickLinks": "Snelle Links",
     "historicalData": "Historische Data",
     "contactInfo": "Contactinformatie",
-    "email": "info@goldtracker.com",
-    "phone": "+1 (555) 123-4567",
-    "location": "New York, NY",
+    "email": "a@ahmedelywa.com",
+    "phone": "+201207336666",
+    "location": "Wereldwijde Service",
     "privacyPolicy": "Privacybeleid",
     "termsOfService": "Servicevoorwaarden",
-    "copyright": "© {year} GoldTracker Pro. Alle rechten voorbehouden."
+    "copyright": "© {year} GoldTracker Pro. Alle rechten voorbehouden.",
+    "poweredBy": "Aangedreven door Next.js & Tailwind CSS. Data opgehaald van live markt API's.",
+    "disclaimer": "Disclaimer: Prijzen zijn indicatief en onderhevig aan real-time marktfluctuaties. Raadpleeg altijd een financieel adviseur voor investeringsbeslissingen."
   }
 }

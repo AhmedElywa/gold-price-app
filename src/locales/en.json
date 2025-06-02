@@ -16,10 +16,11 @@
     "lastUpdated": "Last updated"
   },
   "app": {
-    "name": "Gold Price in Egypt",
+    "name": "Global Gold Tracker",
     "shortName": "Gold Price",
     "brand": "GoldTracker Pro",
-    "description": "Live gold prices in Egypt and around the world. Check the latest gold prices by karat and currency."
+    "description": "Live gold prices worldwide. Check the latest gold prices by karat and currency for all supported countries and currencies.",
+    "keywords": "gold prices, live gold rates, gold tracker, precious metals, gold market, international gold prices, gold exchange rates, gold investment, bullion prices, spot gold"
   },
   "navigation": {
     "goldPrices": "Gold Prices",
@@ -201,9 +202,9 @@
     "quickLinks": "Quick Links",
     "historicalData": "Historical Data",
     "contactInfo": "Contact Info",
-    "email": "info@goldtracker.com",
-    "phone": "+1 (555) 123-4567",
-    "location": "New York, NY",
+    "email": "a@ahmedelywa.com",
+    "phone": "+201207336666",
+    "location": "Global Service",
     "privacyPolicy": "Privacy Policy",
     "termsOfService": "Terms of Service",
     "copyright": "© {year} GoldTracker Pro. All rights reserved.",

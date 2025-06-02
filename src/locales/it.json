@@ -14,10 +14,11 @@
     "today": "oggi"
   },
   "app": {
-    "name": "Prezzo dell'Oro in Egitto",
+    "name": "Tracker Oro Globale",
     "shortName": "Prezzo Oro",
     "brand": "GoldTracker Pro",
-    "description": "Prezzi dell'oro in tempo reale in Egitto e nel mondo. Controlla gli ultimi prezzi dell'oro per carato e valuta."
+    "description": "Prezzi dell'oro in tempo reale nel mondo. Controlla gli ultimi prezzi dell'oro per carato e valuta per tutti i paesi e le valute supportati.",
+    "keywords": "prezzi dell'oro, tassi oro live, tracker oro, metalli preziosi, mercato dell'oro, prezzi internazionali dell'oro, tassi di cambio oro, investimento oro, prezzi lingotti, oro spot"
   },
   "navigation": {
     "goldPrices": "Prezzi dell'Oro",
@@ -189,11 +190,13 @@
     "quickLinks": "Link Rapidi",
     "historicalData": "Dati Storici",
     "contactInfo": "Informazioni di Contatto",
-    "email": "info@goldtracker.com",
-    "phone": "+1 (555) 123-4567",
-    "location": "New York, NY",
+    "email": "a@ahmedelywa.com",
+    "phone": "+201207336666",
+    "location": "Servizio Globale",
     "privacyPolicy": "Privacy Policy",
     "termsOfService": "Termini di Servizio",
-    "copyright": "© {year} GoldTracker Pro. Tutti i diritti riservati."
+    "copyright": "© {year} GoldTracker Pro. Tutti i diritti riservati.",
+    "poweredBy": "Alimentato da Next.js e Tailwind CSS. Dati recuperati da API di mercato live.",
+    "disclaimer": "Disclaimer: I prezzi sono indicativi e soggetti a fluttuazioni di mercato in tempo reale. Consultare sempre un consulente finanziario per le decisioni di investimento."
   }
 }
