@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import PwaClientWrapper from './PwaClientWrapper';
+import { Toaster } from '@/components/ui/toaster';
 
 interface BodyWrapperProps {
   children: React.ReactNode;
@@ -23,6 +24,7 @@ export default function BodyWrapper({ children }: BodyWrapperProps) {
         <>
           <PwaClientWrapper />
           {/* ServiceWorkerRegistration component already handles SW registration. */}
+          <Toaster />
         </>
       )}
     </>

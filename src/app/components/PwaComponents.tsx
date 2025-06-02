@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "../../hooks/use-toast";
 import {
   subscribeUser,
   type SerializablePushSubscription,
@@ -118,7 +119,6 @@ export function PushNotificationManager() {
   );
   const [supported, setSupported] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
-  const [toast, setToast] = useState("");
 
   useEffect(() => {
     setIsMounted(true);
@@ -185,8 +185,7 @@ export function PushNotificationManager() {
       const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 
       if (!vapidPublicKey) {
-        setToast("VAPID key missing");
-        setTimeout(() => setToast(""), 3000);
+        toast({ description: "VAPID key missing" });
         return;
       }
 
@@ -202,8 +201,7 @@ export function PushNotificationManager() {
       // Send serialized subscription to server
       await subscribeUser(serializeSubscription(newSubscription));
 
-      setToast("Price alerts enabled");
-      setTimeout(() => setToast(""), 3000);
+      toast({ description: "Price alerts enabled" });
     } catch (error) {
       console.error("Error subscribing to push notifications:", error);
     }
@@ -211,44 +209,33 @@ export function PushNotificationManager() {
 
 
   // Don't render during SSR
-  if (!isMounted) {
-    return null;
-  }
-
-  if (!supported) {
+  if (!isMounted || !supported) {
     return null;
   }
 
   if (permission === "granted" && subscription) {
-    return toast ? (
-      <div className="fixed bottom-4 end-4 z-50">
-        <div className="mt-2 bg-black text-white px-2 py-1 rounded">{toast}</div>
-      </div>
-    ) : null;
+    return null;
   }
 
   return (
-    <div className="fixed bottom-4 end-4 z-50">
-      <button
-        onClick={handleRequestPermission}
-        disabled={permission === "denied"}
-        title={
-          permission === "denied"
-            ? "Notifications blocked – enable in browser settings."
-            : undefined
-        }
-        className={`bg-yellow-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-yellow-600 ${
-          permission === "denied" ? "opacity-50 cursor-not-allowed" : ""
-        }`}
-      >
-        Enable Price Alerts
-      </button>
-      {toast && (
-        <div className="mt-2 bg-black text-white px-2 py-1 rounded">
-          {toast}
-        </div>
-      )}
-    </div>
+    <>
+      <div className="fixed bottom-4 end-4 z-50">
+        <button
+          onClick={handleRequestPermission}
+          disabled={permission === "denied"}
+          title={
+            permission === "denied"
+              ? "Notifications blocked – enable in browser settings."
+              : undefined
+          }
+          className={`bg-yellow-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-yellow-600 ${
+            permission === "denied" ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          Enable Price Alerts
+        </button>
+      </div>
+    </>
   );
 }
 

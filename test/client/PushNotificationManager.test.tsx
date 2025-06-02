@@ -2,6 +2,7 @@ import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { PushNotificationManager } from "../../src/app/components/PwaComponents";
+import { Toaster } from "../../src/components/ui/toaster";
 import * as actions from "../../src/app/actions";
 
 // Mock the actions module
@@ -37,6 +38,12 @@ function urlBase64ToUint8Array(base64String: string) {
     outputArray[i] = rawData.charCodeAt(i);
   }
   return outputArray;
+}
+
+function renderManager() {
+  const utils = render(<PushNotificationManager />);
+  render(<Toaster />);
+  return utils;
 }
 
 describe("PushNotificationManager", () => {
@@ -95,28 +102,28 @@ describe("PushNotificationManager", () => {
       // Mock missing Notification API
       delete (window as any).Notification;
 
-      const { container } = render(<PushNotificationManager />);
+      const { container } = renderManager();
       expect(container.firstChild).toBeNull();
     });
 
     it("should not render when service workers are not supported", () => {
       delete (navigator as any).serviceWorker;
 
-      const { container } = render(<PushNotificationManager />);
+      const { container } = renderManager();
       expect(container.firstChild).toBeNull();
     });
 
     it("should not render when push manager is not supported", () => {
       delete (window as any).PushManager;
 
-      const { container } = render(<PushNotificationManager />);
+      const { container } = renderManager();
       expect(container.firstChild).toBeNull();
     });
   });
 
   describe("Initial State", () => {
     it("should render enable button when permission is default", async () => {
-      render(<PushNotificationManager />);
+      renderManager();
 
       await waitFor(() => {
         expect(
@@ -131,7 +138,7 @@ describe("PushNotificationManager", () => {
         writable: true,
       });
 
-      render(<PushNotificationManager />);
+      renderManager();
 
       await waitFor(() => {
         const button = screen.getByRole("button", {
@@ -156,7 +163,7 @@ describe("PushNotificationManager", () => {
 
       mockActions.subscribeUser.mockResolvedValue({ success: true });
 
-      render(<PushNotificationManager />);
+      renderManager();
 
       await waitFor(() => {
         const button = screen.getByRole("button", {
@@ -177,7 +184,7 @@ describe("PushNotificationManager", () => {
         writable: true,
       });
 
-      render(<PushNotificationManager />);
+      renderManager();
 
       await waitFor(() => {
         const button = screen.getByRole("button", {
@@ -206,7 +213,7 @@ describe("PushNotificationManager", () => {
     it("should successfully subscribe to push notifications", async () => {
       mockActions.subscribeUser.mockResolvedValue({ success: true });
 
-      render(<PushNotificationManager />);
+      renderManager();
 
       await waitFor(() => {
         const button = screen.getByRole("button", {
@@ -243,7 +250,7 @@ describe("PushNotificationManager", () => {
         writable: true,
       });
 
-      render(<PushNotificationManager />);
+      renderManager();
 
       await waitFor(() => {
         const button = screen.getByRole("button", {
@@ -265,7 +272,7 @@ describe("PushNotificationManager", () => {
         success: false,
       });
 
-      render(<PushNotificationManager />);
+      renderManager();
 
       await waitFor(() => {
         const button = screen.getByRole("button", {
@@ -306,7 +313,7 @@ describe("PushNotificationManager", () => {
       mockActions.subscribeUser.mockResolvedValue({ success: true });
       mockActions.unsubscribeUser.mockResolvedValue({ success: true });
 
-      render(<PushNotificationManager />);
+      renderManager();
 
       await waitFor(() => {
         expect(
@@ -341,7 +348,7 @@ describe("PushNotificationManager", () => {
       mockActions.subscribeUser.mockResolvedValue({ success: true });
       mockActions.unsubscribeUser.mockResolvedValue({ success: true });
 
-      render(<PushNotificationManager />);
+      renderManager();
 
       await waitFor(() => {
         expect(
@@ -375,7 +382,7 @@ describe("PushNotificationManager", () => {
 
       mockActions.subscribeUser.mockResolvedValue({ success: true });
 
-      render(<PushNotificationManager />);
+      renderManager();
 
       await waitFor(() => {
         expect(mockActions.subscribeUser).toHaveBeenCalledWith({
@@ -409,7 +416,7 @@ describe("PushNotificationManager", () => {
 
       mockActions.subscribeUser.mockRejectedValue(new Error("Sync failed"));
 
-      render(<PushNotificationManager />);
+      renderManager();
 
       await waitFor(() => {
         expect(mockActions.subscribeUser).toHaveBeenCalled();
@@ -426,7 +433,7 @@ describe("PushNotificationManager", () => {
 
   describe("UI State Management", () => {
     it("should show correct button text based on subscription state", async () => {
-      render(<PushNotificationManager />);
+      renderManager();
 
       // Initially should show enable button
       await waitFor(() => {
@@ -467,7 +474,7 @@ describe("PushNotificationManager", () => {
       const originalVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
       delete process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 
-      render(<PushNotificationManager />);
+      renderManager();
 
       await waitFor(() => {
         const button = screen.getByRole("button", {
@@ -494,7 +501,7 @@ describe("PushNotificationManager", () => {
         writable: true,
       });
 
-      render(<PushNotificationManager />);
+      renderManager();
 
       await waitFor(() => {
         const button = screen.getByRole("button", {
@@ -518,7 +525,7 @@ describe("PushNotificationManager", () => {
         writable: true,
       });
 
-      render(<PushNotificationManager />);
+      renderManager();
 
       await waitFor(() => {
         const button = screen.getByRole("button", {
