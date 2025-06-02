@@ -55,10 +55,11 @@ describe("TestNotification Component", () => {
     });
 
     it("should not render during SSR", () => {
-      const { container } = render(<TestNotification />);
+      const ReactDOMServer = require("react-dom/server.node");
 
-      // Initially should not render (SSR protection)
-      expect(container.firstChild).toBeNull();
+      const html = ReactDOMServer.renderToString(<TestNotification />);
+
+      expect(html).toBe("");
     });
   });
 

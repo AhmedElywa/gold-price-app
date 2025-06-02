@@ -30,6 +30,7 @@ Object.defineProperty(window, "Notification", {
     requestPermission: jest.fn().mockResolvedValue("granted"),
   },
   writable: true,
+  configurable: true,
 });
 
 Object.defineProperty(navigator, "serviceWorker", {
@@ -47,6 +48,7 @@ Object.defineProperty(navigator, "serviceWorker", {
     }),
   },
   writable: true,
+  configurable: true,
 });
 
 // Mock console methods to keep test output clean

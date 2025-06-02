@@ -52,6 +52,7 @@ describe("PushNotificationManager", () => {
         requestPermission: jest.fn().mockResolvedValue("granted"),
       },
       writable: true,
+      configurable: true,
     });
 
     Object.defineProperty(navigator, "serviceWorker", {
@@ -69,6 +70,7 @@ describe("PushNotificationManager", () => {
         }),
       },
       writable: true,
+      configurable: true,
     });
 
     // Mock window.atob for base64 decoding
@@ -77,12 +79,14 @@ describe("PushNotificationManager", () => {
         return Buffer.from(str, "base64").toString("binary");
       }),
       writable: true,
+      configurable: true,
     });
 
     // Mock PushManager
     Object.defineProperty(window, "PushManager", {
       value: class MockPushManager {},
       writable: true,
+      configurable: true,
     });
   });
 
@@ -284,8 +288,7 @@ describe("PushNotificationManager", () => {
       });
     });
 
-    it("should successfully unsubscribe from push notifications", async () => {
-      // Set up existing subscription
+    it("should hide the button when already subscribed", async () => {
       Object.defineProperty(navigator, "serviceWorker", {
         value: {
           ready: Promise.resolve({
@@ -305,26 +308,14 @@ describe("PushNotificationManager", () => {
 
       render(<PushNotificationManager />);
 
-      // Wait for component to detect existing subscription
       await waitFor(() => {
         expect(
-          screen.getByRole("button", { name: /disable price alerts/i })
-        ).toBeInTheDocument();
-      });
-
-      const button = screen.getByRole("button", {
-        name: /disable price alerts/i,
-      });
-      fireEvent.click(button);
-
-      await waitFor(() => {
-        expect(mockActions.unsubscribeUser).toHaveBeenCalledWith(
-          "https://fcm.googleapis.com/fcm/send/test-endpoint"
-        );
+          screen.queryByRole("button", { name: /disable price alerts/i })
+        ).not.toBeInTheDocument();
       });
     });
 
-    it("should handle unsubscription failure", async () => {
+    it("should not attempt to unsubscribe when no button is present", async () => {
       const mockUnsubscribe = jest.fn().mockResolvedValue(false);
       const mockSubscriptionWithFailure = {
         ...mockPushSubscription,
@@ -354,18 +345,11 @@ describe("PushNotificationManager", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole("button", { name: /disable price alerts/i })
-        ).toBeInTheDocument();
+          screen.queryByRole("button", { name: /disable price alerts/i })
+        ).not.toBeInTheDocument();
       });
 
-      const button = screen.getByRole("button", {
-        name: /disable price alerts/i,
-      });
-      fireEvent.click(button);
-
-      await waitFor(() => {
-        expect(mockUnsubscribe).toHaveBeenCalled();
-      });
+      expect(mockUnsubscribe).not.toHaveBeenCalled();
     });
   });
 
@@ -431,11 +415,11 @@ describe("PushNotificationManager", () => {
         expect(mockActions.subscribeUser).toHaveBeenCalled();
       });
 
-      // Component should still show the disable button even if sync fails
+      // Component should hide the button even if sync fails
       await waitFor(() => {
         expect(
-          screen.getByRole("button", { name: /disable price alerts/i })
-        ).toBeInTheDocument();
+          screen.queryByRole("button", { name: /disable price alerts/i })
+        ).not.toBeInTheDocument();
       });
     });
   });
@@ -451,7 +435,7 @@ describe("PushNotificationManager", () => {
         ).toBeInTheDocument();
       });
 
-      // After enabling, should show disable button
+      // After enabling, button should be hidden
       Object.defineProperty(navigator, "serviceWorker", {
         value: {
           ready: Promise.resolve({
@@ -473,8 +457,8 @@ describe("PushNotificationManager", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole("button", { name: /disable price alerts/i })
-        ).toBeInTheDocument();
+          screen.queryByRole("button", { name: /disable price alerts/i })
+        ).not.toBeInTheDocument();
       });
     });
 
