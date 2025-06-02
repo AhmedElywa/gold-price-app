@@ -152,9 +152,23 @@ self.addEventListener("fetch", (event) => {
 self.addEventListener("push", (event) => {
   if (event.data) {
     try {
-      const data = event.data.json();
+      let data;
+      let title = "Gold Price Update";
+      let body = "New gold price update!";
+
+      // Try to parse as JSON first
+      try {
+        data = event.data.json();
+        title = data.title || title;
+        body = data.body || body;
+      } catch (jsonError) {
+        // If JSON parsing fails, treat as plain text
+        console.log("Push data is not JSON, treating as plain text");
+        body = event.data.text() || body;
+      }
+
       const options = {
-        body: data.body || "New gold price update!",
+        body: body,
         icon: "/icons/icon-192x192.png",
         badge: "/icons/favicon-32x32.png",
         vibrate: [100, 50, 100],
@@ -162,15 +176,21 @@ self.addEventListener("push", (event) => {
           dateOfArrival: Date.now(),
           primaryKey: "1",
         },
+        tag: "gold-price-notification", // Prevent duplicate notifications
+        requireInteraction: false,
       };
-      event.waitUntil(
-        self.registration.showNotification(
-          data.title || "Gold Price Update",
-          options
-        )
-      );
+
+      event.waitUntil(self.registration.showNotification(title, options));
     } catch (error) {
       console.error("Error showing notification:", error);
+
+      // Fallback notification if everything fails
+      event.waitUntil(
+        self.registration.showNotification("Gold Price Update", {
+          body: "Failed to parse notification data",
+          icon: "/icons/icon-192x192.png",
+        })
+      );
     }
   }
 });
