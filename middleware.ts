@@ -39,17 +39,9 @@ function getLocale(request: NextRequest): string {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Check if pathname starts with a locale
-  const pathnameHasLocale = locales.some(
-    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
-  );
-
-  if (pathnameHasLocale) {
-    return NextResponse.next();
-  }
-
-  // Don't rewrite for static files, API routes, or special Next.js paths
+  // Don't process for static files, API routes, special Next.js paths, or root path
   if (
+    pathname === "/" ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
     pathname.includes(".") ||
@@ -63,21 +55,24 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // For the root path, rewrite to the default locale (keeps URL as /)
-  if (pathname === "/") {
-    const newUrl = new URL(`/${defaultLocale}`, request.url);
-    return NextResponse.rewrite(newUrl);
+  // Check if pathname already has a locale
+  const pathnameHasLocale = locales.some(
+    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+  );
+
+  if (pathnameHasLocale) {
+    return NextResponse.next();
   }
 
   // For other paths without locale, redirect to add the detected locale
   const locale = getLocale(request);
   const newUrl = new URL(`/${locale}${pathname}`, request.url);
-  return NextResponse.redirect(newUrl);
+  return NextResponse.redirect(newUrl, 307); // Temporary redirect
 }
 
 export const config = {
   matcher: [
-    // Skip all internal paths (_next, api, etc.)
+    // Skip all internal paths (_next, api, etc.) but process other paths
     "/((?!_next|api|favicon.ico|sw.js|manifest.json|robots.txt|sitemap.xml|icons).*)",
   ],
 };
