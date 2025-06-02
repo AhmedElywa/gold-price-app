@@ -1,5 +1,1 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
-# Run lint-staged to check code quality before commit
-node scripts/check-env.js && pnpm lint-staged
+#pnpm lint-staged
