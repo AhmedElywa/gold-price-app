@@ -48,10 +48,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Redirect if there is no locale in pathname
-  const locale = getLocale(request);
-
-  // Don't redirect for static files, API routes, or special Next.js paths
+  // Don't rewrite for static files, API routes, or special Next.js paths
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
@@ -66,7 +63,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // For the root path or other paths without locale, add the detected locale
+  // For the root path, rewrite to the default locale (keeps URL as /)
+  if (pathname === "/") {
+    const newUrl = new URL(`/${defaultLocale}`, request.url);
+    return NextResponse.rewrite(newUrl);
+  }
+
+  // For other paths without locale, redirect to add the detected locale
+  const locale = getLocale(request);
   const newUrl = new URL(`/${locale}${pathname}`, request.url);
   return NextResponse.redirect(newUrl);
 }
