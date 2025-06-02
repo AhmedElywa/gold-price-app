@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { locales, getDictionary, type Locale } from "@/lib/i18n";
 import { TranslationProvider } from "../../components/translation-provider";
 import BodyWrapper from "../components/BodyWrapper";
+import { Analytics } from "@vercel/analytics/next";
 import "../globals.css";
 
 const geistSans = Geist({
@@ -75,6 +76,7 @@ export default async function LangLayout({
         <TranslationProvider locale={lang} dictionary={dict}>
           <BodyWrapper>{children}</BodyWrapper>
         </TranslationProvider>
+        <Analytics />
       </body>
     </html>
   );
