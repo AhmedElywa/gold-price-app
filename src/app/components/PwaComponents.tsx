@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "../../hooks/use-toast";
-import { Toaster } from "../../components/ui/toaster";
 import {
   subscribeUser,
   type SerializablePushSubscription,
@@ -215,7 +214,7 @@ export function PushNotificationManager() {
   }
 
   if (permission === "granted" && subscription) {
-    return <Toaster />;
+    return null;
   }
 
   return (
@@ -236,7 +235,6 @@ export function PushNotificationManager() {
           Enable Price Alerts
         </button>
       </div>
-      <Toaster />
     </>
   );
 }
