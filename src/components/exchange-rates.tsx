@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { TrendingUp, Calculator, Globe, Clock, Loader2 } from "lucide-react";
 import { useGoldData } from "@/hooks/useGoldData";
 import { useState, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
+import { useTranslation } from "@/hooks/useTranslation";
 
 // Currency flags mapping
 const currencyFlags: Record<string, string> = {
@@ -31,35 +33,16 @@ const currencyFlags: Record<string, string> = {
   EGP: "🇪🇬",
 };
 
-// Currency names mapping
-const currencyNames: Record<string, string> = {
-  USD: "US Dollar",
-  EUR: "Euro",
-  GBP: "British Pound",
-  JPY: "Japanese Yen",
-  CNY: "Chinese Yuan",
-  INR: "Indian Rupee",
-  TRY: "Turkish Lira",
-  RUB: "Russian Ruble",
-  CAD: "Canadian Dollar",
-  AUD: "Australian Dollar",
-  CHF: "Swiss Franc",
-  SGD: "Singapore Dollar",
-  SAR: "Saudi Riyal",
-  AED: "UAE Dirham",
-  QAR: "Qatari Riyal",
-  KWD: "Kuwaiti Dinar",
-  BHD: "Bahraini Dinar",
-  OMR: "Omani Rial",
-  JOD: "Jordanian Dinar",
-  EGP: "Egyptian Pound",
-};
-
 export function ExchangeRates() {
+  const { t } = useTranslation();
+  const searchParams = useSearchParams();
   const { data, loading, error, lastUpdated } = useGoldData();
   const [converterAmount, setConverterAmount] = useState("100");
   const [fromCurrency, setFromCurrency] = useState("USD");
   const [toCurrency, setToCurrency] = useState("EGP");
+
+  // Get currency from URL parameter, fallback to EGP
+  const selectedCurrency = searchParams.get("currency")?.toUpperCase() || "EGP";
 
   const exchangeRates = useMemo(() => {
     return data?.source_data.exchange_rates || {};
@@ -93,9 +76,9 @@ export function ExchangeRates() {
         <div className="container mx-auto px-4">
           <Card className="bg-white shadow-xl">
             <CardContent className="p-6">
-              <div className="flex items-center justify-center space-x-2">
+              <div className="flex items-center justify-center gap-2">
                 <Loader2 className="w-5 h-5 animate-spin" />
-                <span>Loading exchange rates...</span>
+                <span>{t("exchange.loading")}</span>
               </div>
             </CardContent>
           </Card>
@@ -111,7 +94,7 @@ export function ExchangeRates() {
           <Card className="bg-white shadow-xl">
             <CardContent className="p-6">
               <div className="text-center text-gray-500">
-                Unable to load exchange rates data
+                {t("exchange.error")}
               </div>
             </CardContent>
           </Card>
@@ -131,19 +114,24 @@ export function ExchangeRates() {
     (curr) =>
       !majorCurrencies.includes(curr) &&
       !gccCurrencies.includes(curr) &&
-      curr !== "EGP"
+      curr !== selectedCurrency
   );
 
   const formatCurrencyData = (currencies: string[]) => {
     return currencies.map((currency) => {
       const rate = exchangeRates[currency];
+      // Calculate rate to selected currency
+      const selectedRate = exchangeRates[selectedCurrency] || 1;
+      const convertedRate =
+        selectedCurrency === "USD" ? rate : rate / selectedRate;
+
       return {
         currency,
         flag: currencyFlags[currency] || "🏳️",
-        rate: rate.toFixed(4),
+        rate: convertedRate.toFixed(4),
         change: "+0.00", // We don't have historical data for change calculation
         trend: "up" as const,
-        name: currencyNames[currency] || currency,
+        name: t(`currencies.names.${currency}`) || currency,
       };
     });
   };
@@ -160,22 +148,31 @@ export function ExchangeRates() {
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <CardTitle className="text-2xl font-bold text-gray-800 mb-2">
-                  Currency Exchange Hub
+                  {t("exchange.title")}
                 </CardTitle>
                 <p className="text-gray-600">
-                  Live rates against USD • Converted to EGP
+                  {t("exchange.subtitle", {
+                    fromCurrency: fromCurrency,
+                    toCurrency: toCurrency,
+                  })}
                 </p>
               </div>
 
-              <div className="flex items-center space-x-4 mt-4 lg:mt-0">
-                <div className="flex items-center space-x-2 bg-white rounded-lg px-3 py-2 shadow-sm">
+              <div className="flex items-center gap-4 mt-4 lg:mt-0">
+                <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 shadow-sm">
                   <Clock className="w-4 h-4 text-green-500" />
-                  <span className="text-sm font-medium">Markets Open</span>
+                  <span className="text-sm font-medium">
+                    {t("exchange.marketsOpen")}
+                  </span>
                 </div>
-                <Button className="bg-blue-500 hover:bg-blue-600 text-white">
-                  <Calculator className="w-4 h-4 mr-2" />
-                  Calculator
-                </Button>
+                <div className="text-center">
+                  <p className="text-xs text-gray-500 uppercase">
+                    {t("common.live")}
+                  </p>
+                  <p className="text-sm font-semibold text-blue-600">
+                    {selectedCurrency}
+                  </p>
+                </div>
               </div>
             </div>
           </CardHeader>
@@ -184,13 +181,13 @@ export function ExchangeRates() {
             {/* Quick Converter */}
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-6">
               <h3 className="font-semibold text-gray-800 mb-3 flex items-center">
-                <Calculator className="w-5 h-5 mr-2 text-blue-500" />
-                Quick Currency Converter
+                <Calculator className="w-5 h-5 me-2 text-blue-500" />
+                {t("exchange.quickConverter")}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
                 <div>
                   <label className="block text-sm text-gray-600 mb-1">
-                    Amount
+                    {t("exchange.amount")}
                   </label>
                   <Input
                     type="number"
@@ -201,7 +198,7 @@ export function ExchangeRates() {
                 </div>
                 <div>
                   <label className="block text-sm text-gray-600 mb-1">
-                    From
+                    {t("exchange.from")}
                   </label>
                   <select
                     className="w-full p-2 border rounded-md"
@@ -218,7 +215,9 @@ export function ExchangeRates() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-600 mb-1">To</label>
+                  <label className="block text-sm text-gray-600 mb-1">
+                    {t("exchange.to")}
+                  </label>
                   <select
                     className="w-full p-2 border rounded-md"
                     value={toCurrency}
@@ -235,7 +234,7 @@ export function ExchangeRates() {
                 </div>
                 <div>
                   <label className="block text-sm text-gray-600 mb-1">
-                    Result
+                    {t("exchange.result")}
                   </label>
                   <div className="p-2 bg-gray-50 border rounded-md font-semibold">
                     {conversionResult.toFixed(2)} {toCurrency}
@@ -250,7 +249,7 @@ export function ExchangeRates() {
                     setToCurrency(temp);
                   }}
                 >
-                  Swap
+                  {t("common.swap")}
                 </Button>
               </div>
             </div>
@@ -259,8 +258,10 @@ export function ExchangeRates() {
             {majorCurrenciesData.length > 0 && (
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                  <Globe className="w-5 h-5 mr-2 text-blue-500" />
-                  Major Currencies (to EGP)
+                  <Globe className="w-5 h-5 me-2 text-blue-500" />
+                  {t("exchange.categories.major", {
+                    currency: selectedCurrency,
+                  })}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {majorCurrenciesData.map((item, index) => (
@@ -269,7 +270,7 @@ export function ExchangeRates() {
                       className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow"
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center gap-2">
                           <span className="text-2xl">{item.flag}</span>
                           <div>
                             <div className="font-semibold text-gray-800">
@@ -285,9 +286,11 @@ export function ExchangeRates() {
                         </div>
                       </div>
                       <div className="text-lg font-bold text-gray-900">
-                        {item.rate} EGP
+                        {item.rate} {selectedCurrency}
                       </div>
-                      <div className="text-sm text-gray-500">Live rate</div>
+                      <div className="text-sm text-gray-500">
+                        {t("common.liveRate")}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -298,7 +301,7 @@ export function ExchangeRates() {
             {gccCurrenciesData.length > 0 && (
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  GCC Currencies (to EGP)
+                  {t("exchange.categories.gcc", { currency: selectedCurrency })}
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                   {gccCurrenciesData.map((item, index) => (
@@ -313,7 +316,9 @@ export function ExchangeRates() {
                       <div className="text-sm font-bold text-gray-900">
                         {item.rate}
                       </div>
-                      <div className="text-xs text-gray-500">Live</div>
+                      <div className="text-xs text-gray-500">
+                        {t("common.live")}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -324,7 +329,9 @@ export function ExchangeRates() {
             {otherCurrenciesData.length > 0 && (
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Other Currencies (to EGP)
+                  {t("exchange.categories.other", {
+                    currency: selectedCurrency,
+                  })}
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                   {otherCurrenciesData.map((item, index) => (
@@ -339,7 +346,9 @@ export function ExchangeRates() {
                       <div className="text-sm font-bold text-gray-900">
                         {item.rate}
                       </div>
-                      <div className="text-xs text-gray-500">Live</div>
+                      <div className="text-xs text-gray-500">
+                        {t("common.live")}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -348,9 +357,11 @@ export function ExchangeRates() {
 
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-500">
-                Last updated:{" "}
-                {lastUpdated ? lastUpdated.toLocaleString() : "Loading..."} •
-                Data provided by ExchangeRate-API
+                {t("exchange.lastUpdated")}{" "}
+                {lastUpdated
+                  ? lastUpdated.toLocaleString()
+                  : t("common.loading")}{" "}
+                •{t("exchange.dataProvider")}
               </p>
             </div>
           </CardContent>

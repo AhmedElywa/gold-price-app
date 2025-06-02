@@ -1,0 +1,199 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "retry": "Reintentar",
+    "change": "Cambiar",
+    "refresh": "Actualizar",
+    "swap": "Intercambiar",
+    "dismiss": "Descartar",
+    "active": "Activo",
+    "live": "En vivo",
+    "liveRate": "Tasa en vivo",
+    "justNow": "Ahora mismo",
+    "today": "hoy"
+  },
+  "app": {
+    "name": "Precio del Oro en Egipto",
+    "shortName": "Precio del Oro",
+    "brand": "GoldTracker Pro",
+    "description": "Precios del oro en vivo en Egipto y alrededor del mundo. Consulta los últimos precios del oro por quilate y moneda."
+  },
+  "navigation": {
+    "goldPrices": "Precios del Oro",
+    "silverPrices": "Precios de la Plata",
+    "exchangeRates": "Tipos de Cambio",
+    "about": "Acerca de"
+  },
+  "languages": {
+    "arabic": "العربية",
+    "german": "Deutsch",
+    "english": "English",
+    "spanish": "Español",
+    "french": "Français",
+    "hindi": "हिन्दी",
+    "italian": "Italiano",
+    "japanese": "日本語",
+    "malay": "Bahasa Melayu",
+    "dutch": "Nederlands",
+    "romansh": "Rumantsch",
+    "russian": "Русский",
+    "tamil": "தமிழ்",
+    "turkish": "Türkçe",
+    "chinese": "中文"
+  },
+  "currencies": {
+    "egypt": "🇪🇬 Egipto (EGP)",
+    "usa": "🇺🇸 EE.UU. (USD)",
+    "europe": "🇪🇺 Europa (EUR)",
+    "uk": "🇬🇧 Reino Unido (GBP)",
+    "saudi": "🇸🇦 Arabia (SAR)",
+    "uae": "🇦🇪 EAU (AED)",
+    "japan": "🇯🇵 Japón (JPY)",
+    "china": "🇨🇳 China (CNY)",
+    "india": "🇮🇳 India (INR)",
+    "turkey": "🇹🇷 Turquía (TRY)",
+    "russia": "🇷🇺 Rusia (RUB)",
+    "canada": "🇨🇦 Canadá (CAD)",
+    "australia": "🇦🇺 Australia (AUD)",
+    "switzerland": "🇨🇭 Suiza (CHF)",
+    "singapore": "🇸🇬 Singapur (SGD)",
+    "qatar": "🇶🇦 Qatar (QAR)",
+    "kuwait": "🇰🇼 Kuwait (KWD)",
+    "bahrain": "🇧🇭 Bahréin (BHD)",
+    "oman": "🇴🇲 Omán (OMR)",
+    "jordan": "🇯🇴 Jordania (JOD)",
+    "names": {
+      "USD": "Dólar Estadounidense",
+      "EUR": "Euro",
+      "GBP": "Libra Esterlina",
+      "JPY": "Yen Japonés",
+      "CNY": "Yuan Chino",
+      "INR": "Rupia India",
+      "TRY": "Lira Turca",
+      "RUB": "Rublo Ruso",
+      "CAD": "Dólar Canadiense",
+      "AUD": "Dólar Australiano",
+      "CHF": "Franco Suizo",
+      "SGD": "Dólar de Singapur",
+      "SAR": "Riyal Saudí",
+      "AED": "Dirham de EAU",
+      "QAR": "Riyal Qatarí",
+      "KWD": "Dinar Kuwaití",
+      "BHD": "Dinar Bahraní",
+      "OMR": "Rial Omaní",
+      "JOD": "Dinar Jordano",
+      "EGP": "Libra Egipcia"
+    }
+  },
+  "goldPrices": {
+    "title": "Precios del Oro en Vivo",
+    "subtitle": "Precios por gramo en moneda seleccionada",
+    "nextUpdate": "Próxima actualización automática en",
+    "currentOuncePrice": "Precio Actual por Onza (USD)",
+    "dataTimestamp": "Marca de tiempo de datos",
+    "karat": "Quilate",
+    "usdPrice": "Precio USD",
+    "price": "Precio",
+    "gold": "Oro"
+  },
+  "gold": {
+    "title": "Bolsa de Metales Preciosos",
+    "subtitle": "Precios al contado en vivo • Actualizado cada minuto",
+    "market": "Mercado",
+    "spread": "Diferencial",
+    "volume": "Volumen",
+    "high": "Alto",
+    "currencyDisplay": "Mostrar Moneda",
+    "egyptianPound": "Libra Egipcia (EGP)",
+    "usDollar": "Dólar Estadounidense (USD)",
+    "lastUpdate": "Última Actualización",
+    "currentOuncePrice": "Precio Actual por Onza (USD)",
+    "dataTimestamp": "Marca de tiempo de datos:",
+    "tableHeaders": {
+      "karat": "QUILATE",
+      "pricePerGram": "PRECIO {currency} (por gramo)"
+    },
+    "karats": {
+      "24k": "Oro 24k",
+      "22k": "Oro 22k",
+      "21k": "Oro 21k",
+      "20k": "Oro 20k",
+      "18k": "Oro 18k",
+      "16k": "Oro 16k",
+      "14k": "Oro 14k",
+      "10k": "Oro 10k"
+    },
+    "loading": "Cargando precios del oro...",
+    "error": "Error al cargar precios del oro:"
+  },
+  "silver": {
+    "title": "Centro del Mercado de Plata",
+    "subtitle": "Industrial y Grado de Inversión • Precios en Tiempo Real",
+    "marketActive": "Mercado Activo",
+    "setAlert": "Configurar Alerta",
+    "products": {
+      "spot": "Plata al Contado",
+      "coins": "Monedas de Plata",
+      "bars": "Lingotes de Plata",
+      "jewelry": "Joyería de Plata"
+    },
+    "goldSilverRatio": "Relación Plata vs Oro",
+    "currentRatio": "Relación actual:",
+    "goldExpensive": "(El oro es {ratio}x más caro)",
+    "loading": "Cargando precios de la plata...",
+    "error": "No se pueden cargar los datos de precios de la plata"
+  },
+  "exchange": {
+    "title": "Centro de Cambio de Divisas",
+    "subtitle": "Tasas en vivo contra {fromCurrency} • Convertido a {toCurrency}",
+    "marketsOpen": "Mercados Abiertos",
+    "calculator": "Calculadora",
+    "quickConverter": "Convertidor Rápido de Divisas",
+    "amount": "Cantidad",
+    "from": "Desde",
+    "to": "Hacia",
+    "result": "Resultado",
+    "categories": {
+      "major": "Divisas Principales (a {currency})",
+      "gcc": "Divisas CCG (a {currency})",
+      "other": "Otras Divisas (a {currency})"
+    },
+    "lastUpdated": "Última actualización:",
+    "dataProvider": "Datos proporcionados por ExchangeRate-API",
+    "loading": "Cargando tipos de cambio...",
+    "error": "No se pueden cargar los datos de tipos de cambio"
+  },
+  "refresh": {
+    "button": "Actualizar Precios",
+    "updating": "Actualizando...",
+    "lastRefreshed": "Última actualización:"
+  },
+  "notifications": {
+    "enable": "Habilitar Alertas de Precios",
+    "disable": "Deshabilitar Alertas de Precios",
+    "enabled": "Alertas de precios habilitadas",
+    "vapidMissing": "Clave VAPID faltante",
+    "blocked": "Notificaciones bloqueadas – habilita en configuración del navegador."
+  },
+  "pwa": {
+    "install": {
+      "title": "Instalar App Precio del Oro",
+      "description": "Instala esta aplicación en tu pantalla de inicio para una mejor experiencia.",
+      "instructions": "Toca el ícono de compartir y luego \"Agregar a pantalla de inicio\""
+    },
+    "unregisterSW": "Desregistrar SW"
+  },
+  "footer": {
+    "description": "Tu fuente confiable para precios de oro, plata y tipos de cambio en tiempo real. Mantente informado con datos de precios precisos actualizados cada minuto.",
+    "quickLinks": "Enlaces Rápidos",
+    "historicalData": "Datos Históricos",
+    "contactInfo": "Información de Contacto",
+    "email": "info@goldtracker.com",
+    "phone": "+1 (555) 123-4567",
+    "location": "Nueva York, NY",
+    "privacyPolicy": "Política de Privacidad",
+    "termsOfService": "Términos de Servicio",
+    "copyright": "© {year} GoldTracker Pro. Todos los derechos reservados."
+  }
+}

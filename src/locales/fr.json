@@ -1,0 +1,199 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "retry": "Réessayer",
+    "change": "Changer",
+    "refresh": "Actualiser",
+    "swap": "Échanger",
+    "dismiss": "Rejeter",
+    "active": "Actif",
+    "live": "En direct",
+    "liveRate": "Taux en direct",
+    "justNow": "À l'instant",
+    "today": "aujourd'hui"
+  },
+  "app": {
+    "name": "Prix de l'Or en Égypte",
+    "shortName": "Prix de l'Or",
+    "brand": "GoldTracker Pro",
+    "description": "Prix de l'or en temps réel en Égypte et dans le monde. Consultez les derniers prix de l'or par carat et devise."
+  },
+  "navigation": {
+    "goldPrices": "Prix de l'Or",
+    "silverPrices": "Prix de l'Argent",
+    "exchangeRates": "Taux de Change",
+    "about": "À propos"
+  },
+  "languages": {
+    "arabic": "العربية",
+    "german": "Deutsch",
+    "english": "English",
+    "spanish": "Español",
+    "french": "Français",
+    "hindi": "हिन्दी",
+    "italian": "Italiano",
+    "japanese": "日本語",
+    "malay": "Bahasa Melayu",
+    "dutch": "Nederlands",
+    "romansh": "Rumantsch",
+    "russian": "Русский",
+    "tamil": "தமிழ்",
+    "turkish": "Türkçe",
+    "chinese": "中文"
+  },
+  "currencies": {
+    "egypt": "🇪🇬 Égypte (EGP)",
+    "usa": "🇺🇸 USA (USD)",
+    "europe": "🇪🇺 Europe (EUR)",
+    "uk": "🇬🇧 UK (GBP)",
+    "saudi": "🇸🇦 Arabie (SAR)",
+    "uae": "🇦🇪 EAU (AED)",
+    "japan": "🇯🇵 Japon (JPY)",
+    "china": "🇨🇳 Chine (CNY)",
+    "india": "🇮🇳 Inde (INR)",
+    "turkey": "🇹🇷 Turquie (TRY)",
+    "russia": "🇷🇺 Russie (RUB)",
+    "canada": "🇨🇦 Canada (CAD)",
+    "australia": "🇦🇺 Australie (AUD)",
+    "switzerland": "🇨🇭 Suisse (CHF)",
+    "singapore": "🇸🇬 Singapour (SGD)",
+    "qatar": "🇶🇦 Qatar (QAR)",
+    "kuwait": "🇰🇼 Koweït (KWD)",
+    "bahrain": "🇧🇭 Bahreïn (BHD)",
+    "oman": "🇴🇲 Oman (OMR)",
+    "jordan": "🇯🇴 Jordanie (JOD)",
+    "names": {
+      "USD": "Dollar Américain",
+      "EUR": "Euro",
+      "GBP": "Livre Sterling",
+      "JPY": "Yen Japonais",
+      "CNY": "Yuan Chinois",
+      "INR": "Roupie Indienne",
+      "TRY": "Livre Turque",
+      "RUB": "Rouble Russe",
+      "CAD": "Dollar Canadien",
+      "AUD": "Dollar Australien",
+      "CHF": "Franc Suisse",
+      "SGD": "Dollar de Singapour",
+      "SAR": "Riyal Saoudien",
+      "AED": "Dirham des EAU",
+      "QAR": "Riyal Qatarien",
+      "KWD": "Dinar Koweïtien",
+      "BHD": "Dinar Bahreïni",
+      "OMR": "Rial Omanais",
+      "JOD": "Dinar Jordanien",
+      "EGP": "Livre Égyptienne"
+    }
+  },
+  "goldPrices": {
+    "title": "Prix de l'Or en Direct",
+    "subtitle": "Prix par gramme dans la devise sélectionnée",
+    "nextUpdate": "Prochaine mise à jour automatique dans",
+    "currentOuncePrice": "Prix Actuel par Once (USD)",
+    "dataTimestamp": "Horodatage des données",
+    "karat": "Carat",
+    "usdPrice": "Prix USD",
+    "price": "Prix",
+    "gold": "Or"
+  },
+  "gold": {
+    "title": "Bourse des Métaux Précieux",
+    "subtitle": "Prix au comptant en direct • Mis à jour toutes les minutes",
+    "market": "Marché",
+    "spread": "Écart",
+    "volume": "Volume",
+    "high": "Élevé",
+    "currencyDisplay": "Affichage Devise",
+    "egyptianPound": "Livre Égyptienne (EGP)",
+    "usDollar": "Dollar Américain (USD)",
+    "lastUpdate": "Dernière Mise à Jour",
+    "currentOuncePrice": "Prix Actuel de l'Once (USD)",
+    "dataTimestamp": "Horodatage des données:",
+    "tableHeaders": {
+      "karat": "CARAT",
+      "pricePerGram": "PRIX {currency} (par gramme)"
+    },
+    "karats": {
+      "24k": "Or 24 carats",
+      "22k": "Or 22 carats",
+      "21k": "Or 21 carats",
+      "20k": "Or 20 carats",
+      "18k": "Or 18 carats",
+      "16k": "Or 16 carats",
+      "14k": "Or 14 carats",
+      "10k": "Or 10 carats"
+    },
+    "loading": "Chargement des prix de l'or...",
+    "error": "Erreur lors du chargement des prix de l'or:"
+  },
+  "silver": {
+    "title": "Centre du Marché de l'Argent",
+    "subtitle": "Industriel et Qualité Investissement • Tarification en Temps Réel",
+    "marketActive": "Marché Actif",
+    "setAlert": "Définir Alerte",
+    "products": {
+      "spot": "Argent au Comptant",
+      "coins": "Pièces d'Argent",
+      "bars": "Lingots d'Argent",
+      "jewelry": "Bijoux en Argent"
+    },
+    "goldSilverRatio": "Rapport Argent vs Or",
+    "currentRatio": "Rapport actuel:",
+    "goldExpensive": "(L'or est {ratio}x plus cher)",
+    "loading": "Chargement des prix de l'argent...",
+    "error": "Impossible de charger les données des prix de l'argent"
+  },
+  "exchange": {
+    "title": "Centre de Change de Devises",
+    "subtitle": "Taux en direct contre {fromCurrency} • Converti en {toCurrency}",
+    "marketsOpen": "Marchés Ouverts",
+    "calculator": "Calculatrice",
+    "quickConverter": "Convertisseur de Devises Rapide",
+    "amount": "Montant",
+    "from": "De",
+    "to": "Vers",
+    "result": "Résultat",
+    "categories": {
+      "major": "Devises Principales (vers {currency})",
+      "gcc": "Devises CCG (vers {currency})",
+      "other": "Autres Devises (vers {currency})"
+    },
+    "lastUpdated": "Dernière mise à jour:",
+    "dataProvider": "Données fournies par ExchangeRate-API",
+    "loading": "Chargement des taux de change...",
+    "error": "Impossible de charger les données des taux de change"
+  },
+  "refresh": {
+    "button": "Actualiser les Prix",
+    "updating": "Mise à jour...",
+    "lastRefreshed": "Dernière actualisation:"
+  },
+  "notifications": {
+    "enable": "Activer Alertes Prix",
+    "disable": "Désactiver Alertes Prix",
+    "enabled": "Alertes prix activées",
+    "vapidMissing": "Clé VAPID manquante",
+    "blocked": "Notifications bloquées – activez dans les paramètres du navigateur."
+  },
+  "pwa": {
+    "install": {
+      "title": "Installer l'App Prix de l'Or",
+      "description": "Installez cette application sur votre écran d'accueil pour une meilleure expérience.",
+      "instructions": "Appuyez sur l'icône de partage puis \"Ajouter à l'écran d'accueil\""
+    },
+    "unregisterSW": "Désinscrire SW"
+  },
+  "footer": {
+    "description": "Votre source fiable pour les prix de l'or, de l'argent et des taux de change en temps réel. Restez informé avec des données de prix précises mises à jour chaque minute.",
+    "quickLinks": "Liens Rapides",
+    "historicalData": "Données Historiques",
+    "contactInfo": "Informations Contact",
+    "email": "info@goldtracker.com",
+    "phone": "+1 (555) 123-4567",
+    "location": "New York, NY",
+    "privacyPolicy": "Politique de Confidentialité",
+    "termsOfService": "Conditions de Service",
+    "copyright": "© {year} GoldTracker Pro. Tous droits réservés."
+  }
+}

@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Enable Fast Refresh (typically on by default, but let's be explicit)
   reactStrictMode: true,
-  
+
   // Suppress hydration errors in production
   onDemandEntries: {
     // Keep unused pages in memory for longer so hydration warnings are less likely
@@ -11,13 +11,10 @@ const nextConfig: NextConfig = {
     // Make page boundaries less strict for smoother development
     pagesBufferLength: 4,
   },
-  
+
   // Allow local network dev access
-  allowedDevOrigins: [
-    "http://localhost:3000",
-    "http://192.168.1.2:3000"
-  ],
-  
+  allowedDevOrigins: ["http://localhost:3000", "http://192.168.1.2:3000"],
+
   // Security headers
   async headers() {
     return [

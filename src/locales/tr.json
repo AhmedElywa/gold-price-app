@@ -1,0 +1,199 @@
+{
+  "common": {
+    "loading": "Yükleniyor...",
+    "error": "Hata",
+    "retry": "Tekrar dene",
+    "change": "Değiştir",
+    "refresh": "Yenile",
+    "swap": "Değiştir",
+    "dismiss": "Kapat",
+    "active": "Aktif",
+    "live": "Canlı",
+    "liveRate": "Canlı kur",
+    "justNow": "Az önce",
+    "today": "bugün"
+  },
+  "app": {
+    "name": "Mısır'da Altın Fiyatları",
+    "shortName": "Altın Fiyatları",
+    "brand": "GoldTracker Pro",
+    "description": "Mısır ve dünya çapında canlı altın fiyatları. Ayar ve para birimine göre en son altın fiyatlarını kontrol edin."
+  },
+  "navigation": {
+    "goldPrices": "Altın Fiyatları",
+    "silverPrices": "Gümüş Fiyatları",
+    "exchangeRates": "Döviz Kurları",
+    "about": "Hakkımızda"
+  },
+  "languages": {
+    "arabic": "العربية",
+    "german": "Deutsch",
+    "english": "English",
+    "spanish": "Español",
+    "french": "Français",
+    "hindi": "हिन्दी",
+    "italian": "Italiano",
+    "japanese": "日本語",
+    "malay": "Bahasa Melayu",
+    "dutch": "Nederlands",
+    "romansh": "Rumantsch",
+    "russian": "Русский",
+    "tamil": "தமிழ்",
+    "turkish": "Türkçe",
+    "chinese": "中文"
+  },
+  "currencies": {
+    "egypt": "🇪🇬 Mısır (EGP)",
+    "usa": "🇺🇸 ABD (USD)",
+    "europe": "🇪🇺 Avrupa (EUR)",
+    "uk": "🇬🇧 İngiltere (GBP)",
+    "saudi": "🇸🇦 Suudi Arabistan (SAR)",
+    "uae": "🇦🇪 BAE (AED)",
+    "japan": "🇯🇵 Japonya (JPY)",
+    "china": "🇨🇳 Çin (CNY)",
+    "india": "🇮🇳 Hindistan (INR)",
+    "turkey": "🇹🇷 Türkiye (TRY)",
+    "russia": "🇷🇺 Rusya (RUB)",
+    "canada": "🇨🇦 Kanada (CAD)",
+    "australia": "🇦🇺 Avustralya (AUD)",
+    "switzerland": "🇨🇭 İsviçre (CHF)",
+    "singapore": "🇸🇬 Singapur (SGD)",
+    "qatar": "🇶🇦 Katar (QAR)",
+    "kuwait": "🇰🇼 Kuveyt (KWD)",
+    "bahrain": "🇧🇭 Bahreyn (BHD)",
+    "oman": "🇴🇲 Umman (OMR)",
+    "jordan": "🇯🇴 Ürdün (JOD)",
+    "names": {
+      "USD": "Amerikan Doları",
+      "EUR": "Euro",
+      "GBP": "İngiliz Sterlini",
+      "JPY": "Japon Yeni",
+      "CNY": "Çin Yuanı",
+      "INR": "Hindistan Rupisi",
+      "TRY": "Türk Lirası",
+      "RUB": "Rus Rublesi",
+      "CAD": "Kanada Doları",
+      "AUD": "Avustralya Doları",
+      "CHF": "İsviçre Frangı",
+      "SGD": "Singapur Doları",
+      "SAR": "Suudi Riyali",
+      "AED": "BAE Dirhemi",
+      "QAR": "Katar Riyali",
+      "KWD": "Kuveyt Dinarı",
+      "BHD": "Bahreyn Dinarı",
+      "OMR": "Umman Riyali",
+      "JOD": "Ürdün Dinarı",
+      "EGP": "Mısır Lirası"
+    }
+  },
+  "goldPrices": {
+    "title": "Canlı Altın Fiyatları",
+    "subtitle": "Seçilen para biriminde gram başına fiyatlar",
+    "nextUpdate": "Sonraki otomatik güncelleme",
+    "currentOuncePrice": "Mevcut Ons Fiyatı (USD)",
+    "dataTimestamp": "Veri zaman damgası",
+    "karat": "Ayar",
+    "usdPrice": "USD Fiyatı",
+    "price": "Fiyat",
+    "gold": "Altın"
+  },
+  "gold": {
+    "title": "Değerli Madenler Borsası",
+    "subtitle": "Canlı spot fiyatlar • Her dakika güncellenir",
+    "market": "Piyasa",
+    "spread": "Fark",
+    "volume": "Hacim",
+    "high": "Yüksek",
+    "currencyDisplay": "Para Birimi Gösterimi",
+    "egyptianPound": "Mısır Lirası (EGP)",
+    "usDollar": "Amerikan Doları (USD)",
+    "lastUpdate": "Son Güncelleme",
+    "currentOuncePrice": "Mevcut Ons Fiyatı (USD)",
+    "dataTimestamp": "Veri zaman damgası:",
+    "tableHeaders": {
+      "karat": "AYAR",
+      "pricePerGram": "{currency} FİYATI (gram başına)"
+    },
+    "karats": {
+      "24k": "24 ayar altın",
+      "22k": "22 ayar altın",
+      "21k": "21 ayar altın",
+      "20k": "20 ayar altın",
+      "18k": "18 ayar altın",
+      "16k": "16 ayar altın",
+      "14k": "14 ayar altın",
+      "10k": "10 ayar altın"
+    },
+    "loading": "Altın fiyatları yükleniyor...",
+    "error": "Altın fiyatları yüklenirken hata:"
+  },
+  "silver": {
+    "title": "Gümüş Piyasası Merkezi",
+    "subtitle": "Endüstriyel ve Yatırım Sınıfı • Gerçek Zamanlı Fiyatlandırma",
+    "marketActive": "Piyasa Aktif",
+    "setAlert": "Uyarı Kur",
+    "products": {
+      "spot": "Spot Gümüş",
+      "coins": "Gümüş Madeni Paralar",
+      "bars": "Gümüş Külçeler",
+      "jewelry": "Gümüş Mücevherler"
+    },
+    "goldSilverRatio": "Gümüş-Altın Oranı",
+    "currentRatio": "Mevcut oran:",
+    "goldExpensive": "(Altın {ratio}x daha pahalı)",
+    "loading": "Gümüş fiyatları yükleniyor...",
+    "error": "Gümüş fiyat verileri yüklenemiyor"
+  },
+  "exchange": {
+    "title": "Döviz Merkezi",
+    "subtitle": "{fromCurrency} karşısında canlı kurlar • {toCurrency}'ye çevrildi",
+    "marketsOpen": "Piyasalar Açık",
+    "calculator": "Hesap Makinesi",
+    "quickConverter": "Hızlı Para Birimi Çevirici",
+    "amount": "Miktar",
+    "from": "Kaynak",
+    "to": "Hedef",
+    "result": "Sonuç",
+    "categories": {
+      "major": "Ana Para Birimleri ({currency}'ye)",
+      "gcc": "KİK Para Birimleri ({currency}'ye)",
+      "other": "Diğer Para Birimleri ({currency}'ye)"
+    },
+    "lastUpdated": "Son güncelleme:",
+    "dataProvider": "Veriler ExchangeRate-API tarafından sağlanmaktadır",
+    "loading": "Döviz kurları yükleniyor...",
+    "error": "Döviz kuru verileri yüklenemiyor"
+  },
+  "refresh": {
+    "button": "Fiyatları Yenile",
+    "updating": "Güncelleniyor...",
+    "lastRefreshed": "Son yenileme:"
+  },
+  "notifications": {
+    "enable": "Fiyat Uyarılarını Etkinleştir",
+    "disable": "Fiyat Uyarılarını Devre Dışı Bırak",
+    "enabled": "Fiyat uyarıları etkinleştirildi",
+    "vapidMissing": "VAPID anahtarı eksik",
+    "blocked": "Bildirimler engellendi – tarayıcı ayarlarından etkinleştirin."
+  },
+  "pwa": {
+    "install": {
+      "title": "Altın Fiyatı Uygulamasını Yükle",
+      "description": "Daha iyi bir deneyim için bu uygulamayı ana ekranınıza yükleyin.",
+      "instructions": "Paylaş simgesine dokunun ve ardından \"Ana ekrana ekle\"yi seçin"
+    },
+    "unregisterSW": "SW Kaydını Sil"
+  },
+  "footer": {
+    "description": "Gerçek zamanlı altın, gümüş ve döviz kurları için güvenilir kaynağınız. Her dakika güncellenen doğru fiyat verileriyle bilgili kalın.",
+    "quickLinks": "Hızlı Bağlantılar",
+    "historicalData": "Geçmiş Veriler",
+    "contactInfo": "İletişim Bilgileri",
+    "email": "info@goldtracker.com",
+    "phone": "+1 (555) 123-4567",
+    "location": "New York, NY",
+    "privacyPolicy": "Gizlilik Politikası",
+    "termsOfService": "Hizmet Şartları",
+    "copyright": "© {year} GoldTracker Pro. Tüm hakları saklıdır."
+  }
+}

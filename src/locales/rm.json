@@ -1,0 +1,185 @@
+{
+  "common": {
+    "loading": "Chargiar...",
+    "error": "Errur",
+    "retry": "Emprova anc'ina giada",
+    "change": "Midar",
+    "refresh": "Actualisar",
+    "swap": "Scambiar",
+    "dismiss": "Refusar",
+    "active": "Activ",
+    "live": "En direct",
+    "liveRate": "Curs en direct",
+    "justNow": "Gist ussa",
+    "today": "oz"
+  },
+  "app": {
+    "name": "Pretsch da l'aur en Egipta",
+    "shortName": "Pretsch da l'aur",
+    "brand": "GoldTracker Pro",
+    "description": "Pretschs da l'aur en direct en Egipta ed en tut il mund. Controllescha ils ultims pretschs da l'aur tenor carat e valuta."
+  },
+  "navigation": {
+    "goldPrices": "Pretschs da l'aur",
+    "silverPrices": "Pretschs da l'argient",
+    "exchangeRates": "Curs da barter",
+    "about": "Davart"
+  },
+  "languages": {
+    "arabic": "العربية",
+    "german": "Deutsch",
+    "english": "English",
+    "spanish": "Español",
+    "french": "Français",
+    "hindi": "हिन्दी",
+    "italian": "Italiano",
+    "japanese": "日本語",
+    "malay": "Bahasa Melayu",
+    "dutch": "Nederlands",
+    "romansh": "Rumantsch",
+    "russian": "Русский",
+    "tamil": "தமிழ்",
+    "turkish": "Türkçe",
+    "chinese": "中文"
+  },
+  "currencies": {
+    "egypt": "🇪🇬 Egipta (EGP)",
+    "usa": "🇺🇸 USA (USD)",
+    "europe": "🇪🇺 Europa (EUR)",
+    "uk": "🇬🇧 Reginavel Unì (GBP)",
+    "saudi": "🇸🇦 Arabia Saudita (SAR)",
+    "uae": "🇦🇪 Emirats Arabs Unids (AED)",
+    "names": {
+      "USD": "Dollar american",
+      "EUR": "Euro",
+      "GBP": "Punt britanic",
+      "JPY": "Yen giapunais",
+      "CNY": "Yuan chinais",
+      "INR": "Rupia indica",
+      "TRY": "Lira tirca",
+      "RUB": "Rubel russ",
+      "CAD": "Dollar canadais",
+      "AUD": "Dollar australian",
+      "CHF": "Franc svizzer",
+      "SGD": "Dollar da Singapur",
+      "SAR": "Riyal saudit",
+      "AED": "Dirham EAU",
+      "QAR": "Riyal dal Qatar",
+      "KWD": "Dinar dal Kuwait",
+      "BHD": "Dinar dal Bahrain",
+      "OMR": "Riyal da l'Oman",
+      "JOD": "Dinar jordanic",
+      "EGP": "Punt egipzian"
+    }
+  },
+  "goldPrices": {
+    "title": "Pretschs da l'aur en viv",
+    "subtitle": "Pretschs per gram en la munaida tschernida",
+    "nextUpdate": "Proxima actualisaziun automatica en",
+    "currentOuncePrice": "Pretsch actual per untgia (USD)",
+    "dataTimestamp": "Stamp temporal da las datas",
+    "karat": "Carat",
+    "usdPrice": "Pretsch USD",
+    "price": "Pretsch",
+    "gold": "Aur"
+  },
+  "gold": {
+    "title": "Bursa da metalls preziusas",
+    "subtitle": "Pretschs spot en direct • Actualisà mintga minuta",
+    "market": "Martgà",
+    "spread": "Spread",
+    "volume": "Volumen",
+    "high": "Ault",
+    "currencyDisplay": "Mussar valuta",
+    "egyptianPound": "Punt egipzian (EGP)",
+    "usDollar": "Dollar american (USD)",
+    "lastUpdate": "Ultima actualisaziun",
+    "currentOuncePrice": "Pretsch actual per untga (USD)",
+    "dataTimestamp": "Timestamp da las datas:",
+    "tableHeaders": {
+      "karat": "CARAT",
+      "pricePerGram": "PRETSCH {currency} (per gram)"
+    },
+    "karats": {
+      "24k": "Aur 24k",
+      "22k": "Aur 22k",
+      "21k": "Aur 21k",
+      "20k": "Aur 20k",
+      "18k": "Aur 18k",
+      "16k": "Aur 16k",
+      "14k": "Aur 14k",
+      "10k": "Aur 10k"
+    },
+    "loading": "Chargiar pretschs da l'aur...",
+    "error": "Errur tar chargiar pretschs da l'aur:"
+  },
+  "silver": {
+    "title": "Center dal martgà da l'argient",
+    "subtitle": "Industrial & qualitad d'investiment • Determinaziun da pretsch en temp real",
+    "marketActive": "Martgà activ",
+    "setAlert": "Definir alarm",
+    "products": {
+      "spot": "Argient spot",
+      "coins": "Munaidas d'argient",
+      "bars": "Vergias d'argient",
+      "jewelry": "Giuvels d'argient"
+    },
+    "goldSilverRatio": "Proporziun argient vs aur",
+    "currentRatio": "Proporziun actuala:",
+    "goldExpensive": "(L'aur è {ratio}x pli char)",
+    "loading": "Chargiar pretschs da l'argient...",
+    "error": "Impussibel da chargiar las datas dals pretschs da l'argient"
+  },
+  "exchange": {
+    "title": "Center da barter da valutas",
+    "subtitle": "Curs en direct cunter {fromCurrency} • Convertì en {toCurrency}",
+    "marketsOpen": "Martgads averts",
+    "calculator": "Calculator",
+    "quickConverter": "Converter da valutas spert",
+    "amount": "Summa",
+    "from": "Da",
+    "to": "A",
+    "result": "Resultat",
+    "categories": {
+      "major": "Valutas principalas (en {currency})",
+      "gcc": "Valutas GCC (en {currency})",
+      "other": "Autras valutas (en {currency})"
+    },
+    "lastUpdated": "Ultima actualisaziun:",
+    "dataProvider": "Datas furnidas da ExchangeRate-API",
+    "loading": "Chargiar curs da barter...",
+    "error": "Impussibel da chargiar las datas dals curs da barter"
+  },
+  "refresh": {
+    "button": "Actualisar pretschs",
+    "updating": "Actualisar...",
+    "lastRefreshed": "Ultima actualisaziun:"
+  },
+  "notifications": {
+    "enable": "Activar alarms da pretsch",
+    "disable": "Deactivar alarms da pretsch",
+    "enabled": "Alarms da pretsch activads",
+    "vapidMissing": "Clav VAPID mancanta",
+    "blocked": "Notificaziuns bloccadas – activar en las configuraziuns dal navigatur."
+  },
+  "pwa": {
+    "install": {
+      "title": "Installar App Pretsch da l'Aur",
+      "description": "Installa questa app sin tes visur principal per ina meglra experientscha.",
+      "instructions": "Tutga l'icona da cundivider e lura \"Agiuntar al visur principal\""
+    },
+    "unregisterSW": "Deregistrar SW"
+  },
+  "footer": {
+    "description": "Tia funtauna fidabla per pretschs d'aur, argient e curs da barter en temp real. Rimain infurmà cun datas precisas da pretsch ch'èn actualisadas mintga minuta.",
+    "quickLinks": "Links sperts",
+    "historicalData": "Datas istoricas",
+    "contactInfo": "Infurmaziuns da contact",
+    "email": "info@goldtracker.com",
+    "phone": "+1 (555) 123-4567",
+    "location": "New York, NY",
+    "privacyPolicy": "Directivas da protecziun da datas",
+    "termsOfService": "Cundiziuns da servetsch",
+    "copyright": "© {year} GoldTracker Pro. Tuts dretgs reservads."
+  }
+}

@@ -1,0 +1,199 @@
+{
+  "common": {
+    "loading": "読み込み中...",
+    "error": "エラー",
+    "retry": "再試行",
+    "change": "変更",
+    "refresh": "更新",
+    "swap": "交換",
+    "dismiss": "却下",
+    "active": "アクティブ",
+    "live": "ライブ",
+    "liveRate": "ライブレート",
+    "justNow": "たった今",
+    "today": "今日"
+  },
+  "app": {
+    "name": "エジプトの金価格",
+    "shortName": "金価格",
+    "brand": "ゴールドトラッカープロ",
+    "description": "エジプトと世界中のライブ金価格。カラットと通貨別の最新金価格をチェック。"
+  },
+  "navigation": {
+    "goldPrices": "金価格",
+    "silverPrices": "銀価格",
+    "exchangeRates": "為替レート",
+    "about": "概要"
+  },
+  "languages": {
+    "arabic": "العربية",
+    "german": "Deutsch",
+    "english": "English",
+    "spanish": "Español",
+    "french": "Français",
+    "hindi": "हिन्दी",
+    "italian": "Italiano",
+    "japanese": "日本語",
+    "malay": "Bahasa Melayu",
+    "dutch": "Nederlands",
+    "romansh": "Rumantsch",
+    "russian": "Русский",
+    "tamil": "தமிழ்",
+    "turkish": "Türkçe",
+    "chinese": "中文"
+  },
+  "currencies": {
+    "egypt": "🇪🇬 エジプト (EGP)",
+    "usa": "🇺🇸 アメリカ (USD)",
+    "europe": "🇪🇺 ヨーロッパ (EUR)",
+    "uk": "🇬🇧 イギリス (GBP)",
+    "saudi": "🇸🇦 サウジ (SAR)",
+    "uae": "🇦🇪 UAE (AED)",
+    "japan": "🇯🇵 日本 (JPY)",
+    "china": "🇨🇳 中国 (CNY)",
+    "india": "🇮🇳 インド (INR)",
+    "turkey": "🇹🇷 トルコ (TRY)",
+    "russia": "🇷🇺 ロシア (RUB)",
+    "canada": "🇨🇦 カナダ (CAD)",
+    "australia": "🇦🇺 オーストラリア (AUD)",
+    "switzerland": "🇨🇭 スイス (CHF)",
+    "singapore": "🇸🇬 シンガポール (SGD)",
+    "qatar": "🇶🇦 カタール (QAR)",
+    "kuwait": "🇰🇼 クウェート (KWD)",
+    "bahrain": "🇧🇭 バーレーン (BHD)",
+    "oman": "🇴🇲 オマーン (OMR)",
+    "jordan": "🇯🇴 ヨルダン (JOD)",
+    "names": {
+      "USD": "米ドル",
+      "EUR": "ユーロ",
+      "GBP": "英ポンド",
+      "JPY": "日本円",
+      "CNY": "中国元",
+      "INR": "インドルピー",
+      "TRY": "トルコリラ",
+      "RUB": "ロシアルーブル",
+      "CAD": "カナダドル",
+      "AUD": "豪ドル",
+      "CHF": "スイスフラン",
+      "SGD": "シンガポールドル",
+      "SAR": "サウジリヤル",
+      "AED": "UAEディルハム",
+      "QAR": "カタールリヤル",
+      "KWD": "クウェートディナール",
+      "BHD": "バーレーンディナール",
+      "OMR": "オマーンリヤル",
+      "JOD": "ヨルダンディナール",
+      "EGP": "エジプトポンド"
+    }
+  },
+  "goldPrices": {
+    "title": "リアルタイム金価格",
+    "subtitle": "選択した通貨でのグラム当たり価格",
+    "nextUpdate": "次の自動更新まで",
+    "currentOuncePrice": "現在のオンス価格（USD）",
+    "dataTimestamp": "データのタイムスタンプ",
+    "karat": "カラット",
+    "usdPrice": "USD価格",
+    "price": "価格",
+    "gold": "金"
+  },
+  "gold": {
+    "title": "貴金属取引所",
+    "subtitle": "ライブスポット価格 • 毎分更新",
+    "market": "市場",
+    "spread": "スプレッド",
+    "volume": "出来高",
+    "high": "高値",
+    "currencyDisplay": "通貨表示",
+    "egyptianPound": "エジプトポンド (EGP)",
+    "usDollar": "米ドル (USD)",
+    "lastUpdate": "最終更新",
+    "currentOuncePrice": "現在のオンス価格 (USD)",
+    "dataTimestamp": "データタイムスタンプ:",
+    "tableHeaders": {
+      "karat": "カラット",
+      "pricePerGram": "{currency} 価格 (グラム当たり)"
+    },
+    "karats": {
+      "24k": "24k金",
+      "22k": "22k金",
+      "21k": "21k金",
+      "20k": "20k金",
+      "18k": "18k金",
+      "16k": "16k金",
+      "14k": "14k金",
+      "10k": "10k金"
+    },
+    "loading": "金価格を読み込み中...",
+    "error": "金価格の読み込みエラー:"
+  },
+  "silver": {
+    "title": "銀市場センター",
+    "subtitle": "工業用・投資グレード • リアルタイム価格",
+    "marketActive": "市場アクティブ",
+    "setAlert": "アラート設定",
+    "products": {
+      "spot": "銀スポット",
+      "coins": "銀貨",
+      "bars": "銀塊",
+      "jewelry": "銀製品"
+    },
+    "goldSilverRatio": "銀vs金比率",
+    "currentRatio": "現在の比率:",
+    "goldExpensive": "(金は{ratio}倍高価)",
+    "loading": "銀価格を読み込み中...",
+    "error": "銀価格データを読み込めません"
+  },
+  "exchange": {
+    "title": "為替センター",
+    "subtitle": "{fromCurrency}対ライブレート • {toCurrency}に変換",
+    "marketsOpen": "市場オープン",
+    "calculator": "計算機",
+    "quickConverter": "クイック通貨コンバーター",
+    "amount": "金額",
+    "from": "から",
+    "to": "へ",
+    "result": "結果",
+    "categories": {
+      "major": "主要通貨 ({currency}換算)",
+      "gcc": "GCC通貨 ({currency}換算)",
+      "other": "その他通貨 ({currency}換算)"
+    },
+    "lastUpdated": "最終更新:",
+    "dataProvider": "データ提供: ExchangeRate-API",
+    "loading": "為替レートを読み込み中...",
+    "error": "為替レートデータを読み込めません"
+  },
+  "refresh": {
+    "button": "価格更新",
+    "updating": "更新中...",
+    "lastRefreshed": "最終更新:"
+  },
+  "notifications": {
+    "enable": "価格アラート有効化",
+    "disable": "価格アラート無効化",
+    "enabled": "価格アラートが有効",
+    "vapidMissing": "VAPIDキーがありません",
+    "blocked": "通知がブロックされています – ブラウザ設定で有効にしてください。"
+  },
+  "pwa": {
+    "install": {
+      "title": "金価格アプリをインストール",
+      "description": "より良い体験のために、このアプリをホーム画面にインストールしてください。",
+      "instructions": "共有アイコンをタップして「ホーム画面に追加」を選択"
+    },
+    "unregisterSW": "SW登録解除"
+  },
+  "footer": {
+    "description": "リアルタイムの金、銀、為替レートの信頼できる情報源。毎分更新される正確な価格データで情報を把握。",
+    "quickLinks": "クイックリンク",
+    "historicalData": "履歴データ",
+    "contactInfo": "連絡先情報",
+    "email": "info@goldtracker.com",
+    "phone": "+1 (555) 123-4567",
+    "location": "ニューヨーク, NY",
+    "privacyPolicy": "プライバシーポリシー",
+    "termsOfService": "利用規約",
+    "copyright": "© {year} ゴールドトラッカープロ。全著作権所有。"
+  }
+}

@@ -1,12 +1,34 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { TrendingUp, TrendingDown, Activity, Zap, Loader2 } from "lucide-react";
+import { TrendingUp, TrendingDown, Activity, Loader2 } from "lucide-react";
 import { useGoldData } from "@/hooks/useGoldData";
+import { useSearchParams } from "next/navigation";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export function SilverPrices() {
+  const { t } = useTranslation();
+  const searchParams = useSearchParams();
   const { data, loading, error } = useGoldData();
+
+  // Get currency from URL parameter, fallback to EGP
+  const selectedCurrency = searchParams.get("currency")?.toUpperCase() || "EGP";
+
+  // Currency conversion function
+  const getPriceInSelectedCurrency = (priceUSD: number) => {
+    if (!data?.source_data?.exchange_rates) return priceUSD;
+    if (selectedCurrency === "USD") return priceUSD;
+
+    const rate = data.source_data.exchange_rates[selectedCurrency];
+    return rate ? parseFloat((priceUSD * rate).toFixed(2)) : priceUSD;
+  };
+
+  const formatPrice = (price: number, currency: string) => {
+    if (currency === "USD") {
+      return `$${price.toFixed(2)}`;
+    }
+    return `${currency} ${price.toFixed(2)}`;
+  };
 
   if (loading) {
     return (
@@ -17,9 +39,9 @@ export function SilverPrices() {
         <div className="container mx-auto px-4">
           <Card className="bg-white shadow-xl">
             <CardContent className="p-6">
-              <div className="flex items-center justify-center space-x-2">
+              <div className="flex items-center justify-center gap-2">
                 <Loader2 className="w-5 h-5 animate-spin" />
-                <span>Loading silver prices...</span>
+                <span>{t("silver.loading")}</span>
               </div>
             </CardContent>
           </Card>
@@ -38,7 +60,7 @@ export function SilverPrices() {
           <Card className="bg-white shadow-xl">
             <CardContent className="p-6">
               <div className="text-center text-gray-500">
-                Unable to load silver prices data
+                {t("silver.error")}
               </div>
             </CardContent>
           </Card>
@@ -48,49 +70,55 @@ export function SilverPrices() {
   }
 
   const marketData = data.source_data.market_data;
-  const silverPrice = marketData.silver_price ?? 0;
+  const silverPriceUSD = marketData.silver_price ?? 0;
   const silverChange = marketData.silver_change ?? 0;
   const silverChangePercent = marketData.silver_change_percent ?? 0;
 
+  // Convert silver price to selected currency
+  const silverPrice = getPriceInSelectedCurrency(silverPriceUSD);
+  const silverChangeConverted = getPriceInSelectedCurrency(silverChange);
+
   const isSilverPositive = silverChange >= 0;
 
-  // Calculate gold to silver ratio
+  // Calculate gold to silver ratio (always in USD for consistency)
   const goldToSilverRatio =
-    silverPrice > 0 ? marketData.current_price / silverPrice : 0;
+    silverPriceUSD > 0 ? (marketData.current_price ?? 0) / silverPriceUSD : 0;
 
-  // Generate different silver product prices based on spot price
+  // Generate different silver product prices based on spot price in selected currency
   const silverProducts = [
     {
-      type: "Silver Spot",
-      price: `$${silverPrice.toFixed(2)}`,
-      change: `${isSilverPositive ? "+" : ""}${silverChange.toFixed(2)}`,
-      percentage: `(${silverChangePercent.toFixed(2)}%)`,
-      trend: isSilverPositive ? "up" : "down",
-    },
-    {
-      type: "Silver Coins",
-      price: `$${(silverPrice * 1.075).toFixed(2)}`, // 7.5% premium
-      change: `${isSilverPositive ? "+" : ""}${(silverChange * 1.075).toFixed(
+      type: t("silver.products.spot"),
+      price: formatPrice(silverPrice, selectedCurrency),
+      change: `${isSilverPositive ? "+" : ""}${silverChangeConverted.toFixed(
         2
       )}`,
       percentage: `(${silverChangePercent.toFixed(2)}%)`,
       trend: isSilverPositive ? "up" : "down",
     },
     {
-      type: "Silver Bars",
-      price: `$${(silverPrice * 1.007).toFixed(2)}`, // 0.7% premium
-      change: `${isSilverPositive ? "+" : ""}${(silverChange * 1.007).toFixed(
-        2
-      )}`,
+      type: t("silver.products.coins"),
+      price: formatPrice(silverPrice * 1.075, selectedCurrency), // 7.5% premium
+      change: `${isSilverPositive ? "+" : ""}${(
+        silverChangeConverted * 1.075
+      ).toFixed(2)}`,
       percentage: `(${silverChangePercent.toFixed(2)}%)`,
       trend: isSilverPositive ? "up" : "down",
     },
     {
-      type: "Silver Jewelry",
-      price: `$${(silverPrice * 1.175).toFixed(2)}`, // 17.5% premium
-      change: `${isSilverPositive ? "+" : ""}${(silverChange * 1.175).toFixed(
-        2
-      )}`,
+      type: t("silver.products.bars"),
+      price: formatPrice(silverPrice * 1.007, selectedCurrency), // 0.7% premium
+      change: `${isSilverPositive ? "+" : ""}${(
+        silverChangeConverted * 1.007
+      ).toFixed(2)}`,
+      percentage: `(${silverChangePercent.toFixed(2)}%)`,
+      trend: isSilverPositive ? "up" : "down",
+    },
+    {
+      type: t("silver.products.jewelry"),
+      price: formatPrice(silverPrice * 1.175, selectedCurrency), // 17.5% premium
+      change: `${isSilverPositive ? "+" : ""}${(
+        silverChangeConverted * 1.175
+      ).toFixed(2)}`,
       percentage: `(${silverChangePercent.toFixed(2)}%)`,
       trend: isSilverPositive ? "up" : "down",
     },
@@ -107,24 +135,28 @@ export function SilverPrices() {
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <CardTitle className="text-2xl font-bold text-gray-800 mb-2">
-                  Silver Market Center
+                  {t("silver.title")}
                 </CardTitle>
-                <p className="text-gray-600">
-                  Industrial & Investment Grade • Real-time Pricing
-                </p>
+                <p className="text-gray-600">{t("silver.subtitle")}</p>
               </div>
 
-              <div className="flex items-center space-x-4 mt-4 lg:mt-0">
+              <div className="flex items-center gap-4 mt-4 lg:mt-0">
                 <div className="bg-white rounded-lg px-3 py-2 shadow-sm">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center gap-2">
                     <Activity className="w-4 h-4 text-blue-500" />
-                    <span className="text-sm font-medium">Market Active</span>
+                    <span className="text-sm font-medium">
+                      {t("silver.marketActive")}
+                    </span>
                   </div>
                 </div>
-                <Button variant="outline" size="sm">
-                  <Zap className="w-4 h-4 mr-2" />
-                  Set Alert
-                </Button>
+                <div className="text-center">
+                  <p className="text-xs text-gray-500 uppercase">
+                    {t("common.live")}
+                  </p>
+                  <p className="text-sm font-semibold text-slate-600">
+                    {selectedCurrency}
+                  </p>
+                </div>
               </div>
             </div>
           </CardHeader>
@@ -144,7 +176,7 @@ export function SilverPrices() {
                       {item.price}
                     </div>
                     <div
-                      className={`flex items-center justify-center space-x-1 ${
+                      className={`flex items-center justify-center gap-1 ${
                         item.trend === "up" ? "text-green-600" : "text-red-600"
                       }`}
                     >
@@ -166,14 +198,16 @@ export function SilverPrices() {
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="font-semibold text-gray-800">
-                    Silver vs Gold Ratio
+                    {t("silver.goldSilverRatio")}
                   </h4>
                   <p className="text-sm text-gray-600">
-                    Current ratio: 1:{goldToSilverRatio.toFixed(2)} (Gold is{" "}
-                    {goldToSilverRatio.toFixed(0)}x more expensive)
+                    {t("silver.currentRatio")} 1:{goldToSilverRatio.toFixed(2)}{" "}
+                    {t("silver.goldExpensive", {
+                      ratio: goldToSilverRatio.toFixed(0),
+                    })}
                   </p>
                 </div>
-                <div className="text-right">
+                <div className="text-end">
                   <div className="text-lg font-bold text-blue-600">
                     {goldToSilverRatio.toFixed(2)}
                   </div>
@@ -183,7 +217,7 @@ export function SilverPrices() {
                     }`}
                   >
                     {silverChangePercent > 0 ? "+" : ""}
-                    {silverChangePercent.toFixed(1)}% today
+                    {silverChangePercent.toFixed(1)}% {t("common.today")}
                   </div>
                 </div>
               </div>

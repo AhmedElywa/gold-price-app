@@ -1,11 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { sendNotification } from '../actions';
+import { useState, useEffect } from "react";
+import { sendNotification } from "../actions";
 
 export function TestNotification() {
-  const [message, setMessage] = useState('');
-  const [status, setStatus] = useState<{ success?: boolean; message?: string } | null>(null);
+  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState<{
+    success?: boolean;
+    message?: string;
+  } | null>(null);
   const [loading, setLoading] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -15,7 +18,7 @@ export function TestNotification() {
 
   async function handleSendNotification() {
     if (!message.trim()) {
-      setStatus({ success: false, message: 'Please enter a message' });
+      setStatus({ success: false, message: "Please enter a message" });
       return;
     }
 
@@ -26,10 +29,11 @@ export function TestNotification() {
       const result = await sendNotification(message);
       setStatus(result);
     } catch (error) {
-      console.error('Error sending notification:', error);
-      setStatus({ 
-        success: false, 
-        message: error instanceof Error ? error.message : 'Unknown error occurred'
+      console.error("Error sending notification:", error);
+      setStatus({
+        success: false,
+        message:
+          error instanceof Error ? error.message : "Unknown error occurred",
       });
     } finally {
       setLoading(false);
@@ -42,7 +46,7 @@ export function TestNotification() {
   }
 
   return (
-    <div className="fixed top-4 min-w-80 right-4 z-50 bg-white bg-opacity-90 shadow-lg rounded-lg p-4 border border-gray-200 max-w-xs">
+    <div className="fixed top-4 min-w-80 end-4 z-50 bg-white bg-opacity-90 shadow-lg rounded-lg p-4 border border-gray-200 max-w-xs">
       <h3 className="font-bold text-gray-800 mb-2">Test Push Notification</h3>
       <div className="mb-3">
         <input
@@ -57,23 +61,25 @@ export function TestNotification() {
         onClick={handleSendNotification}
         disabled={loading}
         className={`w-full py-2 rounded-md ${
-          loading 
-            ? 'bg-gray-400 cursor-not-allowed' 
-            : 'bg-yellow-500 hover:bg-yellow-600'
+          loading
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-yellow-500 hover:bg-yellow-600"
         } text-white font-medium`}
       >
-        {loading ? 'Sending...' : 'Send Notification'}
+        {loading ? "Sending..." : "Send Notification"}
       </button>
-      
+
       {status && (
-        <div className={`mt-3 p-2 rounded-md text-sm ${
-          status.success 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-red-100 text-red-800'
-        }`}>
+        <div
+          className={`mt-3 p-2 rounded-md text-sm ${
+            status.success
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800"
+          }`}
+        >
           {status.message}
         </div>
       )}
     </div>
   );
-} 
+}

@@ -1,0 +1,185 @@
+{
+  "common": {
+    "loading": "Memuat...",
+    "error": "Ralat",
+    "retry": "Cuba lagi",
+    "change": "Tukar",
+    "refresh": "Muat semula",
+    "swap": "Tukar",
+    "dismiss": "Tolak",
+    "active": "Aktif",
+    "live": "Langsung",
+    "liveRate": "Kadar langsung",
+    "justNow": "Baru sahaja",
+    "today": "hari ini"
+  },
+  "app": {
+    "name": "Harga Emas di Mesir",
+    "shortName": "Harga Emas",
+    "brand": "GoldTracker Pro",
+    "description": "Harga emas langsung di Mesir dan seluruh dunia. Semak harga emas terkini mengikut karat dan mata wang."
+  },
+  "navigation": {
+    "goldPrices": "Harga Emas",
+    "silverPrices": "Harga Perak",
+    "exchangeRates": "Kadar Pertukaran",
+    "about": "Tentang"
+  },
+  "languages": {
+    "arabic": "العربية",
+    "german": "Deutsch",
+    "english": "English",
+    "spanish": "Español",
+    "french": "Français",
+    "hindi": "हिन्दी",
+    "italian": "Italiano",
+    "japanese": "日本語",
+    "malay": "Bahasa Melayu",
+    "dutch": "Nederlands",
+    "romansh": "Rumantsch",
+    "russian": "Русский",
+    "tamil": "தமிழ்",
+    "turkish": "Türkçe",
+    "chinese": "中文"
+  },
+  "currencies": {
+    "egypt": "🇪🇬 Mesir (EGP)",
+    "usa": "🇺🇸 AS (USD)",
+    "europe": "🇪🇺 Eropah (EUR)",
+    "uk": "🇬🇧 UK (GBP)",
+    "saudi": "🇸🇦 Saudi (SAR)",
+    "uae": "🇦🇪 UAE (AED)",
+    "names": {
+      "USD": "Dolar Amerika",
+      "EUR": "Euro",
+      "GBP": "Paun British",
+      "JPY": "Yen Jepun",
+      "CNY": "Yuan Cina",
+      "INR": "Rupee India",
+      "TRY": "Lira Turki",
+      "RUB": "Rubel Rusia",
+      "CAD": "Dolar Kanada",
+      "AUD": "Dolar Australia",
+      "CHF": "Franc Swiss",
+      "SGD": "Dolar Singapura",
+      "SAR": "Riyal Saudi",
+      "AED": "Dirham UAE",
+      "QAR": "Riyal Qatar",
+      "KWD": "Dinar Kuwait",
+      "BHD": "Dinar Bahrain",
+      "OMR": "Riyal Oman",
+      "JOD": "Dinar Jordan",
+      "EGP": "Paun Mesir"
+    }
+  },
+  "goldPrices": {
+    "title": "Harga Emas Langsung",
+    "subtitle": "Harga per gram dalam mata wang terpilih",
+    "nextUpdate": "Kemas kini automatik seterusnya dalam",
+    "currentOuncePrice": "Harga Auns Semasa (USD)",
+    "dataTimestamp": "Cap masa data",
+    "karat": "Karat",
+    "usdPrice": "Harga USD",
+    "price": "Harga",
+    "gold": "Emas"
+  },
+  "gold": {
+    "title": "Bursa Logam Berharga",
+    "subtitle": "Harga spot langsung • Dikemas kini setiap minit",
+    "market": "Pasaran",
+    "spread": "Sebaran",
+    "volume": "Volum",
+    "high": "Tinggi",
+    "currencyDisplay": "Paparan Mata Wang",
+    "egyptianPound": "Paun Mesir (EGP)",
+    "usDollar": "Dolar Amerika (USD)",
+    "lastUpdate": "Kemas Kini Terakhir",
+    "currentOuncePrice": "Harga Auns Semasa (USD)",
+    "dataTimestamp": "Cap waktu data:",
+    "tableHeaders": {
+      "karat": "KARAT",
+      "pricePerGram": "HARGA {currency} (setiap gram)"
+    },
+    "karats": {
+      "24k": "Emas 24k",
+      "22k": "Emas 22k",
+      "21k": "Emas 21k",
+      "20k": "Emas 20k",
+      "18k": "Emas 18k",
+      "16k": "Emas 16k",
+      "14k": "Emas 14k",
+      "10k": "Emas 10k"
+    },
+    "loading": "Memuat harga emas...",
+    "error": "Ralat memuat harga emas:"
+  },
+  "silver": {
+    "title": "Pusat Pasaran Perak",
+    "subtitle": "Industri & Gred Pelaburan • Penetapan Harga Masa Nyata",
+    "marketActive": "Pasaran Aktif",
+    "setAlert": "Tetapkan Amaran",
+    "products": {
+      "spot": "Perak Spot",
+      "coins": "Syiling Perak",
+      "bars": "Jongkong Perak",
+      "jewelry": "Barang Kemas Perak"
+    },
+    "goldSilverRatio": "Nisbah Perak vs Emas",
+    "currentRatio": "Nisbah semasa:",
+    "goldExpensive": "(Emas {ratio}x lebih mahal)",
+    "loading": "Memuat harga perak...",
+    "error": "Tidak dapat memuat data harga perak"
+  },
+  "exchange": {
+    "title": "Hab Pertukaran Mata Wang",
+    "subtitle": "Kadar langsung terhadap {fromCurrency} • Ditukar kepada {toCurrency}",
+    "marketsOpen": "Pasaran Buka",
+    "calculator": "Kalkulator",
+    "quickConverter": "Penukar Mata Wang Pantas",
+    "amount": "Jumlah",
+    "from": "Dari",
+    "to": "Ke",
+    "result": "Hasil",
+    "categories": {
+      "major": "Mata Wang Utama (ke {currency})",
+      "gcc": "Mata Wang GCC (ke {currency})",
+      "other": "Mata Wang Lain (ke {currency})"
+    },
+    "lastUpdated": "Terakhir dikemas kini:",
+    "dataProvider": "Data disediakan oleh ExchangeRate-API",
+    "loading": "Memuat kadar pertukaran...",
+    "error": "Tidak dapat memuat data kadar pertukaran"
+  },
+  "refresh": {
+    "button": "Muat Semula Harga",
+    "updating": "Mengemas kini...",
+    "lastRefreshed": "Terakhir dimuat semula:"
+  },
+  "notifications": {
+    "enable": "Dayakan Amaran Harga",
+    "disable": "Lumpuhkan Amaran Harga",
+    "enabled": "Amaran harga didayakan",
+    "vapidMissing": "Kunci VAPID hilang",
+    "blocked": "Pemberitahuan disekat – dayakan dalam tetapan pelayar."
+  },
+  "pwa": {
+    "install": {
+      "title": "Pasang Aplikasi Harga Emas",
+      "description": "Pasang aplikasi ini di skrin utama anda untuk pengalaman yang lebih baik.",
+      "instructions": "Ketik ikon kongsi kemudian \"Tambah ke Skrin Utama\""
+    },
+    "unregisterSW": "Nyahdaftar SW"
+  },
+  "footer": {
+    "description": "Sumber terpercaya anda untuk harga emas, perak dan kadar pertukaran mata wang masa nyata. Kekal bermaklumat dengan data harga tepat yang dikemas kini setiap minit.",
+    "quickLinks": "Pautan Pantas",
+    "historicalData": "Data Sejarah",
+    "contactInfo": "Maklumat Hubungan",
+    "email": "info@goldtracker.com",
+    "phone": "+1 (555) 123-4567",
+    "location": "New York, NY",
+    "privacyPolicy": "Dasar Privasi",
+    "termsOfService": "Syarat Perkhidmatan",
+    "copyright": "© {year} GoldTracker Pro. Hak cipta terpelihara."
+  }
+}
