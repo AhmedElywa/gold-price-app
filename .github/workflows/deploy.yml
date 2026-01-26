@@ -12,19 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Build
-        run: bun run build
-        env:
-          EXCHANGE_RATE_API_KEY: ${{ secrets.EXCHANGE_RATE_API_KEY }}
-          NEXT_PUBLIC_VAPID_PUBLIC_KEY: ${{ secrets.NEXT_PUBLIC_VAPID_PUBLIC_KEY }}
-          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
-
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
@@ -38,10 +25,11 @@ jobs:
             -e "ssh -i ~/.ssh/deploy_key" \
             --exclude '.git' \
             --exclude 'node_modules' \
+            --exclude '.next' \
             --exclude '.env.local' \
             ./ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_PATH }}/
 
-      - name: Create .env file & restart PM2
+      - name: Create .env, install, build & restart PM2
         env:
           EXCHANGE_RATE_API_KEY: ${{ secrets.EXCHANGE_RATE_API_KEY }}
           NEXT_PUBLIC_VAPID_PUBLIC_KEY: ${{ secrets.NEXT_PUBLIC_VAPID_PUBLIC_KEY }}
@@ -49,8 +37,10 @@ jobs:
         run: |
           ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "\
             cd ${{ secrets.DEPLOY_PATH }} && \
+            export PATH=\$HOME/.bun/bin:\$PATH && \
             echo 'EXCHANGE_RATE_API_KEY=$EXCHANGE_RATE_API_KEY' > .env.local && \
             echo 'NEXT_PUBLIC_VAPID_PUBLIC_KEY=$NEXT_PUBLIC_VAPID_PUBLIC_KEY' >> .env.local && \
             echo 'VAPID_PRIVATE_KEY=$VAPID_PRIVATE_KEY' >> .env.local && \
-            bun install --production && \
-            pm2 reload gold-price-app --update-env || pm2 start npm --name gold-price-app -- start"
+            bun install && \
+            bun run build && \
+            pm2 reload gold-price-app --update-env || pm2 start bun --name gold-price-app -- run start"
