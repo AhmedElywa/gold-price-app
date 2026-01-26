@@ -43,4 +43,5 @@ jobs:
             echo 'VAPID_PRIVATE_KEY=$VAPID_PRIVATE_KEY' >> .env.local && \
             bun install && \
             bun run build && \
-            pm2 reload gold-price-app --update-env || pm2 start bun --name gold-price-app -- run start"
+            pm2 delete gold-price-app 2>/dev/null || true && \
+            PORT=3002 pm2 start bun --name gold-price-app -- run start"
