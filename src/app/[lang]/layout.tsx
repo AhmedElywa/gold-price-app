@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { locales, getDictionary, type Locale } from "@/lib/i18n";
+import {
+  locales,
+  getDictionary,
+  isValidLocale,
+  defaultLocale,
+  type Locale,
+} from "@/lib/i18n";
 import { TranslationProvider } from "../../components/translation-provider";
 import BodyWrapper from "../components/BodyWrapper";
 import { Analytics } from "@vercel/analytics/next";
@@ -25,9 +31,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ lang: Locale }>;
+  params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
-  const { lang } = await params;
+  const { lang: langParam } = await params;
+  const lang: Locale = isValidLocale(langParam) ? langParam : defaultLocale;
   const dict = await getDictionary(lang);
 
   return {
@@ -61,9 +68,10 @@ export default async function LangLayout({
   params,
 }: Readonly<{
   children: React.ReactNode;
-  params: Promise<{ lang: Locale }>;
+  params: Promise<{ lang: string }>;
 }>) {
-  const { lang } = await params;
+  const { lang: langParam } = await params;
+  const lang: Locale = isValidLocale(langParam) ? langParam : defaultLocale;
   const dict = await getDictionary(lang);
   const isRTL = lang === "ar";
 
