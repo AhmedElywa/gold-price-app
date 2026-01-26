@@ -35,12 +35,12 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -p 1993 -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy standalone to server
         run: |
           rsync -avz --delete \
-            -e "ssh -i ~/.ssh/deploy_key" \
+            -e "ssh -i ~/.ssh/deploy_key -p 1993" \
             --exclude '.env.local' \
             .next/standalone/ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_PATH }}/
 
@@ -49,7 +49,7 @@ jobs:
           EXCHANGE_RATE_API_KEY: ${{ secrets.EXCHANGE_RATE_API_KEY }}
           VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
         run: |
-          ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "\
+          ssh -i ~/.ssh/deploy_key -p 1993 ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "\
             cd ${{ secrets.DEPLOY_PATH }} && \
             echo 'EXCHANGE_RATE_API_KEY=$EXCHANGE_RATE_API_KEY' > .env.local && \
             echo 'VAPID_PRIVATE_KEY=$VAPID_PRIVATE_KEY' >> .env.local && \
