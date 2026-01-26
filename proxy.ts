@@ -36,7 +36,7 @@ function getLocale(request: NextRequest): string {
   return defaultLocale;
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Don't process for static files, API routes, special Next.js paths, or root path
@@ -52,7 +52,37 @@ export function middleware(request: NextRequest) {
     pathname.startsWith("/sitemap.xml") ||
     pathname.startsWith("/icons/")
   ) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+
+    // Add proper headers for service worker and JSON files
+    if (pathname === "/api/sw" || pathname === "/register-sw.js") {
+      response.headers.set(
+        "Cache-Control",
+        "public, max-age=0, must-revalidate"
+      );
+      response.headers.set("Service-Worker-Allowed", "/");
+      response.headers.set(
+        "Content-Type",
+        "application/javascript; charset=utf-8"
+      );
+    }
+
+    if (pathname === "/manifest.json") {
+      response.headers.set(
+        "Cache-Control",
+        "public, max-age=0, must-revalidate"
+      );
+      response.headers.set(
+        "Content-Type",
+        "application/manifest+json; charset=utf-8"
+      );
+    }
+
+    // Add cross-origin isolation headers for better security
+    response.headers.set("Cross-Origin-Embedder-Policy", "require-corp");
+    response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
+
+    return response;
   }
 
   // Check if pathname already has a locale
@@ -61,7 +91,10 @@ export function middleware(request: NextRequest) {
   );
 
   if (pathnameHasLocale) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    response.headers.set("Cross-Origin-Embedder-Policy", "require-corp");
+    response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
+    return response;
   }
 
   // For other paths without locale, redirect to add the detected locale
@@ -72,7 +105,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Skip all internal paths (_next, api, etc.) but process other paths
-    "/((?!_next|api|favicon.ico|sw.js|manifest.json|robots.txt|sitemap.xml|icons).*)",
+    // Skip all internal paths (_next) but process other paths
+    "/((?!_next|favicon.ico|icons).*)",
   ],
 };
