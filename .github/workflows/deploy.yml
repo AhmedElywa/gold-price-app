@@ -12,6 +12,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build
+        env:
+          NEXT_PUBLIC_VAPID_PUBLIC_KEY: ${{ secrets.NEXT_PUBLIC_VAPID_PUBLIC_KEY }}
+        run: bun run build
+
+      - name: Prepare standalone output
+        run: |
+          cp -r .next/static .next/standalone/.next/static
+          cp -r public .next/standalone/public
+
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
@@ -19,29 +35,21 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy to server
+      - name: Deploy standalone to server
         run: |
           rsync -avz --delete \
             -e "ssh -i ~/.ssh/deploy_key" \
-            --exclude '.git' \
-            --exclude 'node_modules' \
-            --exclude '.next' \
             --exclude '.env.local' \
-            ./ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_PATH }}/
+            .next/standalone/ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_PATH }}/
 
-      - name: Create .env, install, build & restart PM2
+      - name: Create .env and restart PM2
         env:
           EXCHANGE_RATE_API_KEY: ${{ secrets.EXCHANGE_RATE_API_KEY }}
-          NEXT_PUBLIC_VAPID_PUBLIC_KEY: ${{ secrets.NEXT_PUBLIC_VAPID_PUBLIC_KEY }}
           VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
         run: |
           ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "\
             cd ${{ secrets.DEPLOY_PATH }} && \
-            export PATH=\$HOME/.bun/bin:\$PATH && \
             echo 'EXCHANGE_RATE_API_KEY=$EXCHANGE_RATE_API_KEY' > .env.local && \
-            echo 'NEXT_PUBLIC_VAPID_PUBLIC_KEY=$NEXT_PUBLIC_VAPID_PUBLIC_KEY' >> .env.local && \
             echo 'VAPID_PRIVATE_KEY=$VAPID_PRIVATE_KEY' >> .env.local && \
-            bun install && \
-            bun run build && \
             pm2 delete gold-price-app 2>/dev/null || true && \
-            PORT=3002 pm2 start bun --name gold-price-app -- run start"
+            PORT=3002 pm2 start server.js --name gold-price-app"

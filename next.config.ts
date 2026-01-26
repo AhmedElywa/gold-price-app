@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Enable Fast Refresh (typically on by default, but let's be explicit)
+  output: "standalone",
   reactStrictMode: true,
 
   // Suppress hydration errors in production
