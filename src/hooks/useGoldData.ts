@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback } from "react";
-import { ApiResponseData } from "@/types/api";
+import { useCallback, useEffect, useState } from 'react';
+import type { ApiResponseData } from '@/types/api';
 
 export function useGoldData() {
   const [data, setData] = useState<ApiResponseData | null>(null);
@@ -12,10 +12,10 @@ export function useGoldData() {
   const fetchData = useCallback(async () => {
     try {
       setError(null);
-      const response = await fetch("/api/gold-prices-egp", {
-        cache: "no-store",
+      const response = await fetch('/api/gold-prices-egp', {
+        cache: 'no-store',
         headers: {
-          "Cache-Control": "no-cache",
+          'Cache-Control': 'no-cache',
         },
       });
 
@@ -27,8 +27,8 @@ export function useGoldData() {
       setData(apiData);
       setLastUpdated(new Date());
     } catch (err) {
-      console.error("Error fetching gold data:", err);
-      setError(err instanceof Error ? err.message : "Failed to fetch data");
+      console.error('Error fetching gold data:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch data');
     } finally {
       setLoading(false);
     }

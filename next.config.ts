@@ -1,7 +1,7 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  output: 'standalone',
   reactStrictMode: true,
 
   // Suppress hydration errors in production
@@ -13,43 +13,43 @@ const nextConfig: NextConfig = {
   },
 
   // Allow local network dev access
-  allowedDevOrigins: ["http://localhost:3000", "http://192.168.1.2:3000"],
+  allowedDevOrigins: ['http://localhost:3000', 'http://192.168.1.2:3000'],
 
   // Security headers
   async headers() {
     return [
       {
-        source: "/(.*)",
+        source: '/(.*)',
         headers: [
           {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
           },
           {
-            key: "X-Frame-Options",
-            value: "DENY",
+            key: 'X-Frame-Options',
+            value: 'DENY',
           },
           {
-            key: "Referrer-Policy",
-            value: "strict-origin-when-cross-origin",
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
           },
         ],
       },
 
       {
-        source: "/api/sw",
+        source: '/api/sw',
         headers: [
           {
-            key: "Content-Type",
-            value: "application/javascript; charset=utf-8",
+            key: 'Content-Type',
+            value: 'application/javascript; charset=utf-8',
           },
           {
-            key: "Cache-Control",
-            value: "no-cache, no-store, must-revalidate",
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
           },
           {
-            key: "Service-Worker-Allowed",
-            value: "/",
+            key: 'Service-Worker-Allowed',
+            value: '/',
           },
         ],
       },

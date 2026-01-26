@@ -1,13 +1,9 @@
-import webpush from "web-push";
-import {
-  subscribeUser,
-  unsubscribeUser,
-  sendNotification,
-} from "../../src/app/actions";
-import type { SerializablePushSubscription } from "../../src/app/actions";
+import webpush from 'web-push';
+import type { SerializablePushSubscription } from '../../src/app/actions';
+import { sendNotification, subscribeUser, unsubscribeUser } from '../../src/app/actions';
 
 // Mock web-push module
-jest.mock("web-push", () => ({
+jest.mock('web-push', () => ({
   setVapidDetails: jest.fn(),
   sendNotification: jest.fn(),
   WebPushError: class MockWebPushError extends Error {
@@ -15,14 +11,9 @@ jest.mock("web-push", () => ({
     public headers: Record<string, string>;
     public body: string;
 
-    constructor(
-      message: string,
-      statusCode: number,
-      headers: Record<string, string>,
-      body: string
-    ) {
+    constructor(message: string, statusCode: number, headers: Record<string, string>, body: string) {
       super(message);
-      this.name = "WebPushError";
+      this.name = 'WebPushError';
       this.statusCode = statusCode;
       this.headers = headers;
       this.body = body;
@@ -40,17 +31,17 @@ const mockConsole = {
 };
 
 // Replace console in server environment
-Object.defineProperty(global, "console", {
+Object.defineProperty(global, 'console', {
   value: mockConsole,
   writable: true,
 });
 
-describe("Notification Actions", () => {
+describe('Notification Actions', () => {
   const mockSubscription: SerializablePushSubscription = {
-    endpoint: "https://fcm.googleapis.com/fcm/send/test-endpoint",
+    endpoint: 'https://fcm.googleapis.com/fcm/send/test-endpoint',
     keys: {
-      p256dh: "test-p256dh-key",
-      auth: "test-auth-key",
+      p256dh: 'test-p256dh-key',
+      auth: 'test-auth-key',
     },
   };
 
@@ -59,10 +50,8 @@ describe("Notification Actions", () => {
     // Since we can't access the internal subscriptions array directly,
     // we'll unsubscribe all known test endpoints
     await unsubscribeUser(mockSubscription.endpoint);
-    await unsubscribeUser(
-      "https://fcm.googleapis.com/fcm/send/test-endpoint-2"
-    );
-    await unsubscribeUser("non-existent-endpoint");
+    await unsubscribeUser('https://fcm.googleapis.com/fcm/send/test-endpoint-2');
+    await unsubscribeUser('non-existent-endpoint');
   }
 
   beforeEach(async () => {
@@ -75,27 +64,24 @@ describe("Notification Actions", () => {
     mockConsole.warn.mockClear();
 
     // Reset environment variables
-    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY = "test-vapid-public";
-    process.env.VAPID_PRIVATE_KEY = "test-vapid-private";
+    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY = 'test-vapid-public';
+    process.env.VAPID_PRIVATE_KEY = 'test-vapid-private';
   });
 
-  describe("subscribeUser", () => {
-    it("should successfully subscribe a new user", async () => {
+  describe('subscribeUser', () => {
+    it('should successfully subscribe a new user', async () => {
       const result = await subscribeUser(mockSubscription);
 
       expect(mockWebPush.setVapidDetails).toHaveBeenCalledWith(
-        "mailto:ahmed.elywa@icloud.com",
-        "test-vapid-public",
-        "test-vapid-private"
+        'mailto:ahmed.elywa@icloud.com',
+        'test-vapid-public',
+        'test-vapid-private',
       );
       expect(result).toEqual({ success: true });
-      expect(mockConsole.log).toHaveBeenCalledWith(
-        "Subscription stored:",
-        mockSubscription.endpoint
-      );
+      expect(mockConsole.log).toHaveBeenCalledWith('Subscription stored:', mockSubscription.endpoint);
     });
 
-    it("should not add duplicate subscriptions", async () => {
+    it('should not add duplicate subscriptions', async () => {
       // First subscription
       await subscribeUser(mockSubscription);
       mockConsole.log.mockClear();
@@ -104,16 +90,13 @@ describe("Notification Actions", () => {
       const result = await subscribeUser(mockSubscription);
 
       expect(result).toEqual({ success: true });
-      expect(mockConsole.log).toHaveBeenCalledWith(
-        "Subscription already stored:",
-        mockSubscription.endpoint
-      );
+      expect(mockConsole.log).toHaveBeenCalledWith('Subscription already stored:', mockSubscription.endpoint);
     });
 
-    it("should handle multiple different subscriptions", async () => {
+    it('should handle multiple different subscriptions', async () => {
       const subscription2: SerializablePushSubscription = {
         ...mockSubscription,
-        endpoint: "https://fcm.googleapis.com/fcm/send/test-endpoint-2",
+        endpoint: 'https://fcm.googleapis.com/fcm/send/test-endpoint-2',
       };
 
       await subscribeUser(mockSubscription);
@@ -124,8 +107,8 @@ describe("Notification Actions", () => {
     });
   });
 
-  describe("unsubscribeUser", () => {
-    it("should successfully unsubscribe a user", async () => {
+  describe('unsubscribeUser', () => {
+    it('should successfully unsubscribe a user', async () => {
       // First subscribe a user
       await subscribeUser(mockSubscription);
       mockConsole.log.mockClear();
@@ -134,40 +117,34 @@ describe("Notification Actions", () => {
       const result = await unsubscribeUser(mockSubscription.endpoint);
 
       expect(result).toEqual({ success: true });
-      expect(mockConsole.log).toHaveBeenCalledWith(
-        "Subscription removed:",
-        mockSubscription.endpoint
-      );
+      expect(mockConsole.log).toHaveBeenCalledWith('Subscription removed:', mockSubscription.endpoint);
     });
 
-    it("should handle unsubscribing non-existent subscription", async () => {
-      const result = await unsubscribeUser("non-existent-endpoint");
+    it('should handle unsubscribing non-existent subscription', async () => {
+      const result = await unsubscribeUser('non-existent-endpoint');
 
       expect(result).toEqual({ success: true });
-      expect(mockConsole.log).toHaveBeenCalledWith(
-        "Subscription removed:",
-        "non-existent-endpoint"
-      );
+      expect(mockConsole.log).toHaveBeenCalledWith('Subscription removed:', 'non-existent-endpoint');
     });
   });
 
-  describe("sendNotification", () => {
-    const testMessage = "Test notification message";
+  describe('sendNotification', () => {
+    const testMessage = 'Test notification message';
 
-    it("should return error when no subscriptions available", async () => {
+    it('should return error when no subscriptions available', async () => {
       const result = await sendNotification(testMessage);
 
       expect(result).toEqual({
         success: false,
-        error: "No subscriptions available",
+        error: 'No subscriptions available',
       });
       expect(mockWebPush.sendNotification).not.toHaveBeenCalled();
     });
 
-    it("should successfully send notification to single subscriber", async () => {
+    it('should successfully send notification to single subscriber', async () => {
       mockWebPush.sendNotification.mockResolvedValue({
         statusCode: 201,
-        body: "Success",
+        body: 'Success',
         headers: {},
       });
 
@@ -179,26 +156,26 @@ describe("Notification Actions", () => {
       expect(mockWebPush.sendNotification).toHaveBeenCalledWith(
         mockSubscription,
         JSON.stringify({
-          title: "Gold Price Update",
+          title: 'Gold Price Update',
           body: testMessage,
-          icon: "/icons/icon-192x192.png",
-        })
+          icon: '/icons/icon-192x192.png',
+        }),
       );
       expect(result).toEqual({
         success: true,
-        message: "Notifications sent to 1 subscribers (0 failed)",
+        message: 'Notifications sent to 1 subscribers (0 failed)',
       });
     });
 
-    it("should send notification to multiple subscribers", async () => {
+    it('should send notification to multiple subscribers', async () => {
       const subscription2: SerializablePushSubscription = {
         ...mockSubscription,
-        endpoint: "https://fcm.googleapis.com/fcm/send/test-endpoint-2",
+        endpoint: 'https://fcm.googleapis.com/fcm/send/test-endpoint-2',
       };
 
       mockWebPush.sendNotification.mockResolvedValue({
         statusCode: 201,
-        body: "Success",
+        body: 'Success',
         headers: {},
       });
 
@@ -211,14 +188,12 @@ describe("Notification Actions", () => {
       expect(mockWebPush.sendNotification).toHaveBeenCalledTimes(2);
       expect(result).toEqual({
         success: true,
-        message: "Notifications sent to 2 subscribers (0 failed)",
+        message: 'Notifications sent to 2 subscribers (0 failed)',
       });
     });
 
-    it("should handle send failures gracefully", async () => {
-      mockWebPush.sendNotification.mockRejectedValue(
-        new Error("Network error")
-      );
+    it('should handle send failures gracefully', async () => {
+      mockWebPush.sendNotification.mockRejectedValue(new Error('Network error'));
 
       await subscribeUser(mockSubscription);
 
@@ -226,21 +201,13 @@ describe("Notification Actions", () => {
 
       expect(result).toEqual({
         success: false,
-        message: "Notifications sent to 0 subscribers (1 failed)",
+        message: 'Notifications sent to 0 subscribers (1 failed)',
       });
-      expect(mockConsole.error).toHaveBeenCalledWith(
-        "Error sending push notification:",
-        expect.any(Error)
-      );
+      expect(mockConsole.error).toHaveBeenCalledWith('Error sending push notification:', expect.any(Error));
     });
 
-    it("should remove invalid subscriptions on 410 error", async () => {
-      const webPushError = new (mockWebPush as any).WebPushError(
-        "Gone",
-        410,
-        {},
-        "Subscription expired"
-      );
+    it('should remove invalid subscriptions on 410 error', async () => {
+      const webPushError = new (mockWebPush as any).WebPushError('Gone', 410, {}, 'Subscription expired');
       mockWebPush.sendNotification.mockRejectedValue(webPushError);
 
       await subscribeUser(mockSubscription);
@@ -248,26 +215,18 @@ describe("Notification Actions", () => {
       // First call should fail and remove subscription
       const result1 = await sendNotification(testMessage);
       expect(result1.success).toBe(false);
-      expect(mockConsole.log).toHaveBeenCalledWith(
-        "Invalid subscription removed:",
-        mockSubscription.endpoint
-      );
+      expect(mockConsole.log).toHaveBeenCalledWith('Invalid subscription removed:', mockSubscription.endpoint);
 
       // Second call should return no subscriptions
       const result2 = await sendNotification(testMessage);
       expect(result2).toEqual({
         success: false,
-        error: "No subscriptions available",
+        error: 'No subscriptions available',
       });
     });
 
-    it("should remove invalid subscriptions on 404 error", async () => {
-      const webPushError = new (mockWebPush as any).WebPushError(
-        "Not Found",
-        404,
-        {},
-        "Subscription not found"
-      );
+    it('should remove invalid subscriptions on 404 error', async () => {
+      const webPushError = new (mockWebPush as any).WebPushError('Not Found', 404, {}, 'Subscription not found');
       mockWebPush.sendNotification.mockRejectedValue(webPushError);
 
       await subscribeUser(mockSubscription);
@@ -275,19 +234,11 @@ describe("Notification Actions", () => {
       const result = await sendNotification(testMessage);
 
       expect(result.success).toBe(false);
-      expect(mockConsole.log).toHaveBeenCalledWith(
-        "Invalid subscription removed:",
-        mockSubscription.endpoint
-      );
+      expect(mockConsole.log).toHaveBeenCalledWith('Invalid subscription removed:', mockSubscription.endpoint);
     });
 
-    it("should not remove subscriptions on other errors", async () => {
-      const webPushError = new (mockWebPush as any).WebPushError(
-        "Server Error",
-        500,
-        {},
-        "Internal server error"
-      );
+    it('should not remove subscriptions on other errors', async () => {
+      const webPushError = new (mockWebPush as any).WebPushError('Server Error', 500, {}, 'Internal server error');
       mockWebPush.sendNotification.mockRejectedValue(webPushError);
 
       await subscribeUser(mockSubscription);
@@ -299,7 +250,7 @@ describe("Notification Actions", () => {
       mockWebPush.sendNotification.mockClear();
       mockWebPush.sendNotification.mockResolvedValue({
         statusCode: 201,
-        body: "Success",
+        body: 'Success',
         headers: {},
       });
 
@@ -308,10 +259,10 @@ describe("Notification Actions", () => {
       expect(mockWebPush.sendNotification).toHaveBeenCalledTimes(1);
     });
 
-    it("should handle mixed success and failure scenarios", async () => {
+    it('should handle mixed success and failure scenarios', async () => {
       const subscription2: SerializablePushSubscription = {
         ...mockSubscription,
-        endpoint: "https://fcm.googleapis.com/fcm/send/test-endpoint-2",
+        endpoint: 'https://fcm.googleapis.com/fcm/send/test-endpoint-2',
       };
 
       await subscribeUser(mockSubscription);
@@ -321,34 +272,34 @@ describe("Notification Actions", () => {
       mockWebPush.sendNotification
         .mockResolvedValueOnce({
           statusCode: 201,
-          body: "Success",
+          body: 'Success',
           headers: {},
         })
-        .mockRejectedValueOnce(new Error("Network error"));
+        .mockRejectedValueOnce(new Error('Network error'));
 
       const result = await sendNotification(testMessage);
 
       expect(result).toEqual({
         success: true,
-        message: "Notifications sent to 1 subscribers (1 failed)",
+        message: 'Notifications sent to 1 subscribers (1 failed)',
       });
     });
   });
 
-  describe("webpush configuration", () => {
-    it("should configure webpush with correct VAPID details", async () => {
+  describe('webpush configuration', () => {
+    it('should configure webpush with correct VAPID details', async () => {
       await subscribeUser(mockSubscription);
 
       expect(mockWebPush.setVapidDetails).toHaveBeenCalledWith(
-        "mailto:ahmed.elywa@icloud.com",
-        "test-vapid-public",
-        "test-vapid-private"
+        'mailto:ahmed.elywa@icloud.com',
+        'test-vapid-public',
+        'test-vapid-private',
       );
     });
 
-    it("should configure webpush for each action", async () => {
+    it('should configure webpush for each action', async () => {
       await subscribeUser(mockSubscription);
-      await sendNotification("test");
+      await sendNotification('test');
       await unsubscribeUser(mockSubscription.endpoint);
 
       expect(mockWebPush.setVapidDetails).toHaveBeenCalledTimes(3);

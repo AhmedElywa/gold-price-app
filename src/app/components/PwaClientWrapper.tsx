@@ -1,12 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import {
-  ServiceWorkerRegistration,
-  PushNotificationManager,
-  InstallPrompt,
-} from "./PwaComponents";
-import { TestNotification } from "./TestNotification";
+import { useEffect, useState } from 'react';
+import { InstallPrompt, PushNotificationManager, ServiceWorkerRegistration } from './PwaComponents';
+import { TestNotification } from './TestNotification';
 
 export default function PwaClientWrapper() {
   // Use state to track when component is mounted (client-side only)
@@ -17,7 +13,7 @@ export default function PwaClientWrapper() {
   useEffect(() => {
     // Now we're safely on the client
     setIsMounted(true);
-    setIsDevelopment(process.env.TEST_NOTIFICATIONS === "true");
+    setIsDevelopment(process.env.TEST_NOTIFICATIONS === 'true');
   }, []);
 
   // Don't render anything during SSR or initial client render

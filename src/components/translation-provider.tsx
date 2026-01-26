@@ -1,8 +1,9 @@
-"use client";
+'use client';
 
-import React, { createContext, useContext } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import type { Locale } from "@/lib/i18n";
+import { usePathname, useRouter } from 'next/navigation';
+import type React from 'react';
+import { createContext, useContext } from 'react';
+import type { Locale } from '@/lib/i18n';
 
 type TranslationKeys = {
   [key: string]: string | TranslationKeys;
@@ -15,9 +16,7 @@ interface TranslationContextValue {
   changeLanguage: (newLocale: Locale) => void;
 }
 
-const TranslationContext = createContext<TranslationContextValue | undefined>(
-  undefined
-);
+const TranslationContext = createContext<TranslationContextValue | undefined>(undefined);
 
 export function TranslationProvider({
   children,
@@ -32,11 +31,11 @@ export function TranslationProvider({
   const pathname = usePathname();
 
   const t = (key: string, params?: Record<string, string | number>): string => {
-    const keys = key.split(".");
+    const keys = key.split('.');
     let value: string | TranslationKeys = dictionary;
 
     for (const k of keys) {
-      if (value && typeof value === "object" && k in value) {
+      if (value && typeof value === 'object' && k in value) {
         value = value[k];
       } else {
         console.warn(`Translation key not found: ${key} for locale: ${locale}`);
@@ -44,7 +43,7 @@ export function TranslationProvider({
       }
     }
 
-    if (typeof value !== "string") {
+    if (typeof value !== 'string') {
       console.warn(`Translation key "${key}" does not resolve to a string`);
       return key;
     }
@@ -61,7 +60,7 @@ export function TranslationProvider({
 
   const changeLanguage = (newLocale: Locale) => {
     // For App Router, we need to navigate to the new locale URL
-    const segments = pathname.split("/");
+    const segments = pathname.split('/');
 
     // Replace the current locale (first segment after /) with new locale
     if (segments.length > 1 && segments[1].length === 2) {
@@ -71,7 +70,7 @@ export function TranslationProvider({
       segments.splice(1, 0, newLocale);
     }
 
-    const newPath = segments.join("/");
+    const newPath = segments.join('/');
     router.push(newPath);
   };
 
@@ -82,17 +81,13 @@ export function TranslationProvider({
     changeLanguage,
   };
 
-  return (
-    <TranslationContext.Provider value={value}>
-      {children}
-    </TranslationContext.Provider>
-  );
+  return <TranslationContext.Provider value={value}>{children}</TranslationContext.Provider>;
 }
 
 export function useTranslation() {
   const context = useContext(TranslationContext);
   if (context === undefined) {
-    throw new Error("useTranslation must be used within a TranslationProvider");
+    throw new Error('useTranslation must be used within a TranslationProvider');
   }
   return context;
 }

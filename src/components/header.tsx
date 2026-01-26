@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { LanguageSelector } from "./language-selector";
-import { CurrencySelector } from "./currency-selector";
-import { TrendingUp } from "lucide-react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { TrendingUp } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
+import { CurrencySelector } from './currency-selector';
+import { LanguageSelector } from './language-selector';
 
 export function Header() {
   const { t } = useTranslation();
@@ -14,27 +14,21 @@ export function Header() {
         <div className="flex flex-col md:flex-row items-center justify-between">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-8 h-8" />
-            <h1 className="text-2xl font-bold">{t("app.brand")}</h1>
+            <h1 className="text-2xl font-bold">{t('app.brand')}</h1>
           </div>
 
           <nav className="hidden md:flex items-center gap-6">
             <a href="#gold" className="hover:text-amber-200 transition-colors">
-              {t("navigation.goldPrices")}
+              {t('navigation.goldPrices')}
             </a>
-            <a
-              href="#silver"
-              className="hover:text-amber-200 transition-colors"
-            >
-              {t("navigation.silverPrices")}
+            <a href="#silver" className="hover:text-amber-200 transition-colors">
+              {t('navigation.silverPrices')}
             </a>
-            <a
-              href="#exchange"
-              className="hover:text-amber-200 transition-colors"
-            >
-              {t("navigation.exchangeRates")}
+            <a href="#exchange" className="hover:text-amber-200 transition-colors">
+              {t('navigation.exchangeRates')}
             </a>
             <a href="#about" className="hover:text-amber-200 transition-colors">
-              {t("navigation.about")}
+              {t('navigation.about')}
             </a>
           </nav>
 

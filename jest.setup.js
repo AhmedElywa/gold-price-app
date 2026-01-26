@@ -1,42 +1,42 @@
-const { TextEncoder, TextDecoder } = require("util");
+const { TextEncoder, TextDecoder } = require('node:util');
 
 // Polyfill for TextEncoder/TextDecoder
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
-require("@testing-library/jest-dom");
+require('@testing-library/jest-dom');
 
 // Mock next/navigation
-jest.mock("next/navigation", () => ({
+jest.mock('next/navigation', () => ({
   useRouter: () => ({
     push: jest.fn(),
     replace: jest.fn(),
     back: jest.fn(),
     refresh: jest.fn(),
   }),
-  usePathname: () => "/",
+  usePathname: () => '/',
   useSearchParams: () => new URLSearchParams(),
 }));
 
 // Mock environment variables
-process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY = "test-vapid-public-key";
-process.env.VAPID_PRIVATE_KEY = "test-vapid-private-key";
-process.env.EXCHANGE_RATE_API_KEY = "test-exchange-rate-api-key";
+process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY = 'test-vapid-public-key';
+process.env.VAPID_PRIVATE_KEY = 'test-vapid-private-key';
+process.env.EXCHANGE_RATE_API_KEY = 'test-exchange-rate-api-key';
 
 // Mock browser APIs
-Object.defineProperty(window, "Notification", {
+Object.defineProperty(window, 'Notification', {
   value: {
-    permission: "default",
-    requestPermission: jest.fn().mockResolvedValue("granted"),
+    permission: 'default',
+    requestPermission: jest.fn().mockResolvedValue('granted'),
   },
   writable: true,
   configurable: true,
 });
 
-Object.defineProperty(navigator, "serviceWorker", {
+Object.defineProperty(navigator, 'serviceWorker', {
   value: {
     register: jest.fn().mockResolvedValue({
-      scope: "http://localhost/",
+      scope: 'http://localhost/',
       addEventListener: jest.fn(),
       waiting: null,
     }),

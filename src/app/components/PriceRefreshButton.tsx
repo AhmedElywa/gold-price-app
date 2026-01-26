@@ -1,14 +1,12 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 
 interface PriceRefreshButtonProps {
   onRefresh: () => Promise<void>;
 }
 
-export default function PriceRefreshButton({
-  onRefresh,
-}: PriceRefreshButtonProps) {
+export default function PriceRefreshButton({ onRefresh }: PriceRefreshButtonProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
 
@@ -20,7 +18,7 @@ export default function PriceRefreshButton({
       await onRefresh();
       setLastRefreshed(new Date());
     } catch (error) {
-      console.error("Failed to refresh prices:", error);
+      console.error('Failed to refresh prices:', error);
     } finally {
       setIsRefreshing(false);
     }
@@ -32,9 +30,7 @@ export default function PriceRefreshButton({
         onClick={handleRefresh}
         disabled={isRefreshing}
         className={`flex items-center justify-center px-4 py-2 rounded-md ${
-          isRefreshing
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-amber-500 hover:bg-amber-600"
+          isRefreshing ? 'bg-gray-400 cursor-not-allowed' : 'bg-amber-500 hover:bg-amber-600'
         } text-white font-medium transition-colors`}
       >
         {isRefreshing ? (
@@ -45,14 +41,7 @@ export default function PriceRefreshButton({
               fill="none"
               viewBox="0 0 24 24"
             >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path
                 className="opacity-75"
                 fill="currentColor"
@@ -82,9 +71,7 @@ export default function PriceRefreshButton({
         )}
       </button>
       {lastRefreshed && (
-        <p className="text-xs text-gray-600 mt-1">
-          Last refreshed: {lastRefreshed.toLocaleTimeString()}
-        </p>
+        <p className="text-xs text-gray-600 mt-1">Last refreshed: {lastRefreshed.toLocaleTimeString()}</p>
       )}
     </div>
   );

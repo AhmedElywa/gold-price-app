@@ -1,4 +1,4 @@
-'use server'
+'use server';
 
 import webpush from 'web-push';
 
@@ -6,7 +6,7 @@ function configureWebPush() {
   webpush.setVapidDetails(
     'mailto:ahmed.elywa@icloud.com',
     process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-    process.env.VAPID_PRIVATE_KEY!
+    process.env.VAPID_PRIVATE_KEY!,
   );
 }
 
@@ -39,7 +39,7 @@ export async function subscribeUser(subscription: SerializablePushSubscription) 
 export async function unsubscribeUser(endpoint: string) {
   configureWebPush();
   // In a production app, remove from database
-  subscriptions = subscriptions.filter(sub => sub.endpoint !== endpoint);
+  subscriptions = subscriptions.filter((sub) => sub.endpoint !== endpoint);
   console.log('Subscription removed:', endpoint);
   return { success: true };
 }
@@ -62,13 +62,13 @@ export async function sendNotification(message: string) {
           title: 'Gold Price Update',
           body: message,
           icon: '/icons/icon-192x192.png',
-        })
+        }),
       );
       successCount++;
     } catch (error) {
       console.error('Error sending push notification:', error);
       failureCount++;
-      
+
       // Check if the error is a WebPushError with status 410 (Gone) or 404 (Not Found)
       if (
         error &&
@@ -77,14 +77,14 @@ export async function sendNotification(message: string) {
         (error.statusCode === 410 || error.statusCode === 404)
       ) {
         // Subscription is no longer valid, remove it
-        subscriptions = subscriptions.filter(sub => sub.endpoint !== subscription.endpoint);
+        subscriptions = subscriptions.filter((sub) => sub.endpoint !== subscription.endpoint);
         console.log('Invalid subscription removed:', subscription.endpoint);
       }
     }
   }
 
-  return { 
-    success: successCount > 0, 
-    message: `Notifications sent to ${successCount} subscribers (${failureCount} failed)` 
+  return {
+    success: successCount > 0,
+    message: `Notifications sent to ${successCount} subscribers (${failureCount} failed)`,
   };
-} 
+}

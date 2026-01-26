@@ -1,14 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
 
 export async function GET() {
-  const { VERCEL_DEPLOYMENT_ID, VERCEL_GIT_COMMIT_SHA, VERCEL_GIT_COMMIT_REF } =
-    process.env;
+  const { VERCEL_DEPLOYMENT_ID, VERCEL_GIT_COMMIT_SHA, VERCEL_GIT_COMMIT_REF } = process.env;
 
-  const cacheVersion =
-    VERCEL_DEPLOYMENT_ID ||
-    VERCEL_GIT_COMMIT_SHA ||
-    VERCEL_GIT_COMMIT_REF ||
-    Date.now().toString();
+  const cacheVersion = VERCEL_DEPLOYMENT_ID || VERCEL_GIT_COMMIT_SHA || VERCEL_GIT_COMMIT_REF || Date.now().toString();
 
   const serviceWorkerCode = `// This is the service worker for Gold Price App
 
@@ -221,10 +216,10 @@ self.addEventListener("message", (event) => {
 
   return new NextResponse(serviceWorkerCode, {
     headers: {
-      "Content-Type": "application/javascript",
-      "Cache-Control": "no-cache, no-store, must-revalidate",
-      Pragma: "no-cache",
-      Expires: "0",
+      'Content-Type': 'application/javascript',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      Pragma: 'no-cache',
+      Expires: '0',
     },
   });
 }

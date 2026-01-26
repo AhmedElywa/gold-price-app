@@ -3,7 +3,7 @@
  * This tests the price change notification logic
  */
 
-describe("shouldSendNotification function", () => {
+describe('shouldSendNotification function', () => {
   // Copy the logic from the API route for testing
   let lastGoldPrice: number | null = null;
   let lastNotificationAt: number = 0;
@@ -16,14 +16,10 @@ describe("shouldSendNotification function", () => {
       return false;
     }
 
-    const priceDiffPercent = Math.abs(
-      ((newPrice - lastGoldPrice) / lastGoldPrice) * 100
-    );
+    const priceDiffPercent = Math.abs(((newPrice - lastGoldPrice) / lastGoldPrice) * 100);
     const now = Date.now();
-    const enoughTimeElapsed =
-      now - lastNotificationAt > NOTIFICATION_COOLDOWN_MS;
-    const significantChange =
-      priceDiffPercent >= NOTIFICATION_THRESHOLD_PERCENT;
+    const enoughTimeElapsed = now - lastNotificationAt > NOTIFICATION_COOLDOWN_MS;
+    const significantChange = priceDiffPercent >= NOTIFICATION_THRESHOLD_PERCENT;
 
     if (significantChange && enoughTimeElapsed) {
       lastGoldPrice = newPrice;
@@ -41,21 +37,21 @@ describe("shouldSendNotification function", () => {
     lastNotificationAt = 0;
   });
 
-  describe("Initial state behavior", () => {
-    it("should not send notification on first price update", () => {
+  describe('Initial state behavior', () => {
+    it('should not send notification on first price update', () => {
       const result = shouldSendNotification(100);
       expect(result).toBe(false);
       expect(lastGoldPrice).toBe(100);
     });
 
-    it("should store the first price correctly", () => {
+    it('should store the first price correctly', () => {
       shouldSendNotification(2500.5);
       expect(lastGoldPrice).toBe(2500.5);
     });
   });
 
-  describe("Price change threshold behavior", () => {
-    it("should send notification when price change exceeds threshold", () => {
+  describe('Price change threshold behavior', () => {
+    it('should send notification when price change exceeds threshold', () => {
       // Set initial price
       shouldSendNotification(100);
 
@@ -64,7 +60,7 @@ describe("shouldSendNotification function", () => {
       expect(result).toBe(true);
     });
 
-    it("should not send notification when price change is below threshold", () => {
+    it('should not send notification when price change is below threshold', () => {
       shouldSendNotification(100);
 
       // Price increases by 0.2% (below 0.25% threshold)
@@ -72,7 +68,7 @@ describe("shouldSendNotification function", () => {
       expect(result).toBe(false);
     });
 
-    it("should trigger on price decreases exceeding threshold", () => {
+    it('should trigger on price decreases exceeding threshold', () => {
       shouldSendNotification(100);
 
       // Price decreases by 0.3% (above 0.25% threshold)
@@ -80,7 +76,7 @@ describe("shouldSendNotification function", () => {
       expect(result).toBe(true);
     });
 
-    it("should calculate percentage correctly for different price ranges", () => {
+    it('should calculate percentage correctly for different price ranges', () => {
       // Test with high price
       shouldSendNotification(2000);
       const result1 = shouldSendNotification(2005); // 0.25% increase
@@ -94,7 +90,7 @@ describe("shouldSendNotification function", () => {
       expect(result2).toBe(true);
     });
 
-    it("should handle exact threshold boundary", () => {
+    it('should handle exact threshold boundary', () => {
       shouldSendNotification(100);
 
       // Exactly 0.25% change
@@ -103,8 +99,8 @@ describe("shouldSendNotification function", () => {
     });
   });
 
-  describe("Cooldown period behavior", () => {
-    it("should not send duplicate notifications during cooldown", () => {
+  describe('Cooldown period behavior', () => {
+    it('should not send duplicate notifications during cooldown', () => {
       shouldSendNotification(100);
 
       // First significant change
@@ -116,7 +112,7 @@ describe("shouldSendNotification function", () => {
       expect(result2).toBe(false);
     });
 
-    it("should allow notifications after cooldown period", () => {
+    it('should allow notifications after cooldown period', () => {
       shouldSendNotification(100);
 
       // First notification
@@ -130,7 +126,7 @@ describe("shouldSendNotification function", () => {
       expect(result).toBe(true);
     });
 
-    it("should respect cooldown even with very large price changes", () => {
+    it('should respect cooldown even with very large price changes', () => {
       shouldSendNotification(100);
       shouldSendNotification(100.3); // First notification
 
@@ -140,8 +136,8 @@ describe("shouldSendNotification function", () => {
     });
   });
 
-  describe("Price tracking behavior", () => {
-    it("should update lastGoldPrice regardless of notification sent", () => {
+  describe('Price tracking behavior', () => {
+    it('should update lastGoldPrice regardless of notification sent', () => {
       shouldSendNotification(100);
       shouldSendNotification(100.1); // Below threshold, no notification
       expect(lastGoldPrice).toBe(100.1);
@@ -150,7 +146,7 @@ describe("shouldSendNotification function", () => {
       expect(lastGoldPrice).toBe(100.4);
     });
 
-    it("should track price correctly through multiple updates", () => {
+    it('should track price correctly through multiple updates', () => {
       const prices = [100, 100.1, 100.05, 100.2, 100.15];
 
       prices.forEach((price) => shouldSendNotification(price));
@@ -159,8 +155,8 @@ describe("shouldSendNotification function", () => {
     });
   });
 
-  describe("Edge cases", () => {
-    it("should handle zero price", () => {
+  describe('Edge cases', () => {
+    it('should handle zero price', () => {
       shouldSendNotification(0);
       expect(lastGoldPrice).toBe(0);
 
@@ -169,7 +165,7 @@ describe("shouldSendNotification function", () => {
       expect(result).toBe(true);
     });
 
-    it("should handle negative prices", () => {
+    it('should handle negative prices', () => {
       shouldSendNotification(-100);
       expect(lastGoldPrice).toBe(-100);
 
@@ -177,14 +173,14 @@ describe("shouldSendNotification function", () => {
       expect(result).toBe(true);
     });
 
-    it("should handle very small price changes", () => {
+    it('should handle very small price changes', () => {
       shouldSendNotification(100);
 
       const result = shouldSendNotification(100.001); // 0.001% change
       expect(result).toBe(false);
     });
 
-    it("should handle floating point precision", () => {
+    it('should handle floating point precision', () => {
       shouldSendNotification(100.123456789);
 
       // Change that slightly exceeds 0.25% to account for floating point precision
@@ -194,8 +190,8 @@ describe("shouldSendNotification function", () => {
     });
   });
 
-  describe("Real-world scenarios", () => {
-    it("should handle typical gold price fluctuations", () => {
+  describe('Real-world scenarios', () => {
+    it('should handle typical gold price fluctuations', () => {
       // Simulate real gold price movements
       const prices = [
         2650.0, // Initial
@@ -210,7 +206,7 @@ describe("shouldSendNotification function", () => {
       expect(results).toEqual([false, false, false, true, false]);
     });
 
-    it("should handle price spikes and recoveries", () => {
+    it('should handle price spikes and recoveries', () => {
       shouldSendNotification(2650);
 
       // Spike up
@@ -224,8 +220,8 @@ describe("shouldSendNotification function", () => {
     });
   });
 
-  describe("Integration with notification timing", () => {
-    it("should properly update timestamp when notification is sent", () => {
+  describe('Integration with notification timing', () => {
+    it('should properly update timestamp when notification is sent', () => {
       const beforeTime = Date.now();
 
       shouldSendNotification(100);
@@ -235,7 +231,7 @@ describe("shouldSendNotification function", () => {
       expect(lastNotificationAt).toBeLessThanOrEqual(Date.now());
     });
 
-    it("should not update timestamp when notification is not sent", () => {
+    it('should not update timestamp when notification is not sent', () => {
       shouldSendNotification(100);
       const originalTimestamp = lastNotificationAt;
 

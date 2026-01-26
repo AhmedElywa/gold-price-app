@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
-const assert = require('assert');
+const assert = require('node:assert');
 
 let lastGoldPrice = null;
 let lastNotificationAt = 0;
@@ -11,7 +11,7 @@ function shouldSendNotification(newPrice) {
     lastGoldPrice = newPrice;
     return false;
   }
-  const priceDiffPercent = Math.abs((newPrice - lastGoldPrice) / lastGoldPrice * 100);
+  const priceDiffPercent = Math.abs(((newPrice - lastGoldPrice) / lastGoldPrice) * 100);
   const now = Date.now();
   const enoughTimeElapsed = now - lastNotificationAt > COOLDOWN;
   const significantChange = priceDiffPercent >= THRESHOLD;
@@ -24,7 +24,7 @@ function shouldSendNotification(newPrice) {
   return false;
 }
 
-(function(){
+(() => {
   lastGoldPrice = null;
   lastNotificationAt = 0;
   let sent = shouldSendNotification(100);

@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import PwaClientWrapper from './PwaClientWrapper';
 import { Toaster } from '@/components/ui/toaster';
+import PwaClientWrapper from './PwaClientWrapper';
 
 interface BodyWrapperProps {
   children: React.ReactNode;
@@ -29,4 +29,4 @@ export default function BodyWrapper({ children }: BodyWrapperProps) {
       )}
     </>
   );
-} 
+}

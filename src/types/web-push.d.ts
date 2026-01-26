@@ -7,11 +7,7 @@ declare module 'web-push' {
     };
   }
 
-  export function setVapidDetails(
-    subject: string,
-    publicKey: string,
-    privateKey: string
-  ): void;
+  export function setVapidDetails(subject: string, publicKey: string, privateKey: string): void;
 
   export function sendNotification(
     subscription: PushSubscription,
@@ -26,7 +22,7 @@ declare module 'web-push' {
       gcmAPIKey?: string;
       urgency?: 'very-low' | 'low' | 'normal' | 'high';
       topic?: string;
-    }
+    },
   ): Promise<{
     statusCode: number;
     body: string;
@@ -39,4 +35,4 @@ declare module 'web-push' {
     headers: Record<string, string>;
     body: string;
   }
-} 
+}

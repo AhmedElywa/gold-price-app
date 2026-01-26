@@ -3,26 +3,25 @@
  * Tests the interaction between price change detection and notification sending
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import { sendNotification } from "../../src/app/actions";
+import { sendNotification } from '../../src/app/actions';
 
 // Mock the actions module
-jest.mock("../../src/app/actions", () => ({
+jest.mock('../../src/app/actions', () => ({
   sendNotification: jest.fn(),
 }));
 
 // Mock web-push for integration tests
-jest.mock("web-push", () => ({
+jest.mock('web-push', () => ({
   setVapidDetails: jest.fn(),
   sendNotification: jest.fn(),
 }));
 
 // Mock environment variables
-process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY = "test-vapid-public";
-process.env.VAPID_PRIVATE_KEY = "test-vapid-private";
-process.env.EXCHANGE_RATE_API_KEY = "test-exchange-rate-key";
+process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY = 'test-vapid-public';
+process.env.VAPID_PRIVATE_KEY = 'test-vapid-private';
+process.env.EXCHANGE_RATE_API_KEY = 'test-exchange-rate-key';
 
-describe("Notification Flow Integration Tests", () => {
+describe('Notification Flow Integration Tests', () => {
   // Mock the gold price API route logic
   let lastGoldPrice: number | null = null;
   let lastNotificationAt: number = 0;
@@ -30,9 +29,7 @@ describe("Notification Flow Integration Tests", () => {
   const NOTIFICATION_COOLDOWN_MS = 3 * 60 * 60 * 1000;
 
   // Get the mocked function with proper typing
-  const mockSendNotification = sendNotification as jest.MockedFunction<
-    typeof sendNotification
-  >;
+  const mockSendNotification = sendNotification as jest.MockedFunction<typeof sendNotification>;
 
   function shouldSendNotification(newPrice: number): boolean {
     if (lastGoldPrice === null) {
@@ -40,14 +37,10 @@ describe("Notification Flow Integration Tests", () => {
       return false;
     }
 
-    const priceDiffPercent = Math.abs(
-      ((newPrice - lastGoldPrice) / lastGoldPrice) * 100
-    );
+    const priceDiffPercent = Math.abs(((newPrice - lastGoldPrice) / lastGoldPrice) * 100);
     const now = Date.now();
-    const enoughTimeElapsed =
-      now - lastNotificationAt > NOTIFICATION_COOLDOWN_MS;
-    const significantChange =
-      priceDiffPercent >= NOTIFICATION_THRESHOLD_PERCENT;
+    const enoughTimeElapsed = now - lastNotificationAt > NOTIFICATION_COOLDOWN_MS;
+    const significantChange = priceDiffPercent >= NOTIFICATION_THRESHOLD_PERCENT;
 
     if (significantChange && enoughTimeElapsed) {
       lastGoldPrice = newPrice;
@@ -65,11 +58,11 @@ describe("Notification Flow Integration Tests", () => {
     lastNotificationAt = 0;
   });
 
-  describe("End-to-End Notification Flow", () => {
-    it("should trigger notification when price change exceeds threshold", async () => {
+  describe('End-to-End Notification Flow', () => {
+    it('should trigger notification when price change exceeds threshold', async () => {
       mockSendNotification.mockResolvedValue({
         success: true,
-        message: "Notifications sent to 1 subscribers (0 failed)",
+        message: 'Notifications sent to 1 subscribers (0 failed)',
       });
 
       // Simulate price updates that would trigger notification
@@ -85,10 +78,8 @@ describe("Notification Flow Integration Tests", () => {
       expect(shouldNotify2).toBe(true);
 
       if (shouldNotify2) {
-        const direction = newPrice > initialPrice ? "increased" : "decreased";
-        const message = `Gold price has ${direction} to $${newPrice.toFixed(
-          2
-        )} per ounce`;
+        const direction = newPrice > initialPrice ? 'increased' : 'decreased';
+        const message = `Gold price has ${direction} to $${newPrice.toFixed(2)} per ounce`;
 
         const result = await sendNotification(message);
 
@@ -97,10 +88,10 @@ describe("Notification Flow Integration Tests", () => {
       }
     });
 
-    it("should not trigger notification during cooldown period", async () => {
+    it('should not trigger notification during cooldown period', async () => {
       mockSendNotification.mockResolvedValue({
         success: true,
-        message: "Notifications sent to 1 subscribers (0 failed)",
+        message: 'Notifications sent to 1 subscribers (0 failed)',
       });
 
       // First significant price change
@@ -109,7 +100,7 @@ describe("Notification Flow Integration Tests", () => {
       expect(shouldNotify1).toBe(true);
 
       if (shouldNotify1) {
-        await sendNotification("First notification");
+        await sendNotification('First notification');
       }
 
       // Second significant change during cooldown
@@ -120,44 +111,44 @@ describe("Notification Flow Integration Tests", () => {
       expect(mockSendNotification).toHaveBeenCalledTimes(1);
     });
 
-    it("should handle notification sending failures gracefully", async () => {
+    it('should handle notification sending failures gracefully', async () => {
       mockSendNotification.mockResolvedValue({
         success: false,
-        error: "No subscriptions available",
+        error: 'No subscriptions available',
       });
 
       shouldSendNotification(2650.0);
       const shouldNotify = shouldSendNotification(2656.63);
       expect(shouldNotify).toBe(true);
 
-      const result = await sendNotification("Test notification");
+      const result = await sendNotification('Test notification');
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("No subscriptions available");
+      expect(result.error).toBe('No subscriptions available');
     });
 
-    it("should handle multiple subscribers correctly", async () => {
+    it('should handle multiple subscribers correctly', async () => {
       mockSendNotification.mockResolvedValue({
         success: true,
-        message: "Notifications sent to 3 subscribers (0 failed)",
+        message: 'Notifications sent to 3 subscribers (0 failed)',
       });
 
       shouldSendNotification(2650.0);
       const shouldNotify = shouldSendNotification(2656.63);
       expect(shouldNotify).toBe(true);
 
-      const result = await sendNotification("Price alert");
+      const result = await sendNotification('Price alert');
 
       expect(result.success).toBe(true);
-      expect(result.message).toContain("3 subscribers");
+      expect(result.message).toContain('3 subscribers');
     });
   });
 
-  describe("Price Change Scenarios", () => {
-    it("should handle volatile market conditions", async () => {
+  describe('Price Change Scenarios', () => {
+    it('should handle volatile market conditions', async () => {
       mockSendNotification.mockResolvedValue({
         success: true,
-        message: "Notifications sent to 1 subscribers (0 failed)",
+        message: 'Notifications sent to 1 subscribers (0 failed)',
       });
 
       const prices = [
@@ -183,10 +174,10 @@ describe("Notification Flow Integration Tests", () => {
       expect(mockSendNotification).toHaveBeenCalledTimes(1);
     });
 
-    it("should handle price spikes and recoveries", async () => {
+    it('should handle price spikes and recoveries', async () => {
       mockSendNotification.mockResolvedValue({
         success: true,
-        message: "Notifications sent to 1 subscribers (0 failed)",
+        message: 'Notifications sent to 1 subscribers (0 failed)',
       });
 
       // Initial price
@@ -195,23 +186,23 @@ describe("Notification Flow Integration Tests", () => {
       // Spike up - should notify
       const spikeNotify = shouldSendNotification(2670.0); // +0.755%
       expect(spikeNotify).toBe(true);
-      await sendNotification("Price spike alert");
+      await sendNotification('Price spike alert');
 
       // Recovery after cooldown
       lastNotificationAt = Date.now() - (NOTIFICATION_COOLDOWN_MS + 1000);
       const recoveryNotify = shouldSendNotification(2653.0); // -0.637% from spike
       expect(recoveryNotify).toBe(true);
-      await sendNotification("Price recovery alert");
+      await sendNotification('Price recovery alert');
 
       expect(mockSendNotification).toHaveBeenCalledTimes(2);
     });
   });
 
-  describe("Real-world Gold Price Simulations", () => {
-    it("should handle typical daily gold price movements", async () => {
+  describe('Real-world Gold Price Simulations', () => {
+    it('should handle typical daily gold price movements', async () => {
       mockSendNotification.mockResolvedValue({
         success: true,
-        message: "Notifications sent to 2 subscribers (0 failed)",
+        message: 'Notifications sent to 2 subscribers (0 failed)',
       });
 
       // Simulate a day of gold price movements (realistic data)
@@ -240,10 +231,10 @@ describe("Notification Flow Integration Tests", () => {
       expect(mockSendNotification).toHaveBeenCalledTimes(1);
     });
 
-    it("should handle weekend gap scenarios", async () => {
+    it('should handle weekend gap scenarios', async () => {
       mockSendNotification.mockResolvedValue({
         success: true,
-        message: "Notifications sent to 1 subscribers (0 failed)",
+        message: 'Notifications sent to 1 subscribers (0 failed)',
       });
 
       // Friday close
@@ -253,22 +244,22 @@ describe("Notification Flow Integration Tests", () => {
       const gapNotify = shouldSendNotification(2680.0); // +1.13% gap
       expect(gapNotify).toBe(true);
 
-      await sendNotification("Weekend gap alert");
+      await sendNotification('Weekend gap alert');
 
-      expect(mockSendNotification).toHaveBeenCalledWith("Weekend gap alert");
+      expect(mockSendNotification).toHaveBeenCalledWith('Weekend gap alert');
     });
   });
 
-  describe("Error Handling in Flow", () => {
-    it("should continue price tracking even when notifications fail", async () => {
-      mockSendNotification.mockRejectedValue(new Error("Network error"));
+  describe('Error Handling in Flow', () => {
+    it('should continue price tracking even when notifications fail', async () => {
+      mockSendNotification.mockRejectedValue(new Error('Network error'));
 
       shouldSendNotification(2650.0);
       const shouldNotify = shouldSendNotification(2656.63);
       expect(shouldNotify).toBe(true);
 
       try {
-        await sendNotification("Test notification");
+        await sendNotification('Test notification');
       } catch (error) {
         // Error should be handled
         expect(error).toBeInstanceOf(Error);
@@ -278,52 +269,52 @@ describe("Notification Flow Integration Tests", () => {
       expect(lastGoldPrice).toBe(2656.63);
     });
 
-    it("should handle partial notification failures", async () => {
+    it('should handle partial notification failures', async () => {
       mockSendNotification.mockResolvedValue({
         success: true,
-        message: "Notifications sent to 2 subscribers (1 failed)",
+        message: 'Notifications sent to 2 subscribers (1 failed)',
       });
 
       shouldSendNotification(2650.0);
       const shouldNotify = shouldSendNotification(2656.63);
       expect(shouldNotify).toBe(true);
 
-      const result = await sendNotification("Partial failure test");
+      const result = await sendNotification('Partial failure test');
 
       expect(result.success).toBe(true);
-      expect(result.message).toContain("1 failed");
+      expect(result.message).toContain('1 failed');
     });
   });
 
-  describe("Subscription Management Integration", () => {
-    it("should handle notifications when no subscribers exist", async () => {
+  describe('Subscription Management Integration', () => {
+    it('should handle notifications when no subscribers exist', async () => {
       mockSendNotification.mockResolvedValue({
         success: false,
-        error: "No subscriptions available",
+        error: 'No subscriptions available',
       });
 
       shouldSendNotification(2650.0);
       const shouldNotify = shouldSendNotification(2656.63);
       expect(shouldNotify).toBe(true);
 
-      const result = await sendNotification("No subscribers test");
+      const result = await sendNotification('No subscribers test');
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("No subscriptions available");
+      expect(result.error).toBe('No subscriptions available');
     });
 
-    it("should handle subscription cleanup during notification", async () => {
+    it('should handle subscription cleanup during notification', async () => {
       // First call succeeds
       mockSendNotification.mockResolvedValueOnce({
         success: true,
-        message: "Notifications sent to 1 subscribers (0 failed)",
+        message: 'Notifications sent to 1 subscribers (0 failed)',
       });
 
       shouldSendNotification(2650.0);
 
       // First notification
       if (shouldSendNotification(2656.63)) {
-        const result1 = await sendNotification("First notification");
+        const result1 = await sendNotification('First notification');
         expect(result1.success).toBe(true);
       }
 
@@ -333,11 +324,11 @@ describe("Notification Flow Integration Tests", () => {
       // Second call has no subscriptions (they were cleaned up)
       mockSendNotification.mockResolvedValueOnce({
         success: false,
-        error: "No subscriptions available",
+        error: 'No subscriptions available',
       });
 
       if (shouldSendNotification(2669.24)) {
-        const result2 = await sendNotification("Second notification");
+        const result2 = await sendNotification('Second notification');
         expect(result2.success).toBe(false);
       }
 
@@ -345,18 +336,18 @@ describe("Notification Flow Integration Tests", () => {
     });
   });
 
-  describe("Performance and Timing", () => {
-    it("should handle high-frequency price updates efficiently", async () => {
+  describe('Performance and Timing', () => {
+    it('should handle high-frequency price updates efficiently', async () => {
       mockSendNotification.mockResolvedValue({
         success: true,
-        message: "Notifications sent to 1 subscribers (0 failed)",
+        message: 'Notifications sent to 1 subscribers (0 failed)',
       });
 
       const startTime = Date.now();
 
       // Simulate 100 rapid price updates
       let notifications = 0;
-      let basePrice = 2650.0;
+      const basePrice = 2650.0;
 
       for (let i = 0; i < 100; i++) {
         const variation = (Math.random() - 0.5) * 10; // ±$5 variation
@@ -376,10 +367,10 @@ describe("Notification Flow Integration Tests", () => {
       expect(notifications).toBeLessThanOrEqual(2); // At most a couple notifications
     });
 
-    it("should respect cooldown timing precisely", async () => {
+    it('should respect cooldown timing precisely', async () => {
       mockSendNotification.mockResolvedValue({
         success: true,
-        message: "Notifications sent to 1 subscribers (0 failed)",
+        message: 'Notifications sent to 1 subscribers (0 failed)',
       });
 
       // First notification
@@ -388,7 +379,7 @@ describe("Notification Flow Integration Tests", () => {
       expect(firstNotify).toBe(true);
 
       const notificationTime = Date.now();
-      await sendNotification("First notification");
+      await sendNotification('First notification');
 
       // Just before cooldown expires
       lastNotificationAt = notificationTime;
@@ -407,33 +398,31 @@ describe("Notification Flow Integration Tests", () => {
     });
   });
 
-  describe("Service Worker Compatibility", () => {
-    it("should handle JSON formatted push messages", async () => {
+  describe('Service Worker Compatibility', () => {
+    it('should handle JSON formatted push messages', async () => {
       // This test verifies that the service worker can handle JSON messages
       // The actual service worker is tested in browser, but we can verify the data format
       mockSendNotification.mockResolvedValue({
         success: true,
-        message: "Notifications sent to 1 subscribers (0 failed)",
+        message: 'Notifications sent to 1 subscribers (0 failed)',
       });
 
       shouldSendNotification(2650.0);
       const shouldNotify = shouldSendNotification(2656.63);
       expect(shouldNotify).toBe(true);
 
-      const result = await sendNotification("Gold price increased to $2656.63");
+      const result = await sendNotification('Gold price increased to $2656.63');
 
       expect(result.success).toBe(true);
-      expect(mockSendNotification).toHaveBeenCalledWith(
-        "Gold price increased to $2656.63"
-      );
+      expect(mockSendNotification).toHaveBeenCalledWith('Gold price increased to $2656.63');
     });
 
-    it("should handle plain text messages gracefully", async () => {
+    it('should handle plain text messages gracefully', async () => {
       // This simulates the case where the service worker receives plain text
       // instead of JSON (which was causing the original error)
       mockSendNotification.mockResolvedValue({
         success: true,
-        message: "Notifications sent to 1 subscribers (0 failed)",
+        message: 'Notifications sent to 1 subscribers (0 failed)',
       });
 
       shouldSendNotification(2650.0);
@@ -442,11 +431,11 @@ describe("Notification Flow Integration Tests", () => {
 
       // Test with various plain text formats that might cause JSON parsing errors
       const plainTextMessages = [
-        "Test push notification",
-        "Simple message",
-        "Message with 'quotes' and \"double quotes\"",
-        "Message with {braces} and [brackets]",
-        "Price: $2,650.00",
+        'Test push notification',
+        'Simple message',
+        'Message with \'quotes\' and "double quotes"',
+        'Message with {braces} and [brackets]',
+        'Price: $2,650.00',
       ];
 
       for (const message of plainTextMessages) {
@@ -454,15 +443,13 @@ describe("Notification Flow Integration Tests", () => {
         expect(result.success).toBe(true);
       }
 
-      expect(mockSendNotification).toHaveBeenCalledTimes(
-        plainTextMessages.length
-      );
+      expect(mockSendNotification).toHaveBeenCalledTimes(plainTextMessages.length);
     });
 
-    it("should handle malformed or empty messages", async () => {
+    it('should handle malformed or empty messages', async () => {
       mockSendNotification.mockResolvedValue({
         success: true,
-        message: "Notifications sent to 1 subscribers (0 failed)",
+        message: 'Notifications sent to 1 subscribers (0 failed)',
       });
 
       shouldSendNotification(2650.0);
@@ -471,18 +458,18 @@ describe("Notification Flow Integration Tests", () => {
 
       // Test edge cases that might break JSON parsing
       const edgeCaseMessages = [
-        "", // Empty string
-        " ", // Whitespace only
-        "\n", // Newline
-        "\t", // Tab
-        "null", // String that looks like JSON null
-        "undefined", // String that looks like undefined
-        "true", // String that looks like boolean
-        "123", // String that looks like number
+        '', // Empty string
+        ' ', // Whitespace only
+        '\n', // Newline
+        '\t', // Tab
+        'null', // String that looks like JSON null
+        'undefined', // String that looks like undefined
+        'true', // String that looks like boolean
+        '123', // String that looks like number
       ];
 
       for (const message of edgeCaseMessages) {
-        const result = await sendNotification(message || "fallback message");
+        const result = await sendNotification(message || 'fallback message');
         expect(result.success).toBe(true);
       }
     });

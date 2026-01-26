@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { sendNotification } from "../actions";
+import { useEffect, useState } from 'react';
+import { sendNotification } from '../actions';
 
 export function TestNotification() {
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState('');
   const [status, setStatus] = useState<{
     success?: boolean;
     message?: string;
@@ -22,18 +22,16 @@ export function TestNotification() {
   useEffect(() => {
     setIsMounted(true);
     checkDebugInfo();
-  }, []);
+  }, [checkDebugInfo]);
 
   async function checkDebugInfo() {
-    if (!("serviceWorker" in navigator) || !("Notification" in window)) {
+    if (!('serviceWorker' in navigator) || !('Notification' in window)) {
       return;
     }
 
     try {
       const registration = await navigator.serviceWorker.getRegistration();
-      const subscription = registration
-        ? await registration.pushManager.getSubscription()
-        : null;
+      const subscription = registration ? await registration.pushManager.getSubscription() : null;
 
       setDebugInfo({
         swRegistered: !!registration,
@@ -42,13 +40,13 @@ export function TestNotification() {
         subscriptionEndpoint: subscription?.endpoint || undefined,
       });
     } catch (error) {
-      console.error("Error checking debug info:", error);
+      console.error('Error checking debug info:', error);
     }
   }
 
   async function handleSendNotification() {
     if (!message.trim()) {
-      setStatus({ success: false, message: "Please enter a message" });
+      setStatus({ success: false, message: 'Please enter a message' });
       return;
     }
 
@@ -60,23 +58,17 @@ export function TestNotification() {
       // Normalize the result to always have a message property
       const normalizedResult = {
         success: result.success,
-        message:
-          "message" in result
-            ? result.message
-            : "error" in result
-            ? result.error
-            : "Unknown result",
+        message: 'message' in result ? result.message : 'error' in result ? result.error : 'Unknown result',
       };
       setStatus(normalizedResult);
       if (result.success) {
-        setMessage(""); // Clear message on success
+        setMessage(''); // Clear message on success
       }
     } catch (error) {
-      console.error("Error sending notification:", error);
+      console.error('Error sending notification:', error);
       setStatus({
         success: false,
-        message:
-          error instanceof Error ? error.message : "Unknown error occurred",
+        message: error instanceof Error ? error.message : 'Unknown error occurred',
       });
     } finally {
       setLoading(false);
@@ -104,33 +96,25 @@ export function TestNotification() {
         <div className="mb-3 p-2 bg-gray-50 rounded text-xs space-y-1">
           <div className="flex justify-between">
             <span>SW Registered:</span>
-            <span
-              className={
-                debugInfo.swRegistered ? "text-green-600" : "text-red-600"
-              }
-            >
-              {debugInfo.swRegistered ? "✓" : "✗"}
+            <span className={debugInfo.swRegistered ? 'text-green-600' : 'text-red-600'}>
+              {debugInfo.swRegistered ? '✓' : '✗'}
             </span>
           </div>
           <div className="flex justify-between">
             <span>Push Subscribed:</span>
-            <span
-              className={
-                debugInfo.pushSubscribed ? "text-green-600" : "text-red-600"
-              }
-            >
-              {debugInfo.pushSubscribed ? "✓" : "✗"}
+            <span className={debugInfo.pushSubscribed ? 'text-green-600' : 'text-red-600'}>
+              {debugInfo.pushSubscribed ? '✓' : '✗'}
             </span>
           </div>
           <div className="flex justify-between">
             <span>Permission:</span>
             <span
               className={
-                debugInfo.notificationPermission === "granted"
-                  ? "text-green-600"
-                  : debugInfo.notificationPermission === "denied"
-                  ? "text-red-600"
-                  : "text-yellow-600"
+                debugInfo.notificationPermission === 'granted'
+                  ? 'text-green-600'
+                  : debugInfo.notificationPermission === 'denied'
+                    ? 'text-red-600'
+                    : 'text-yellow-600'
               }
             >
               {debugInfo.notificationPermission}
@@ -139,9 +123,7 @@ export function TestNotification() {
           {debugInfo.subscriptionEndpoint && (
             <div className="break-all">
               <span className="block text-gray-600">Endpoint:</span>
-              <span className="text-blue-600">
-                {debugInfo.subscriptionEndpoint.substring(0, 50)}...
-              </span>
+              <span className="text-blue-600">{debugInfo.subscriptionEndpoint.substring(0, 50)}...</span>
             </div>
           )}
           <button
@@ -161,7 +143,7 @@ export function TestNotification() {
           placeholder="Enter notification message"
           className="w-full text-gray-700 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
           onKeyPress={(e) => {
-            if (e.key === "Enter" && !loading) {
+            if (e.key === 'Enter' && !loading) {
               handleSendNotification();
             }
           }}
@@ -171,20 +153,16 @@ export function TestNotification() {
         onClick={handleSendNotification}
         disabled={loading}
         className={`w-full py-2 rounded-md ${
-          loading
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-yellow-500 hover:bg-yellow-600"
+          loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-yellow-500 hover:bg-yellow-600'
         } text-white font-medium`}
       >
-        {loading ? "Sending..." : "Send Notification"}
+        {loading ? 'Sending...' : 'Send Notification'}
       </button>
 
       {status && (
         <div
           className={`mt-3 p-2 rounded-md text-sm ${
-            status.success
-              ? "bg-green-100 text-green-800"
-              : "bg-red-100 text-red-800"
+            status.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
           }`}
         >
           {status.message}

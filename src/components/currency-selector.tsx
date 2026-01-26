@@ -1,54 +1,43 @@
-"use client";
+'use client';
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  SelectSeparator,
-} from "@/components/ui/select";
-import { DollarSign } from "lucide-react";
-import { useTranslation } from "@/hooks/useTranslation";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useEffect, useState, Suspense } from "react";
+import { DollarSign } from 'lucide-react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
+import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // Define available currencies organized by category
 const primaryCurrencies = [
-  { code: "egp", key: "egypt" },
-  { code: "usd", key: "usa" },
-  { code: "eur", key: "europe" },
+  { code: 'egp', key: 'egypt' },
+  { code: 'usd', key: 'usa' },
+  { code: 'eur', key: 'europe' },
 ];
 
 const majorCurrencies = [
-  { code: "gbp", key: "uk" },
-  { code: "jpy", key: "japan" },
-  { code: "cny", key: "china" },
-  { code: "inr", key: "india" },
-  { code: "try", key: "turkey" },
-  { code: "rub", key: "russia" },
-  { code: "cad", key: "canada" },
-  { code: "aud", key: "australia" },
-  { code: "chf", key: "switzerland" },
-  { code: "sgd", key: "singapore" },
+  { code: 'gbp', key: 'uk' },
+  { code: 'jpy', key: 'japan' },
+  { code: 'cny', key: 'china' },
+  { code: 'inr', key: 'india' },
+  { code: 'try', key: 'turkey' },
+  { code: 'rub', key: 'russia' },
+  { code: 'cad', key: 'canada' },
+  { code: 'aud', key: 'australia' },
+  { code: 'chf', key: 'switzerland' },
+  { code: 'sgd', key: 'singapore' },
 ];
 
 const gccCurrencies = [
-  { code: "sar", key: "saudi" },
-  { code: "aed", key: "uae" },
-  { code: "qar", key: "qatar" },
-  { code: "kwd", key: "kuwait" },
-  { code: "bhd", key: "bahrain" },
-  { code: "omr", key: "oman" },
-  { code: "jod", key: "jordan" },
+  { code: 'sar', key: 'saudi' },
+  { code: 'aed', key: 'uae' },
+  { code: 'qar', key: 'qatar' },
+  { code: 'kwd', key: 'kuwait' },
+  { code: 'bhd', key: 'bahrain' },
+  { code: 'omr', key: 'oman' },
+  { code: 'jod', key: 'jordan' },
 ];
 
 // Get all available currency codes
-const allCurrencies = [
-  ...primaryCurrencies,
-  ...majorCurrencies,
-  ...gccCurrencies,
-];
+const allCurrencies = [...primaryCurrencies, ...majorCurrencies, ...gccCurrencies];
 
 function CurrencySelectorImpl() {
   const { t } = useTranslation();
@@ -57,11 +46,8 @@ function CurrencySelectorImpl() {
   const pathname = usePathname();
 
   // Get currency from URL parameter, fallback to EGP
-  const urlCurrency = searchParams.get("currency")?.toLowerCase();
-  const validCurrency =
-    urlCurrency && allCurrencies.some((c) => c.code === urlCurrency)
-      ? urlCurrency
-      : "egp";
+  const urlCurrency = searchParams.get('currency')?.toLowerCase();
+  const validCurrency = urlCurrency && allCurrencies.some((c) => c.code === urlCurrency) ? urlCurrency : 'egp';
 
   const [selectedCurrency, setSelectedCurrency] = useState(validCurrency);
 
@@ -75,7 +61,7 @@ function CurrencySelectorImpl() {
 
     // Update URL with new currency parameter
     const params = new URLSearchParams(searchParams.toString());
-    params.set("currency", newCurrency.toUpperCase());
+    params.set('currency', newCurrency.toUpperCase());
 
     // Navigate to new URL with updated currency parameter
     router.push(`${pathname}?${params.toString()}`);

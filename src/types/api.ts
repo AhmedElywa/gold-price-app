@@ -1,12 +1,12 @@
 export interface KaratPrices {
-  "24k": number;
-  "22k": number;
-  "21k": number;
-  "20k": number;
-  "18k": number;
-  "16k": number;
-  "14k": number;
-  "10k": number;
+  '24k': number;
+  '22k': number;
+  '21k': number;
+  '20k': number;
+  '18k': number;
+  '16k': number;
+  '14k': number;
+  '10k': number;
 }
 
 export interface MarketData {
@@ -39,6 +39,6 @@ export interface CurrencyInfo {
   flag: string;
   rate: string;
   change: string;
-  trend: "up" | "down";
+  trend: 'up' | 'down';
   name?: string;
 }

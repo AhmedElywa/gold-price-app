@@ -10,8 +10,8 @@
  * Exchange rates come from ExchangeRate‑API (free 1 500 calls / month).
  */
 
-import { NextResponse } from "next/server";
-import { sendNotification } from "../../actions";
+import { NextResponse } from 'next/server';
+import { sendNotification } from '../../actions';
 
 /** troy‑ounce → gram */
 const OUNCE_TO_GRAM = 31.1034768;
@@ -34,10 +34,7 @@ const NOTIFICATION_COOLDOWN_MS = 3 * 60 * 60 * 1000;
 /* ---------- response shape (unchanged for React client) ------------- */
 interface ApiResponseData {
   source_data: {
-    gold_price_usd_per_gram: Record<
-      "24k" | "22k" | "21k" | "20k" | "18k" | "16k" | "14k" | "10k",
-      number
-    >;
+    gold_price_usd_per_gram: Record<'24k' | '22k' | '21k' | '20k' | '18k' | '16k' | '14k' | '10k', number>;
     exchange_rates: Record<string, number>;
     market_data: {
       current_price: number;
@@ -52,10 +49,7 @@ interface ApiResponseData {
       symbol: string;
     };
   };
-  gold_prices_egp_per_gram: Record<
-    "24k" | "22k" | "21k" | "20k" | "18k" | "16k" | "14k" | "10k",
-    number
-  >;
+  gold_prices_egp_per_gram: Record<'24k' | '22k' | '21k' | '20k' | '18k' | '16k' | '14k' | '10k', number>;
   last_updated: string;
 }
 
@@ -64,14 +58,14 @@ function karatPricesFromOunce(ounceUsd: number) {
   const g24 = ounceUsd / OUNCE_TO_GRAM;
   const k = (n: number) => parseFloat(((g24 * n) / 24).toFixed(2));
   return {
-    "24k": parseFloat(g24.toFixed(2)),
-    "22k": k(22),
-    "21k": k(21),
-    "20k": k(20),
-    "18k": k(18),
-    "16k": k(16),
-    "14k": k(14),
-    "10k": k(10),
+    '24k': parseFloat(g24.toFixed(2)),
+    '22k': k(22),
+    '21k': k(21),
+    '20k': k(20),
+    '18k': k(18),
+    '16k': k(16),
+    '14k': k(14),
+    '10k': k(10),
   };
 }
 
@@ -82,25 +76,25 @@ function shouldSendNotification(newPrice: number): boolean {
     lastGoldPrice = newPrice;
     return false;
   }
-  
+
   // Calculate percentage change
-  const priceDiffPercent = Math.abs((newPrice - lastGoldPrice) / lastGoldPrice * 100);
-  
+  const priceDiffPercent = Math.abs(((newPrice - lastGoldPrice) / lastGoldPrice) * 100);
+
   // Check if the price change exceeds threshold and if we're not in cooldown period
   const now = Date.now();
   const enoughTimeElapsed = now - lastNotificationAt > NOTIFICATION_COOLDOWN_MS;
   const significantChange = priceDiffPercent >= NOTIFICATION_THRESHOLD_PERCENT;
-  
+
   // If conditions are met, update the notification timestamp and return true
   if (significantChange && enoughTimeElapsed) {
     lastGoldPrice = newPrice;
     lastNotificationAt = now;
     return true;
   }
-  
+
   // Update the last price regardless
   lastGoldPrice = newPrice;
-  
+
   return false;
 }
 
@@ -115,13 +109,13 @@ async function fetchOuncePriceUSD(): Promise<{
   xauClose: number;
   ts: number;
 }> {
-  const res = await fetch("https://data-asg.goldprice.org/dbXRates/USD", {
+  const res = await fetch('https://data-asg.goldprice.org/dbXRates/USD', {
     next: { revalidate: 60 }, // optional cache hint for Next.js
   });
   if (!res.ok) throw new Error(`goldprice.org HTTP ${res.status}`);
   const j = await res.json();
   const ounce = j?.items?.[0]?.xauPrice;
-  if (!ounce) throw new Error("XAU price not found in payload");
+  if (!ounce) throw new Error('XAU price not found in payload');
   const ts = j?.ts ?? Date.now();
   return {
     ounce: parseFloat(ounce),
@@ -142,26 +136,26 @@ if (!EXCHANGE_RATE_API_KEY) {
 }
 
 const SELECTED_CURRENCIES = [
-  "EGP",
-  "SAR",
-  "AED",
-  "QAR",
-  "KWD",
-  "BHD",
-  "OMR",
-  "JOD",
-  "USD",
-  "EUR",
-  "GBP",
-  "JPY",
-  "CNY",
-  "INR",
-  "TRY",
-  "RUB",
-  "CAD",
-  "AUD",
-  "CHF",
-  "SGD",
+  'EGP',
+  'SAR',
+  'AED',
+  'QAR',
+  'KWD',
+  'BHD',
+  'OMR',
+  'JOD',
+  'USD',
+  'EUR',
+  'GBP',
+  'JPY',
+  'CNY',
+  'INR',
+  'TRY',
+  'RUB',
+  'CAD',
+  'AUD',
+  'CHF',
+  'SGD',
 ] as const;
 
 async function fetchFxRates() {
@@ -186,20 +180,11 @@ async function fetchFxRates() {
 /* ---------- route handler ------------------------------------------- */
 export async function GET() {
   try {
-    const {
-      ounce,
-      xagPrice,
-      chgXau,
-      chgXag,
-      pcXau,
-      pcXag,
-      xauClose,
-      ts,
-    } = await fetchOuncePriceUSD();
+    const { ounce, xagPrice, chgXau, chgXag, pcXau, pcXag, xauClose, ts } = await fetchOuncePriceUSD();
     const fxRates = await fetchFxRates();
 
     const goldGramUSD = karatPricesFromOunce(ounce);
-    const goldGramEGP = karatPricesFromOunce(ounce * fxRates["EGP"]);
+    const goldGramEGP = karatPricesFromOunce(ounce * fxRates.EGP);
 
     const payload: ApiResponseData = {
       source_data: {
@@ -214,8 +199,8 @@ export async function GET() {
           silver_change: chgXag,
           silver_change_percent: pcXag,
           open_time: ts,
-          exchange: "goldprice.org",
-          symbol: "XAUUSD",
+          exchange: 'goldprice.org',
+          symbol: 'XAUUSD',
         },
       },
       gold_prices_egp_per_gram: goldGramEGP,
@@ -225,23 +210,20 @@ export async function GET() {
     // Check if we should send a notification about price change
     if (shouldSendNotification(ounce)) {
       const direction = lastGoldPrice && ounce > lastGoldPrice ? 'increased' : 'decreased';
-      const message = `Gold price has ${direction} to $${ounce.toFixed(2)} per ounce (EGP ${goldGramEGP["24k"].toFixed(2)} per gram for 24k)`;
-      
+      const message = `Gold price has ${direction} to $${ounce.toFixed(2)} per ounce (EGP ${goldGramEGP['24k'].toFixed(2)} per gram for 24k)`;
+
       // Send push notification to subscribers
       try {
         await sendNotification(message);
-        console.log("Price change notification sent:", message);
+        console.log('Price change notification sent:', message);
       } catch (error) {
-        console.error("Failed to send price notification:", error);
+        console.error('Failed to send price notification:', error);
       }
     }
 
     return NextResponse.json(payload);
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "unknown";
-    return NextResponse.json(
-      { error: `Failed to fetch gold data: ${msg}` },
-      { status: 500 }
-    );
+    const msg = err instanceof Error ? err.message : 'unknown';
+    return NextResponse.json({ error: `Failed to fetch gold data: ${msg}` }, { status: 500 });
   }
 }
