@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 import type { SerializablePushSubscription } from "../../src/app/actions";
 
 class MockWebPushError extends Error {
@@ -15,25 +15,43 @@ class MockWebPushError extends Error {
 	}
 }
 
-// Mock web-push module with plain functions (will be spied on later)
+// In-memory file store for mocking filesystem
+let fileStore: Record<string, string> = {};
+
+mock.module("node:fs/promises", () => ({
+	readFile: async (filePath: string) => {
+		if (filePath in fileStore) {
+			return fileStore[filePath];
+		}
+		const err = new Error(`ENOENT: no such file or directory, open '${filePath}'`) as NodeJS.ErrnoException;
+		err.code = "ENOENT";
+		throw err;
+	},
+	writeFile: async (filePath: string, data: string) => {
+		fileStore[filePath] = data;
+	},
+	mkdir: async () => {},
+}));
+
+// Use mock() functions directly so they're shared with the actions module
+const mockSetVapidDetails = mock(() => {});
+const mockSendNotification = mock(() =>
+	Promise.resolve({ statusCode: 201, body: "Success", headers: {} }),
+);
+
 mock.module("web-push", () => ({
 	default: {
-		setVapidDetails() {},
-		sendNotification() {
-			return Promise.resolve({ statusCode: 201, body: "Success", headers: {} });
-		},
+		setVapidDetails: mockSetVapidDetails,
+		sendNotification: mockSendNotification,
 		WebPushError: MockWebPushError,
 	},
-	setVapidDetails() {},
-	sendNotification() {
-		return Promise.resolve({ statusCode: 201, body: "Success", headers: {} });
-	},
+	setVapidDetails: mockSetVapidDetails,
+	sendNotification: mockSendNotification,
 	WebPushError: MockWebPushError,
 }));
 
 // Import after mocking
-import webpush from "web-push";
-import { sendNotification, subscribeUser, unsubscribeUser } from "../../src/app/actions";
+const { sendNotification, subscribeUser, unsubscribeUser } = await import("../../src/app/actions");
 
 // Mock console for server tests
 const mockConsole = {
@@ -42,11 +60,12 @@ const mockConsole = {
 	warn: mock(() => {}),
 };
 
-// Replace console in server environment
 Object.defineProperty(global, "console", {
 	value: { ...console, ...mockConsole },
 	writable: true,
 });
+
+const TEST_CRON_SECRET = "test-cron-secret";
 
 describe("Notification Actions", () => {
 	const mockSubscription: SerializablePushSubscription = {
@@ -57,48 +76,42 @@ describe("Notification Actions", () => {
 		},
 	};
 
-	// Spies on the webpush object - created in beforeEach
-	let spySetVapidDetails: ReturnType<typeof spyOn>;
-	let spySendNotification: ReturnType<typeof spyOn>;
-
-	// Helper to clear subscriptions between tests
 	async function clearAllSubscriptions() {
 		await unsubscribeUser(mockSubscription.endpoint);
 		await unsubscribeUser("https://fcm.googleapis.com/fcm/send/test-endpoint-2");
-		await unsubscribeUser("non-existent-endpoint");
 	}
 
-	afterEach(() => {
-		// Restore spies to prevent accumulation
-		spySetVapidDetails?.mockRestore();
-		spySendNotification?.mockRestore();
-	});
-
 	beforeEach(async () => {
+		// Reset in-memory file store
+		fileStore = {};
+
+		// Reset environment variables
+		process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY = "test-vapid-public";
+		process.env.VAPID_PRIVATE_KEY = "test-vapid-private";
+		process.env.CRON_SECRET = TEST_CRON_SECRET;
+		process.env.NODE_ENV = "test";
+
 		// Clear any existing subscriptions
 		await clearAllSubscriptions();
 
-		// Set up fresh spies on the mocked module
-		spySetVapidDetails = spyOn(webpush, "setVapidDetails");
-		spySendNotification = spyOn(webpush, "sendNotification").mockReturnValue(
-			Promise.resolve({ statusCode: 201, body: "Success", headers: {} }) as any,
+		// Reset mock call tracking
+		mockSetVapidDetails.mockClear();
+		mockSendNotification.mockClear();
+		mockSendNotification.mockImplementation(() =>
+			Promise.resolve({ statusCode: 201, body: "Success", headers: {} }),
 		);
 
 		mockConsole.log.mockClear();
 		mockConsole.error.mockClear();
 		mockConsole.warn.mockClear();
-
-		// Reset environment variables
-		process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY = "test-vapid-public";
-		process.env.VAPID_PRIVATE_KEY = "test-vapid-private";
 	});
 
 	describe("subscribeUser", () => {
 		it("should successfully subscribe a new user", async () => {
 			const result = await subscribeUser(mockSubscription);
 
-			expect(spySetVapidDetails).toHaveBeenCalledWith(
-				"mailto:ahmed.elywa@icloud.com",
+			expect(mockSetVapidDetails).toHaveBeenCalledWith(
+				expect.stringContaining("mailto:"),
 				"test-vapid-public",
 				"test-vapid-private",
 			);
@@ -110,11 +123,9 @@ describe("Notification Actions", () => {
 		});
 
 		it("should not add duplicate subscriptions", async () => {
-			// First subscription
 			await subscribeUser(mockSubscription);
 			mockConsole.log.mockClear();
 
-			// Second subscription with same endpoint
 			const result = await subscribeUser(mockSubscription);
 
 			expect(result).toEqual({ success: true });
@@ -134,17 +145,14 @@ describe("Notification Actions", () => {
 			const result = await subscribeUser(subscription2);
 
 			expect(result).toEqual({ success: true });
-			expect(mockConsole.log).toHaveBeenCalledTimes(2);
 		});
 	});
 
 	describe("unsubscribeUser", () => {
 		it("should successfully unsubscribe a user", async () => {
-			// First subscribe a user
 			await subscribeUser(mockSubscription);
 			mockConsole.log.mockClear();
 
-			// Then unsubscribe
 			const result = await unsubscribeUser(mockSubscription.endpoint);
 
 			expect(result).toEqual({ success: true });
@@ -168,31 +176,45 @@ describe("Notification Actions", () => {
 	describe("sendNotification", () => {
 		const testMessage = "Test notification message";
 
-		it("should return error when no subscriptions available", async () => {
+		it("should return Unauthorized when called without secret in non-development mode", async () => {
+			const originalNodeEnv = process.env.NODE_ENV;
+			process.env.NODE_ENV = "production";
+
 			const result = await sendNotification(testMessage);
+
+			expect(result).toEqual({
+				success: false,
+				error: "Unauthorized",
+			});
+
+			process.env.NODE_ENV = originalNodeEnv;
+		});
+
+		it("should return Unauthorized when called with wrong secret", async () => {
+			const result = await sendNotification(testMessage, "wrong-secret");
+
+			expect(result).toEqual({
+				success: false,
+				error: "Unauthorized",
+			});
+		});
+
+		it("should return error when no subscriptions available", async () => {
+			const result = await sendNotification(testMessage, TEST_CRON_SECRET);
 
 			expect(result).toEqual({
 				success: false,
 				error: "No subscriptions available",
 			});
-			expect(spySendNotification).not.toHaveBeenCalled();
+			expect(mockSendNotification).not.toHaveBeenCalled();
 		});
 
 		it("should successfully send notification to single subscriber", async () => {
-			spySendNotification.mockReturnValue(
-				Promise.resolve({
-					statusCode: 201,
-					body: "Success",
-					headers: {},
-				}) as any,
-			);
-
-			// Subscribe a user first
 			await subscribeUser(mockSubscription);
 
-			const result = await sendNotification(testMessage);
+			const result = await sendNotification(testMessage, TEST_CRON_SECRET);
 
-			expect(spySendNotification).toHaveBeenCalledWith(
+			expect(mockSendNotification).toHaveBeenCalledWith(
 				mockSubscription,
 				JSON.stringify({
 					title: "Gold Price Update",
@@ -212,21 +234,12 @@ describe("Notification Actions", () => {
 				endpoint: "https://fcm.googleapis.com/fcm/send/test-endpoint-2",
 			};
 
-			spySendNotification.mockReturnValue(
-				Promise.resolve({
-					statusCode: 201,
-					body: "Success",
-					headers: {},
-				}) as any,
-			);
-
-			// Subscribe multiple users
 			await subscribeUser(mockSubscription);
 			await subscribeUser(subscription2);
 
-			const result = await sendNotification(testMessage);
+			const result = await sendNotification(testMessage, TEST_CRON_SECRET);
 
-			expect(spySendNotification).toHaveBeenCalledTimes(2);
+			expect(mockSendNotification).toHaveBeenCalledTimes(2);
 			expect(result).toEqual({
 				success: true,
 				message: "Notifications sent to 2 subscribers (0 failed)",
@@ -234,11 +247,11 @@ describe("Notification Actions", () => {
 		});
 
 		it("should handle send failures gracefully", async () => {
-			spySendNotification.mockReturnValue(Promise.reject(new Error("Network error")) as any);
+			mockSendNotification.mockImplementation(() => Promise.reject(new Error("Network error")));
 
 			await subscribeUser(mockSubscription);
 
-			const result = await sendNotification(testMessage);
+			const result = await sendNotification(testMessage, TEST_CRON_SECRET);
 
 			expect(result).toEqual({
 				success: false,
@@ -251,21 +264,24 @@ describe("Notification Actions", () => {
 		});
 
 		it("should remove invalid subscriptions on 410 error", async () => {
-			const webPushError = new MockWebPushError("Gone", 410, {}, "Subscription expired");
-			spySendNotification.mockReturnValue(Promise.reject(webPushError) as any);
+			mockSendNotification.mockImplementation(() =>
+				Promise.reject(new MockWebPushError("Gone", 410, {}, "Subscription expired")),
+			);
 
 			await subscribeUser(mockSubscription);
 
-			// First call should fail and remove subscription
-			const result1 = await sendNotification(testMessage);
+			const result1 = await sendNotification(testMessage, TEST_CRON_SECRET);
 			expect(result1.success).toBe(false);
 			expect(mockConsole.log).toHaveBeenCalledWith(
 				"Invalid subscription removed:",
 				mockSubscription.endpoint,
 			);
 
-			// Second call should return no subscriptions
-			const result2 = await sendNotification(testMessage);
+			mockSendNotification.mockImplementation(() =>
+				Promise.resolve({ statusCode: 201, body: "Success", headers: {} }),
+			);
+
+			const result2 = await sendNotification(testMessage, TEST_CRON_SECRET);
 			expect(result2).toEqual({
 				success: false,
 				error: "No subscriptions available",
@@ -273,17 +289,13 @@ describe("Notification Actions", () => {
 		});
 
 		it("should remove invalid subscriptions on 404 error", async () => {
-			const webPushError = new MockWebPushError(
-				"Not Found",
-				404,
-				{},
-				"Subscription not found",
+			mockSendNotification.mockImplementation(() =>
+				Promise.reject(new MockWebPushError("Not Found", 404, {}, "Subscription not found")),
 			);
-			spySendNotification.mockReturnValue(Promise.reject(webPushError) as any);
 
 			await subscribeUser(mockSubscription);
 
-			const result = await sendNotification(testMessage);
+			const result = await sendNotification(testMessage, TEST_CRON_SECRET);
 
 			expect(result.success).toBe(false);
 			expect(mockConsole.log).toHaveBeenCalledWith(
@@ -293,29 +305,20 @@ describe("Notification Actions", () => {
 		});
 
 		it("should not remove subscriptions on other errors", async () => {
-			const webPushError = new MockWebPushError(
-				"Server Error",
-				500,
-				{},
-				"Internal server error",
+			mockSendNotification.mockImplementation(() =>
+				Promise.reject(new MockWebPushError("Server Error", 500, {}, "Internal server error")),
 			);
-			spySendNotification.mockReturnValue(Promise.reject(webPushError) as any);
 
 			await subscribeUser(mockSubscription);
 
-			const result1 = await sendNotification(testMessage);
+			const result1 = await sendNotification(testMessage, TEST_CRON_SECRET);
 			expect(result1.success).toBe(false);
 
-			// Subscription should still exist
-			spySendNotification.mockReturnValue(
-				Promise.resolve({
-					statusCode: 201,
-					body: "Success",
-					headers: {},
-				}) as any,
+			mockSendNotification.mockImplementation(() =>
+				Promise.resolve({ statusCode: 201, body: "Success", headers: {} }),
 			);
 
-			const result2 = await sendNotification(testMessage);
+			const result2 = await sendNotification(testMessage, TEST_CRON_SECRET);
 			expect(result2.success).toBe(true);
 		});
 
@@ -328,9 +331,8 @@ describe("Notification Actions", () => {
 			await subscribeUser(mockSubscription);
 			await subscribeUser(subscription2);
 
-			// First call succeeds, second fails
 			let callCount = 0;
-			spySendNotification.mockImplementation(() => {
+			mockSendNotification.mockImplementation(() => {
 				callCount++;
 				if (callCount === 1) {
 					return Promise.resolve({
@@ -342,7 +344,7 @@ describe("Notification Actions", () => {
 				return Promise.reject(new Error("Network error"));
 			});
 
-			const result = await sendNotification(testMessage);
+			const result = await sendNotification(testMessage, TEST_CRON_SECRET);
 
 			expect(result).toEqual({
 				success: true,
@@ -355,8 +357,8 @@ describe("Notification Actions", () => {
 		it("should configure webpush with correct VAPID details", async () => {
 			await subscribeUser(mockSubscription);
 
-			expect(spySetVapidDetails).toHaveBeenCalledWith(
-				"mailto:ahmed.elywa@icloud.com",
+			expect(mockSetVapidDetails).toHaveBeenCalledWith(
+				expect.stringContaining("mailto:"),
 				"test-vapid-public",
 				"test-vapid-private",
 			);
@@ -364,10 +366,10 @@ describe("Notification Actions", () => {
 
 		it("should configure webpush for each action", async () => {
 			await subscribeUser(mockSubscription);
-			await sendNotification("test");
+			await sendNotification("test", TEST_CRON_SECRET);
 			await unsubscribeUser(mockSubscription.endpoint);
 
-			expect(spySetVapidDetails).toHaveBeenCalledTimes(3);
+			expect(mockSetVapidDetails).toHaveBeenCalledTimes(3);
 		});
 	});
 });

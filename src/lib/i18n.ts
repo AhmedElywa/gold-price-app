@@ -1,3 +1,7 @@
+import type enDict from '../locales/en.json';
+
+export type Dictionary = typeof enDict;
+
 export const locales = [
   'ar',
   'de',
@@ -25,7 +29,7 @@ export function isValidLocale(locale: string): locale is Locale {
 }
 
 // Dictionary loader function
-export async function getDictionary(locale: Locale) {
+export async function getDictionary(locale: Locale): Promise<Dictionary> {
   try {
     const dictionary = await import(`../locales/${locale}.json`);
     return dictionary.default;

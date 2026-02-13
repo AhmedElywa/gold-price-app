@@ -125,14 +125,14 @@ export default function EnhancedGoldPricePage() {
 
   const getPriceInSelectedCurrency = (priceUSD: number) => {
     if (!goldData?.source_data?.exchange_rates) return 0;
-    const rate = goldData.source_data.exchange_rates[selectedCurrency];
+    const rate = goldData.source_data.exchange_rates[selectedCurrency] ?? 1;
     return parseFloat((priceUSD * rate).toFixed(2));
   };
 
   const getExchangeRate = (currency: string) => {
     if (!goldData?.source_data?.exchange_rates) return 0;
-    const selectedRate = goldData.source_data.exchange_rates[selectedCurrency];
-    const targetRate = goldData.source_data.exchange_rates[currency];
+    const selectedRate = goldData.source_data.exchange_rates[selectedCurrency] ?? 1;
+    const targetRate = goldData.source_data.exchange_rates[currency] ?? 1;
     return parseFloat((selectedRate / targetRate).toFixed(4));
   };
 

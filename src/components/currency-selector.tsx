@@ -69,8 +69,8 @@ function CurrencySelectorImpl() {
 
   return (
     <Select value={selectedCurrency} onValueChange={handleCurrencyChange}>
-      <SelectTrigger className="w-44 bg-white/10 border-white/20 text-white">
-        <DollarSign className="w-4 h-4 me-2" />
+      <SelectTrigger className="w-44 bg-[#1A1A2E] border-[rgba(212,175,55,0.15)] text-[#E8E6E3]">
+        <DollarSign className="w-4 h-4 me-2 text-[#D4AF37]" />
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -109,8 +109,8 @@ function CurrencyFallback() {
 
   return (
     <Select defaultValue="egp">
-      <SelectTrigger className="w-44 bg-white/10 border-white/20 text-white">
-        <DollarSign className="w-4 h-4 me-2" />
+      <SelectTrigger className="w-44 bg-[#1A1A2E] border-[rgba(212,175,55,0.15)] text-[#E8E6E3]">
+        <DollarSign className="w-4 h-4 me-2 text-[#D4AF37]" />
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

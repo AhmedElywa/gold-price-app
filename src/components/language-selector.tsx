@@ -3,19 +3,21 @@
 import { Globe } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTranslation } from '@/hooks/useTranslation';
-import type { Locale } from '@/lib/i18n';
+import { isValidLocale } from '@/lib/i18n';
 
 export function LanguageSelector() {
   const { t, locale, changeLanguage } = useTranslation();
 
   const handleLanguageChange = (newLocale: string) => {
-    changeLanguage(newLocale as Locale);
+    if (isValidLocale(newLocale)) {
+      changeLanguage(newLocale);
+    }
   };
 
   return (
     <Select value={locale} onValueChange={handleLanguageChange}>
-      <SelectTrigger className="w-32 bg-white/10 border-white/20 text-white">
-        <Globe className="w-4 h-4 me-2" />
+      <SelectTrigger className="w-32 bg-[#1A1A2E] border-[rgba(212,175,55,0.15)] text-[#E8E6E3]">
+        <Globe className="w-4 h-4 me-2 text-[#D4AF37]" />
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
