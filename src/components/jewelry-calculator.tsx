@@ -154,7 +154,9 @@ export function JewelryCalculator({ initialData }: { initialData?: ApiResponseDa
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[#8A8A8E]">Gold value</span>
-                    <span className="font-medium font-mono text-[#E8E6E3]">{formatPrice(calculation.base, selectedCurrency, locale)}</span>
+                    <span className="font-medium font-mono text-[#E8E6E3]">
+                      {formatPrice(calculation.base, selectedCurrency, locale)}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[#8A8A8E]">Making charge</span>

@@ -135,7 +135,9 @@ export function ExchangeRates({ initialData }: { initialData?: ApiResponseData |
           <CardHeader className="border-b border-[rgba(212,175,55,0.15)]">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <CardTitle className="text-2xl font-bold font-serif gold-gradient-text mb-2">{t('exchange.title')}</CardTitle>
+                <CardTitle className="text-2xl font-bold font-serif gold-gradient-text mb-2">
+                  {t('exchange.title')}
+                </CardTitle>
                 <p className="text-[#8A8A8E]">
                   {t('exchange.subtitle', {
                     fromCurrency: fromCurrency,
@@ -269,7 +271,10 @@ export function ExchangeRates({ initialData }: { initialData?: ApiResponseData |
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                   {gccCurrenciesData.map((item, index) => (
-                    <div key={index} className="bg-[#1A1A2E] border border-[rgba(212,175,55,0.15)] rounded-lg p-3 text-center hover:border-[rgba(212,175,55,0.3)] transition-colors">
+                    <div
+                      key={index}
+                      className="bg-[#1A1A2E] border border-[rgba(212,175,55,0.15)] rounded-lg p-3 text-center hover:border-[rgba(212,175,55,0.3)] transition-colors"
+                    >
                       <div className="text-xl mb-1">{item.flag}</div>
                       <div className="font-semibold text-[#E8E6E3]">{item.currency}</div>
                       <div className="text-sm font-bold font-mono text-[#D4AF37]">{item.rate}</div>
@@ -290,7 +295,10 @@ export function ExchangeRates({ initialData }: { initialData?: ApiResponseData |
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                   {otherCurrenciesData.map((item, index) => (
-                    <div key={index} className="bg-[#14141F] border border-[rgba(212,175,55,0.1)] rounded-lg p-3 text-center hover:border-[rgba(212,175,55,0.2)] transition-colors">
+                    <div
+                      key={index}
+                      className="bg-[#14141F] border border-[rgba(212,175,55,0.1)] rounded-lg p-3 text-center hover:border-[rgba(212,175,55,0.2)] transition-colors"
+                    >
                       <div className="text-xl mb-1">{item.flag}</div>
                       <div className="font-semibold text-[#E8E6E3]">{item.currency}</div>
                       <div className="text-sm font-bold font-mono text-[#D4AF37]">{item.rate}</div>

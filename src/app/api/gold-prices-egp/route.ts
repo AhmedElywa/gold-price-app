@@ -11,8 +11,8 @@
  */
 
 import { NextResponse } from 'next/server';
-import type { ApiResponseData } from '@/types/api';
 import { rateLimit } from '@/lib/rate-limit';
+import type { ApiResponseData } from '@/types/api';
 import { sendNotification } from '../../actions';
 
 /** troy‑ounce → gram */
@@ -211,13 +211,18 @@ export async function GET(request: Request) {
         2,
       )}% to $${ounce.toFixed(2)} per ounce (EGP ${goldGramEGP['24k'].toFixed(2)} per gram for 24k)`;
 
-      // Send push notification to subscribers
-      try {
-        await sendNotification(message, process.env.CRON_SECRET);
-        console.log('Price change notification sent:', message);
-      } catch (error) {
-        console.error('Failed to send price notification:', error);
-      }
+      // Send push notification asynchronously so API response is not blocked.
+      void sendNotification(message, process.env.CRON_SECRET)
+        .then((result) => {
+          if (!result.success) {
+            console.warn('Price change notification skipped:', 'error' in result ? result.error : result.message);
+            return;
+          }
+          console.log('Price change notification sent:', message);
+        })
+        .catch((error) => {
+          console.error('Failed to send price notification:', error);
+        });
     }
 
     return NextResponse.json(payload);

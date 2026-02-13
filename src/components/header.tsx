@@ -36,9 +36,7 @@ export function Header() {
             <h1 className="text-2xl font-bold font-serif gold-gradient-text">{t('app.brand')}</h1>
           </div>
 
-          <nav className="hidden lg:flex items-center gap-6">
-            {navLinks}
-          </nav>
+          <nav className="hidden lg:flex items-center gap-6">{navLinks}</nav>
 
           <div className="hidden lg:flex items-center gap-3">
             <LanguageSelector />
@@ -52,9 +50,7 @@ export function Header() {
             </SheetTrigger>
             <SheetContent side="right" className="bg-[#0A0A0F] border-l border-[rgba(212,175,55,0.15)] w-72">
               <SheetTitle className="font-serif gold-gradient-text text-lg">{t('app.brand')}</SheetTitle>
-              <nav className="flex flex-col gap-4 mt-6">
-                {navLinks}
-              </nav>
+              <nav className="flex flex-col gap-4 mt-6">{navLinks}</nav>
               <div className="flex flex-col gap-3 mt-8">
                 <LanguageSelector />
                 <CurrencySelector />

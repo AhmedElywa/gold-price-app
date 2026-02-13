@@ -97,6 +97,10 @@ function ensureRefreshLoop() {
   // Visibility-aware polling: pause when tab is hidden, resume when visible
   if (!visibilityHandler && typeof document !== 'undefined') {
     visibilityHandler = () => {
+      if (subscribers.size === 0) {
+        return;
+      }
+
       if (document.hidden) {
         if (refreshInterval) {
           clearInterval(refreshInterval);

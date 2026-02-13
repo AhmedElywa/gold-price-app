@@ -51,7 +51,11 @@ export function SilverPrices({ initialData }: { initialData?: ApiResponseData | 
 
   // Convert silver price to selected currency
   const silverPrice = getPriceInSelectedCurrency(silverPriceUSD, data.source_data.exchange_rates, selectedCurrency);
-  const silverChangeConverted = getPriceInSelectedCurrency(silverChange, data.source_data.exchange_rates, selectedCurrency);
+  const silverChangeConverted = getPriceInSelectedCurrency(
+    silverChange,
+    data.source_data.exchange_rates,
+    selectedCurrency,
+  );
 
   const isSilverPositive = silverChange >= 0;
 
@@ -97,7 +101,9 @@ export function SilverPrices({ initialData }: { initialData?: ApiResponseData | 
           <CardHeader className="border-b border-[rgba(212,175,55,0.15)]">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <CardTitle className="text-2xl font-bold font-serif gold-gradient-text mb-2">{t('silver.title')}</CardTitle>
+                <CardTitle className="text-2xl font-bold font-serif gold-gradient-text mb-2">
+                  {t('silver.title')}
+                </CardTitle>
                 <p className="text-[#8A8A8E]">{t('silver.subtitle')}</p>
               </div>
 

@@ -35,7 +35,9 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang: Locale = isValidLocale(langParam) ? langParam : defaultLocale;
   const dict = await getDictionary(lang);
   const siteUrl = getSiteUrl();
-  const languageAlternates: Record<string, string> = Object.fromEntries(locales.map((localeCode) => [localeCode, `/${localeCode}`]));
+  const languageAlternates: Record<string, string> = Object.fromEntries(
+    locales.map((localeCode) => [localeCode, `/${localeCode}`]),
+  );
   languageAlternates['x-default'] = `/${defaultLocale}`;
 
   return {
@@ -84,27 +86,35 @@ export default async function LangLayout({
 
   return (
     <html lang={lang} dir={isRTL ? 'rtl' : 'ltr'}>
-      <body className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} antialiased`} suppressHydrationWarning>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} antialiased`}
+        suppressHydrationWarning
+      >
         <Suspense>
           <TranslationProvider locale={lang} dictionary={dict}>
             <BodyWrapper>{children}</BodyWrapper>
           </TranslationProvider>
         </Suspense>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([
-          {
-            '@context': 'https://schema.org',
-            '@type': 'WebSite',
-            name: dict.app.name,
-            url: getSiteUrl(),
-            inLanguage: lang === 'ar' ? 'ar' : 'en',
-          },
-          {
-            '@context': 'https://schema.org',
-            '@type': 'Organization',
-            name: dict.app.name,
-            url: getSiteUrl(),
-          }
-        ]) }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([
+              {
+                '@context': 'https://schema.org',
+                '@type': 'WebSite',
+                name: dict.app.name,
+                url: getSiteUrl(),
+                inLanguage: lang === 'ar' ? 'ar' : 'en',
+              },
+              {
+                '@context': 'https://schema.org',
+                '@type': 'Organization',
+                name: dict.app.name,
+                url: getSiteUrl(),
+              },
+            ]),
+          }}
+        />
         <Analytics />
       </body>
     </html>

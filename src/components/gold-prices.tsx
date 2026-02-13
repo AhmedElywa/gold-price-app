@@ -42,7 +42,12 @@ export function GoldPrices({ initialData }: { initialData?: ApiResponseData | nu
                 <span>
                   {t('gold.error')} {error}
                 </span>
-                <Button onClick={refresh} variant="outline" size="sm" className="border-[rgba(212,175,55,0.15)] text-[#E8E6E3] hover:bg-[#1A1A2E]">
+                <Button
+                  onClick={refresh}
+                  variant="outline"
+                  size="sm"
+                  className="border-[rgba(212,175,55,0.15)] text-[#E8E6E3] hover:bg-[#1A1A2E]"
+                >
                   {t('common.retry')}
                 </Button>
               </div>
@@ -102,7 +107,9 @@ export function GoldPrices({ initialData }: { initialData?: ApiResponseData | nu
           <CardHeader className="border-b border-[rgba(212,175,55,0.15)]">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
               <div>
-                <CardTitle className="text-3xl font-bold font-serif gold-gradient-text mb-2">{t('gold.title')}</CardTitle>
+                <CardTitle className="text-3xl font-bold font-serif gold-gradient-text mb-2">
+                  {t('gold.title')}
+                </CardTitle>
                 <p className="text-[#8A8A8E]">{t('gold.subtitle')}</p>
               </div>
 
@@ -160,7 +167,9 @@ export function GoldPrices({ initialData }: { initialData?: ApiResponseData | nu
                 <div className="inline-flex items-center gap-4 bg-[#1A1A2E] border border-[rgba(212,175,55,0.1)] rounded-lg p-4">
                   <div>
                     <span className="text-sm text-[#8A8A8E]">{t('gold.currentOuncePrice')}</span>
-                    <div className={`text-2xl font-bold font-mono text-[#D4AF37] ${priceFlash ? 'animate-gold-flash' : ''}`}>
+                    <div
+                      className={`text-2xl font-bold font-mono text-[#D4AF37] ${priceFlash ? 'animate-gold-flash' : ''}`}
+                    >
                       ${marketData.current_price?.toFixed(2)}
                     </div>
                   </div>
@@ -213,7 +222,9 @@ export function GoldPrices({ initialData }: { initialData?: ApiResponseData | nu
                         className={`border-b border-[rgba(212,175,55,0.05)] ${item.highlight ? 'bg-[rgba(212,175,55,0.05)]' : ''}`}
                       >
                         <td className="px-4 py-3 font-medium text-[#E8E6E3]">{item.name}</td>
-                        <td className={`px-4 py-3 text-center font-semibold font-mono text-[#D4AF37] ${priceFlash ? 'animate-gold-flash' : ''}`}>
+                        <td
+                          className={`px-4 py-3 text-center font-semibold font-mono text-[#D4AF37] ${priceFlash ? 'animate-gold-flash' : ''}`}
+                        >
                           {formatPrice(item.price, selectedCurrency, locale)}
                         </td>
                       </tr>

@@ -57,7 +57,12 @@ export interface GoldPriceOrgResponse {
 }
 
 export function parseGoldPriceResponse(data: unknown): GoldPriceOrgResponse {
-  if (!data || typeof data !== 'object' || !('items' in data) || !Array.isArray((data as Record<string, unknown>).items)) {
+  if (
+    !data ||
+    typeof data !== 'object' ||
+    !('items' in data) ||
+    !Array.isArray((data as Record<string, unknown>).items)
+  ) {
     throw new Error('Invalid gold price API response');
   }
   return data as GoldPriceOrgResponse;

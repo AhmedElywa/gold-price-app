@@ -15,11 +15,7 @@ function configureWebPush() {
     throw new Error('VAPID keys are not configured');
   }
 
-  webpush.setVapidDetails(
-    process.env.VAPID_CONTACT_EMAIL || 'mailto:ahmed.elywa@icloud.com',
-    publicKey,
-    privateKey,
-  );
+  webpush.setVapidDetails(process.env.VAPID_CONTACT_EMAIL || 'mailto:ahmed.elywa@icloud.com', publicKey, privateKey);
 }
 
 // Define a serializable subscription type
@@ -32,6 +28,23 @@ export type SerializablePushSubscription = {
 };
 
 let subscriptionsCache: SerializablePushSubscription[] | null = null;
+let subscriptionsWriteLock: Promise<void> = Promise.resolve();
+
+async function withSubscriptionsWriteLock<T>(fn: () => Promise<T>): Promise<T> {
+  const previousLock = subscriptionsWriteLock;
+  let releaseLock!: () => void;
+
+  subscriptionsWriteLock = new Promise<void>((resolve) => {
+    releaseLock = resolve;
+  });
+
+  await previousLock;
+  try {
+    return await fn();
+  } finally {
+    releaseLock();
+  }
+}
 
 function isSerializablePushSubscription(value: unknown): value is SerializablePushSubscription {
   if (!value || typeof value !== 'object') {
@@ -75,20 +88,16 @@ async function getSubscriptions() {
 }
 
 async function saveSubscriptions(subscriptions: SerializablePushSubscription[]) {
-  subscriptionsCache = subscriptions;
   await mkdir(path.dirname(SUBSCRIPTIONS_FILE), { recursive: true });
   await writeFile(SUBSCRIPTIONS_FILE, JSON.stringify(subscriptions, null, 2), 'utf8');
+  subscriptionsCache = subscriptions;
 }
 
 function isValidPushEndpoint(endpoint: string): boolean {
   try {
     const url = new URL(endpoint);
     if (url.protocol !== 'https:') return false;
-    const allowedHosts = [
-      'fcm.googleapis.com',
-      'updates.push.services.mozilla.com',
-      'web.push.apple.com',
-    ];
+    const allowedHosts = ['fcm.googleapis.com', 'updates.push.services.mozilla.com', 'web.push.apple.com'];
     return allowedHosts.some(
       (host) =>
         url.hostname === host ||
@@ -110,36 +119,40 @@ export async function subscribeUser(subscription: SerializablePushSubscription) 
   }
 
   configureWebPush();
-  const subscriptions = await getSubscriptions();
+  return withSubscriptionsWriteLock(async () => {
+    const subscriptions = await getSubscriptions();
 
-  if (subscriptions.length >= MAX_SUBSCRIPTIONS) {
-    return { success: false, error: 'Subscription limit reached' };
-  }
+    if (subscriptions.length >= MAX_SUBSCRIPTIONS) {
+      return { success: false, error: 'Subscription limit reached' };
+    }
 
-  const exists = subscriptions.some((sub) => sub.endpoint === subscription.endpoint);
+    const exists = subscriptions.some((sub) => sub.endpoint === subscription.endpoint);
 
-  if (!exists) {
-    const nextSubscriptions = [...subscriptions, subscription];
-    await saveSubscriptions(nextSubscriptions);
-    console.log('Subscription stored:', subscription.endpoint);
-  } else {
-    console.log('Subscription already stored:', subscription.endpoint);
-  }
+    if (!exists) {
+      const nextSubscriptions = [...subscriptions, subscription];
+      await saveSubscriptions(nextSubscriptions);
+      console.log('Subscription stored:', subscription.endpoint);
+    } else {
+      console.log('Subscription already stored:', subscription.endpoint);
+    }
 
-  return { success: true };
+    return { success: true };
+  });
 }
 
 export async function unsubscribeUser(endpoint: string) {
   configureWebPush();
-  const subscriptions = await getSubscriptions();
-  const nextSubscriptions = subscriptions.filter((sub) => sub.endpoint !== endpoint);
+  return withSubscriptionsWriteLock(async () => {
+    const subscriptions = await getSubscriptions();
+    const nextSubscriptions = subscriptions.filter((sub) => sub.endpoint !== endpoint);
 
-  if (nextSubscriptions.length !== subscriptions.length) {
-    await saveSubscriptions(nextSubscriptions);
-  }
+    if (nextSubscriptions.length !== subscriptions.length) {
+      await saveSubscriptions(nextSubscriptions);
+    }
 
-  console.log('Subscription removed:', endpoint);
-  return { success: true };
+    console.log('Subscription removed:', endpoint);
+    return { success: true };
+  });
 }
 
 export async function sendNotification(message: string, secret?: string) {
@@ -161,41 +174,57 @@ export async function sendNotification(message: string, secret?: string) {
 
   let successCount = 0;
   let failureCount = 0;
-  let nextSubscriptions = subscriptions;
-  let subscriptionsChanged = false;
+  const invalidEndpoints = new Set<string>();
 
-  // Send notification to all subscribers
-  for (const subscription of subscriptions) {
-    try {
-      await webpush.sendNotification(
-        subscription as webpush.PushSubscription,
-        JSON.stringify({
-          title: 'Gold Price Update',
-          body: message,
-          icon: '/icons/icon-192x192.png',
-        }),
-      );
-      successCount++;
-    } catch (error) {
-      console.error('Error sending push notification:', error);
-      failureCount++;
-
-      // Remove expired or invalid subscriptions.
-      if (
-        error &&
-        typeof error === 'object' &&
-        'statusCode' in error &&
-        (error.statusCode === 410 || error.statusCode === 404)
-      ) {
-        nextSubscriptions = nextSubscriptions.filter((sub) => sub.endpoint !== subscription.endpoint);
-        subscriptionsChanged = true;
-        console.log('Invalid subscription removed:', subscription.endpoint);
+  const notificationResults = await Promise.allSettled(
+    subscriptions.map(async (subscription) => {
+      try {
+        await webpush.sendNotification(
+          subscription as webpush.PushSubscription,
+          JSON.stringify({
+            title: 'Gold Price Update',
+            body: message,
+            icon: '/icons/icon-192x192.png',
+          }),
+        );
+        return { success: true as const };
+      } catch (error) {
+        console.error('Error sending push notification:', error);
+        if (
+          error &&
+          typeof error === 'object' &&
+          'statusCode' in error &&
+          (error.statusCode === 410 || error.statusCode === 404)
+        ) {
+          invalidEndpoints.add(subscription.endpoint);
+          console.log('Invalid subscription removed:', subscription.endpoint);
+        }
+        return { success: false as const };
       }
+    }),
+  );
+
+  for (const result of notificationResults) {
+    if (result.status === 'fulfilled' && result.value.success) {
+      successCount++;
+      continue;
+    }
+
+    failureCount++;
+    if (result.status === 'rejected') {
+      console.error('Unexpected notification task failure:', result.reason);
     }
   }
 
-  if (subscriptionsChanged) {
-    await saveSubscriptions(nextSubscriptions);
+  if (invalidEndpoints.size > 0) {
+    await withSubscriptionsWriteLock(async () => {
+      const latestSubscriptions = await getSubscriptions();
+      const nextSubscriptions = latestSubscriptions.filter((sub) => !invalidEndpoints.has(sub.endpoint));
+
+      if (nextSubscriptions.length !== latestSubscriptions.length) {
+        await saveSubscriptions(nextSubscriptions);
+      }
+    });
   }
 
   return {

@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local tooling/output artifacts
+.playwright-mcp/
+data/
+todos/
+current-design-*.png
+noir-*.png
