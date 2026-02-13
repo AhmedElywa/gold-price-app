@@ -1,390 +1,405 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import * as actions from '../../src/app/actions';
-import { TestNotification } from '../../src/app/components/TestNotification';
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import "@testing-library/jest-dom/vitest";
+import * as actions from "../../src/app/actions";
+import { TestNotification } from "../../src/app/components/TestNotification";
 
 // Mock the actions module
-jest.mock('../../src/app/actions', () => ({
-  sendNotification: jest.fn(),
+mock.module("../../src/app/actions", () => ({
+	sendNotification: mock(() => Promise.resolve({ success: true, message: "" })),
 }));
 
 // Mock environment variables
-process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY = 'test-vapid-public';
-
-describe('TestNotification Component', () => {
-  const mockActions = actions as jest.Mocked<typeof actions>;
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-
-    // Mock navigator and window APIs
-    Object.defineProperty(navigator, 'serviceWorker', {
-      value: {
-        getRegistration: jest.fn().mockResolvedValue({
-          pushManager: {
-            getSubscription: jest.fn().mockResolvedValue(null),
-          },
-        }),
-      },
-      writable: true,
-    });
-
-    Object.defineProperty(window, 'Notification', {
-      value: {
-        permission: 'granted',
-      },
-      writable: true,
-    });
-  });
-
-  describe('Rendering', () => {
-    it('should render the test notification interface', async () => {
-      render(<TestNotification />);
-
-      await waitFor(() => {
-        expect(screen.getByText(/test push notification/i)).toBeInTheDocument();
-      });
-
-      expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /send notification/i })).toBeInTheDocument();
-    });
-
-    it('should not render during SSR', () => {
-      const ReactDOMServer = require('react-dom/server.node');
-
-      const html = ReactDOMServer.renderToString(<TestNotification />);
+process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY = "test-vapid-public";
+
+describe("TestNotification Component", () => {
+	const mockSendNotification = actions.sendNotification as ReturnType<typeof mock>;
+
+	afterEach(() => {
+		cleanup();
+	});
+
+	beforeEach(() => {
+		mockSendNotification.mockClear();
+
+		// Mock navigator and window APIs
+		Object.defineProperty(navigator, "serviceWorker", {
+			value: {
+				getRegistration: mock(() =>
+					Promise.resolve({
+						pushManager: {
+							getSubscription: mock(() => Promise.resolve(null)),
+						},
+					}),
+				),
+			},
+			writable: true,
+		});
+
+		Object.defineProperty(window, "Notification", {
+			value: {
+				permission: "granted",
+			},
+			writable: true,
+		});
+	});
+
+	describe("Rendering", () => {
+		it("should render the test notification interface", async () => {
+			render(<TestNotification />);
+
+			await waitFor(() => {
+				expect(screen.getByText(/test push notification/i)).toBeInTheDocument();
+			});
+
+			expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
+			expect(screen.getByRole("button", { name: /send notification/i })).toBeInTheDocument();
+		});
+
+		it("should not render during SSR", () => {
+			const ReactDOMServer = require("react-dom/server.node");
+
+			const html = ReactDOMServer.renderToString(<TestNotification />);
+
+			expect(html).toBe("");
+		});
+	});
+
+	describe("Message Input", () => {
+		it("should update message state when typing", async () => {
+			render(<TestNotification />);
+
+			await waitFor(() => {
+				expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
+			});
+
+			const input = screen.getByPlaceholderText(/enter notification message/i);
+			fireEvent.change(input, { target: { value: "Test message" } });
+
+			expect(input).toHaveValue("Test message");
+		});
+
+		it("should clear input after successful send", async () => {
+			mockSendNotification.mockImplementation(() =>
+				Promise.resolve({
+					success: true,
+					message: "Notification sent successfully",
+				}),
+			);
+
+			render(<TestNotification />);
+
+			await waitFor(() => {
+				expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
+			});
+
+			const input = screen.getByPlaceholderText(/enter notification message/i);
+			const button = screen.getByRole("button", { name: /send notification/i });
+
+			fireEvent.change(input, { target: { value: "Test message" } });
+			fireEvent.click(button);
+
+			await waitFor(() => {
+				expect(mockSendNotification).toHaveBeenCalledWith("Test message");
+			});
 
-      expect(html).toBe('');
-    });
-  });
+			await waitFor(() => {
+				expect(input).toHaveValue("");
+			});
+		});
+	});
+
+	describe("Send Notification", () => {
+		it("should send notification with message when button is clicked", async () => {
+			mockSendNotification.mockImplementation(() =>
+				Promise.resolve({
+					success: true,
+					message: "Notification sent successfully",
+				}),
+			);
 
-  describe('Message Input', () => {
-    it('should update message state when typing', async () => {
-      render(<TestNotification />);
+			render(<TestNotification />);
 
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
-      });
+			await waitFor(() => {
+				expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
+			});
 
-      const input = screen.getByPlaceholderText(/enter notification message/i);
-      fireEvent.change(input, { target: { value: 'Test message' } });
-
-      expect(input).toHaveValue('Test message');
-    });
+			const input = screen.getByPlaceholderText(/enter notification message/i);
+			const button = screen.getByRole("button", { name: /send notification/i });
 
-    it('should clear input after successful send', async () => {
-      mockActions.sendNotification.mockResolvedValue({
-        success: true,
-        message: 'Notification sent successfully',
-      });
+			fireEvent.change(input, {
+				target: { value: "Test notification message" },
+			});
+			fireEvent.click(button);
 
-      render(<TestNotification />);
+			await waitFor(() => {
+				expect(mockSendNotification).toHaveBeenCalledWith("Test notification message");
+			});
+		});
 
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
-      });
+		it("should show error when trying to send empty message", async () => {
+			render(<TestNotification />);
 
-      const input = screen.getByPlaceholderText(/enter notification message/i);
-      const button = screen.getByRole('button', { name: /send notification/i });
+			await waitFor(() => {
+				expect(screen.getByRole("button", { name: /send notification/i })).toBeInTheDocument();
+			});
 
-      fireEvent.change(input, { target: { value: 'Test message' } });
-      fireEvent.click(button);
+			const button = screen.getByRole("button", { name: /send notification/i });
+			fireEvent.click(button);
 
-      await waitFor(() => {
-        expect(mockActions.sendNotification).toHaveBeenCalledWith('Test message');
-      });
+			await waitFor(() => {
+				expect(screen.getByText(/please enter a message/i)).toBeInTheDocument();
+			});
 
-      await waitFor(() => {
-        expect(input).toHaveValue('');
-      });
-    });
-  });
+			expect(mockSendNotification).not.toHaveBeenCalled();
+		});
 
-  describe('Send Notification', () => {
-    it('should send notification with message when button is clicked', async () => {
-      mockActions.sendNotification.mockResolvedValue({
-        success: true,
-        message: 'Notification sent successfully',
-      });
+		it("should show error when trying to send whitespace-only message", async () => {
+			render(<TestNotification />);
 
-      render(<TestNotification />);
+			await waitFor(() => {
+				expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
+			});
 
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
-      });
+			const input = screen.getByPlaceholderText(/enter notification message/i);
+			const button = screen.getByRole("button", { name: /send notification/i });
 
-      const input = screen.getByPlaceholderText(/enter notification message/i);
-      const button = screen.getByRole('button', { name: /send notification/i });
+			fireEvent.change(input, { target: { value: "   " } });
+			fireEvent.click(button);
 
-      fireEvent.change(input, {
-        target: { value: 'Test notification message' },
-      });
-      fireEvent.click(button);
+			await waitFor(() => {
+				expect(screen.getByText(/please enter a message/i)).toBeInTheDocument();
+			});
 
-      await waitFor(() => {
-        expect(mockActions.sendNotification).toHaveBeenCalledWith('Test notification message');
-      });
-    });
+			expect(mockSendNotification).not.toHaveBeenCalled();
+		});
 
-    it('should show error when trying to send empty message', async () => {
-      render(<TestNotification />);
+		it("should show loading state while sending", async () => {
+			let resolvePromise: (value: any) => void;
+			const promise = new Promise<any>((resolve) => {
+				resolvePromise = resolve;
+			});
 
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: /send notification/i })).toBeInTheDocument();
-      });
+			mockSendNotification.mockImplementation(() => promise);
 
-      const button = screen.getByRole('button', { name: /send notification/i });
-      fireEvent.click(button);
+			render(<TestNotification />);
 
-      await waitFor(() => {
-        expect(screen.getByText(/please enter a message/i)).toBeInTheDocument();
-      });
+			await waitFor(() => {
+				expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
+			});
 
-      expect(mockActions.sendNotification).not.toHaveBeenCalled();
-    });
+			const input = screen.getByPlaceholderText(/enter notification message/i);
+			const button = screen.getByRole("button", { name: /send notification/i });
 
-    it('should show error when trying to send whitespace-only message', async () => {
-      render(<TestNotification />);
+			fireEvent.change(input, { target: { value: "Test message" } });
+			fireEvent.click(button);
 
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
-      });
+			// Should show loading state
+			await waitFor(() => {
+				expect(screen.getByText(/sending/i)).toBeInTheDocument();
+			});
 
-      const input = screen.getByPlaceholderText(/enter notification message/i);
-      const button = screen.getByRole('button', { name: /send notification/i });
+			expect(button).toBeDisabled();
 
-      fireEvent.change(input, { target: { value: '   ' } });
-      fireEvent.click(button);
+			// Resolve the promise
+			resolvePromise!({ success: true, message: "Sent successfully" });
 
-      await waitFor(() => {
-        expect(screen.getByText(/please enter a message/i)).toBeInTheDocument();
-      });
+			await waitFor(() => {
+				expect(screen.queryByText(/sending/i)).not.toBeInTheDocument();
+			});
+		});
+	});
 
-      expect(mockActions.sendNotification).not.toHaveBeenCalled();
-    });
+	describe("Status Messages", () => {
+		it("should show success message when notification sends successfully", async () => {
+			mockSendNotification.mockImplementation(() =>
+				Promise.resolve({
+					success: true,
+					message: "Notifications sent to 2 subscribers (0 failed)",
+				}),
+			);
 
-    it('should show loading state while sending', async () => {
-      let resolvePromise: (value: any) => void;
-      const promise = new Promise<any>((resolve) => {
-        resolvePromise = resolve;
-      });
+			render(<TestNotification />);
 
-      mockActions.sendNotification.mockReturnValue(promise);
+			await waitFor(() => {
+				expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
+			});
 
-      render(<TestNotification />);
+			const input = screen.getByPlaceholderText(/enter notification message/i);
+			const button = screen.getByRole("button", { name: /send notification/i });
 
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
-      });
+			fireEvent.change(input, { target: { value: "Test success" } });
+			fireEvent.click(button);
 
-      const input = screen.getByPlaceholderText(/enter notification message/i);
-      const button = screen.getByRole('button', { name: /send notification/i });
+			await waitFor(() => {
+				expect(screen.getByText(/notifications sent to 2 subscribers/i)).toBeInTheDocument();
+			});
 
-      fireEvent.change(input, { target: { value: 'Test message' } });
-      fireEvent.click(button);
+			// Status should have success styling
+			const statusDiv = screen.getByText(/notifications sent to 2 subscribers/i).closest("div");
+			expect(statusDiv).toHaveClass("bg-green-100", "text-green-800");
+		});
 
-      // Should show loading state
-      await waitFor(() => {
-        expect(screen.getByText(/sending/i)).toBeInTheDocument();
-      });
+		it("should show error message when notification fails", async () => {
+			mockSendNotification.mockImplementation(() =>
+				Promise.resolve({
+					success: false,
+					error: "No subscriptions available",
+				}),
+			);
 
-      expect(button).toBeDisabled();
+			render(<TestNotification />);
 
-      // Resolve the promise
-      resolvePromise!({ success: true, message: 'Sent successfully' });
+			await waitFor(() => {
+				expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
+			});
 
-      await waitFor(() => {
-        expect(screen.queryByText(/sending/i)).not.toBeInTheDocument();
-      });
-    });
-  });
+			const input = screen.getByPlaceholderText(/enter notification message/i);
+			const button = screen.getByRole("button", { name: /send notification/i });
 
-  describe('Status Messages', () => {
-    it('should show success message when notification sends successfully', async () => {
-      mockActions.sendNotification.mockResolvedValue({
-        success: true,
-        message: 'Notifications sent to 2 subscribers (0 failed)',
-      });
+			fireEvent.change(input, { target: { value: "Test failure" } });
+			fireEvent.click(button);
 
-      render(<TestNotification />);
+			await waitFor(() => {
+				expect(screen.getByText(/no subscriptions available/i)).toBeInTheDocument();
+			});
 
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
-      });
+			// Status should have error styling
+			const statusDiv = screen.getByText(/no subscriptions available/i).closest("div");
+			expect(statusDiv).toHaveClass("bg-red-100", "text-red-800");
+		});
 
-      const input = screen.getByPlaceholderText(/enter notification message/i);
-      const button = screen.getByRole('button', { name: /send notification/i });
+		it("should handle promise rejection", async () => {
+			mockSendNotification.mockImplementation(() => Promise.reject(new Error("Network error")));
 
-      fireEvent.change(input, { target: { value: 'Test success' } });
-      fireEvent.click(button);
+			render(<TestNotification />);
 
-      await waitFor(() => {
-        expect(screen.getByText(/notifications sent to 2 subscribers/i)).toBeInTheDocument();
-      });
+			await waitFor(() => {
+				expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
+			});
 
-      // Status should have success styling
-      const statusDiv = screen.getByText(/notifications sent to 2 subscribers/i).closest('div');
-      expect(statusDiv).toHaveClass('bg-green-100', 'text-green-800');
-    });
+			const input = screen.getByPlaceholderText(/enter notification message/i);
+			const button = screen.getByRole("button", { name: /send notification/i });
 
-    it('should show error message when notification fails', async () => {
-      mockActions.sendNotification.mockResolvedValue({
-        success: false,
-        error: 'No subscriptions available',
-      });
+			fireEvent.change(input, { target: { value: "Test error" } });
+			fireEvent.click(button);
 
-      render(<TestNotification />);
+			await waitFor(() => {
+				expect(screen.getByText(/network error/i)).toBeInTheDocument();
+			});
 
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
-      });
+			// Status should have error styling
+			const statusDiv = screen.getByText(/network error/i).closest("div");
+			expect(statusDiv).toHaveClass("bg-red-100", "text-red-800");
+		});
 
-      const input = screen.getByPlaceholderText(/enter notification message/i);
-      const button = screen.getByRole('button', { name: /send notification/i });
+		it("should handle unknown error types", async () => {
+			mockSendNotification.mockImplementation(() => Promise.reject("Unknown error"));
 
-      fireEvent.change(input, { target: { value: 'Test failure' } });
-      fireEvent.click(button);
+			render(<TestNotification />);
 
-      await waitFor(() => {
-        expect(screen.getByText(/no subscriptions available/i)).toBeInTheDocument();
-      });
+			await waitFor(() => {
+				expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
+			});
 
-      // Status should have error styling
-      const statusDiv = screen.getByText(/no subscriptions available/i).closest('div');
-      expect(statusDiv).toHaveClass('bg-red-100', 'text-red-800');
-    });
+			const input = screen.getByPlaceholderText(/enter notification message/i);
+			const button = screen.getByRole("button", { name: /send notification/i });
 
-    it('should handle promise rejection', async () => {
-      mockActions.sendNotification.mockRejectedValue(new Error('Network error'));
+			fireEvent.change(input, { target: { value: "Test unknown error" } });
+			fireEvent.click(button);
 
-      render(<TestNotification />);
+			await waitFor(() => {
+				expect(screen.getByText(/unknown error occurred/i)).toBeInTheDocument();
+			});
+		});
+	});
 
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
-      });
+	describe("UI Behavior", () => {
+		it("should disable button during loading", async () => {
+			let resolvePromise: (value: any) => void;
+			const promise = new Promise<any>((resolve) => {
+				resolvePromise = resolve;
+			});
 
-      const input = screen.getByPlaceholderText(/enter notification message/i);
-      const button = screen.getByRole('button', { name: /send notification/i });
+			mockSendNotification.mockImplementation(() => promise);
 
-      fireEvent.change(input, { target: { value: 'Test error' } });
-      fireEvent.click(button);
+			render(<TestNotification />);
 
-      await waitFor(() => {
-        expect(screen.getByText(/network error/i)).toBeInTheDocument();
-      });
+			await waitFor(() => {
+				expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
+			});
 
-      // Status should have error styling
-      const statusDiv = screen.getByText(/network error/i).closest('div');
-      expect(statusDiv).toHaveClass('bg-red-100', 'text-red-800');
-    });
+			const input = screen.getByPlaceholderText(/enter notification message/i);
+			const button = screen.getByRole("button", { name: /send notification/i });
 
-    it('should handle unknown error types', async () => {
-      mockActions.sendNotification.mockRejectedValue('Unknown error');
+			fireEvent.change(input, { target: { value: "Test message" } });
+			fireEvent.click(button);
 
-      render(<TestNotification />);
+			await waitFor(() => {
+				expect(button).toBeDisabled();
+			});
 
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
-      });
+			resolvePromise!({ success: true, message: "Success" });
 
-      const input = screen.getByPlaceholderText(/enter notification message/i);
-      const button = screen.getByRole('button', { name: /send notification/i });
+			await waitFor(() => {
+				expect(button).not.toBeDisabled();
+			});
+		});
 
-      fireEvent.change(input, { target: { value: 'Test unknown error' } });
-      fireEvent.click(button);
+		it("should show different button styles for loading state", async () => {
+			let resolvePromise: (value: any) => void;
+			const promise = new Promise<any>((resolve) => {
+				resolvePromise = resolve;
+			});
 
-      await waitFor(() => {
-        expect(screen.getByText(/unknown error occurred/i)).toBeInTheDocument();
-      });
-    });
-  });
+			mockSendNotification.mockImplementation(() => promise);
 
-  describe('UI Behavior', () => {
-    it('should disable button during loading', async () => {
-      let resolvePromise: (value: any) => void;
-      const promise = new Promise<any>((resolve) => {
-        resolvePromise = resolve;
-      });
+			render(<TestNotification />);
 
-      mockActions.sendNotification.mockReturnValue(promise);
+			await waitFor(() => {
+				expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
+			});
 
-      render(<TestNotification />);
+			const input = screen.getByPlaceholderText(/enter notification message/i);
+			const button = screen.getByRole("button", { name: /send notification/i });
 
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
-      });
+			// Initial state
+			expect(button).toHaveClass("bg-yellow-500", "hover:bg-yellow-600");
 
-      const input = screen.getByPlaceholderText(/enter notification message/i);
-      const button = screen.getByRole('button', { name: /send notification/i });
+			fireEvent.change(input, { target: { value: "Test message" } });
+			fireEvent.click(button);
 
-      fireEvent.change(input, { target: { value: 'Test message' } });
-      fireEvent.click(button);
+			// Loading state
+			await waitFor(() => {
+				expect(button).toHaveClass("bg-gray-400", "cursor-not-allowed");
+			});
 
-      await waitFor(() => {
-        expect(button).toBeDisabled();
-      });
+			resolvePromise!({ success: true, message: "Success" });
 
-      resolvePromise!({ success: true, message: 'Success' });
+			// Back to normal state
+			await waitFor(() => {
+				expect(button).toHaveClass("bg-yellow-500", "hover:bg-yellow-600");
+			});
+		});
+	});
 
-      await waitFor(() => {
-        expect(button).not.toBeDisabled();
-      });
-    });
+	describe("Position and Styling", () => {
+		it("should render with correct positioning classes", async () => {
+			render(<TestNotification />);
 
-    it('should show different button styles for loading state', async () => {
-      let resolvePromise: (value: any) => void;
-      const promise = new Promise<any>((resolve) => {
-        resolvePromise = resolve;
-      });
+			await waitFor(() => {
+				const container = document.querySelector(".fixed.top-4.min-w-80.end-4.z-50");
+				expect(container).toBeInTheDocument();
+			});
+		});
 
-      mockActions.sendNotification.mockReturnValue(promise);
+		it("should have proper styling for the notification panel", async () => {
+			render(<TestNotification />);
 
-      render(<TestNotification />);
-
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText(/enter notification message/i)).toBeInTheDocument();
-      });
-
-      const input = screen.getByPlaceholderText(/enter notification message/i);
-      const button = screen.getByRole('button', { name: /send notification/i });
-
-      // Initial state
-      expect(button).toHaveClass('bg-yellow-500', 'hover:bg-yellow-600');
-
-      fireEvent.change(input, { target: { value: 'Test message' } });
-      fireEvent.click(button);
-
-      // Loading state
-      await waitFor(() => {
-        expect(button).toHaveClass('bg-gray-400', 'cursor-not-allowed');
-      });
-
-      resolvePromise!({ success: true, message: 'Success' });
-
-      // Back to normal state
-      await waitFor(() => {
-        expect(button).toHaveClass('bg-yellow-500', 'hover:bg-yellow-600');
-      });
-    });
-  });
-
-  describe('Position and Styling', () => {
-    it('should render with correct positioning classes', async () => {
-      render(<TestNotification />);
-
-      await waitFor(() => {
-        const container = document.querySelector('.fixed.top-4.min-w-80.end-4.z-50');
-        expect(container).toBeInTheDocument();
-      });
-    });
-
-    it('should have proper styling for the notification panel', async () => {
-      render(<TestNotification />);
-
-      await waitFor(() => {
-        const panel = document.querySelector('.bg-white.bg-opacity-90.shadow-lg.rounded-lg');
-        expect(panel).toBeInTheDocument();
-      });
-    });
-  });
+			await waitFor(() => {
+				const panel = document.querySelector(".bg-white.bg-opacity-90.shadow-lg.rounded-lg");
+				expect(panel).toBeInTheDocument();
+			});
+		});
+	});
 });
