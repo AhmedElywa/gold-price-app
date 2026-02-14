@@ -1,58 +1,33 @@
 import type { MetadataRoute } from 'next';
-import { locales } from '@/lib/i18n';
+import { defaultLocale } from '@/lib/i18n';
+import { getSiteUrl } from '@/lib/site';
+
+// Only include well-translated locales in the sitemap
+const sitemapLocales = ['en', 'ar'] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://gold.ahmedelywa.com'; // Replace with your actual domain
-
-  // Generate sitemap entries for all locales
+  const baseUrl = getSiteUrl();
+  const staticDate = new Date('2026-02-13');
+  const contentRoutes = ['', '/about', '/privacy', '/terms', '/historical'];
   const urls: MetadataRoute.Sitemap = [];
 
-  // Define all available currencies
-  const currencies = [
-    // Primary currencies
-    'egp',
-    'usd',
-    'eur',
-    // Major currencies
-    'gbp',
-    'jpy',
-    'cny',
-    'inr',
-    'try',
-    'rub',
-    'cad',
-    'aud',
-    'chf',
-    'sgd',
-    // GCC currencies
-    'sar',
-    'aed',
-    'qar',
-    'kwd',
-    'bhd',
-    'omr',
-    'jod',
-  ];
+  const buildAlternates = (route: string) =>
+    Object.fromEntries([
+      ...sitemapLocales.map((l) => [l, `${baseUrl}/${l}${route}`]),
+      ['x-default', `${baseUrl}/${defaultLocale}${route}`],
+    ]);
 
-  locales.forEach((locale) => {
-    // Add base locale URL
-    urls.push({
-      url: `${baseUrl}/${locale}`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: locale === 'en' ? 1 : 0.9,
-    });
-
-    // Add currency-specific URLs for each locale
-    currencies.forEach((currency) => {
+  for (const locale of sitemapLocales) {
+    for (const route of contentRoutes) {
       urls.push({
-        url: `${baseUrl}/${locale}?currency=${currency.toUpperCase()}`,
-        lastModified: new Date(),
-        changeFrequency: 'daily',
-        priority: locale === 'en' ? 0.8 : 0.7,
+        url: `${baseUrl}/${locale}${route}`,
+        lastModified: staticDate,
+        changeFrequency: route ? 'weekly' : 'daily',
+        priority: locale === defaultLocale && route === '' ? 1 : route === '' ? 0.9 : 0.8,
+        alternates: { languages: buildAlternates(route) },
       });
-    });
-  });
+    }
+  }
 
   return urls;
 }

@@ -1,13 +1,21 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import * as actions from '../../src/app/actions';
-import { PushNotificationManager } from '../../src/app/components/PwaComponents';
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Toaster } from '../../src/components/ui/toaster';
 
+type MutableWindowForFeatureChecks = Window & {
+  Notification?: typeof Notification;
+  PushManager?: typeof PushManager;
+};
+
+type MutableNavigatorForFeatureChecks = Navigator & {
+  serviceWorker?: ServiceWorkerContainer;
+};
+
 // Mock the actions module
-jest.mock('../../src/app/actions', () => ({
-  subscribeUser: jest.fn(),
-  unsubscribeUser: jest.fn(),
+mock.module('../../src/app/actions', () => ({
+  subscribeUser: mock(() => Promise.resolve({ success: true })),
+  unsubscribeUser: mock(() => Promise.resolve({ success: true })),
+  sendNotification: mock(() => Promise.resolve({ success: true, message: '' })),
 }));
 
 // Mock environment variables
@@ -23,8 +31,15 @@ const mockPushSubscription = {
       auth: 'test-auth-key',
     },
   }),
-  unsubscribe: jest.fn().mockResolvedValue(true),
+  unsubscribe: mock(() => Promise.resolve(true)),
 };
+
+type PushNotificationManagerComponent =
+  (typeof import('../../src/app/components/PwaComponents'))['PushNotificationManager'];
+
+let PushNotificationManager: PushNotificationManagerComponent;
+let mockSubscribeUser: ReturnType<typeof mock>;
+let mockUnsubscribeUser: ReturnType<typeof mock>;
 
 // Helper function to convert string to Uint8Array (used in component)
 function _urlBase64ToUint8Array(base64String: string) {
@@ -45,16 +60,25 @@ function renderManager() {
 }
 
 describe('PushNotificationManager', () => {
-  const mockActions = actions as jest.Mocked<typeof actions>;
+  afterEach(() => {
+    cleanup();
+  });
 
-  beforeEach(() => {
-    jest.clearAllMocks();
+  beforeEach(async () => {
+    const actionsModule = await import('../../src/app/actions');
+    const componentsModule = await import('../../src/app/components/PwaComponents');
+    PushNotificationManager = componentsModule.PushNotificationManager;
+    mockSubscribeUser = actionsModule.subscribeUser as ReturnType<typeof mock>;
+    mockUnsubscribeUser = actionsModule.unsubscribeUser as ReturnType<typeof mock>;
+
+    mockSubscribeUser.mockClear();
+    mockUnsubscribeUser.mockClear();
 
     // Reset global mocks
     Object.defineProperty(window, 'Notification', {
       value: {
         permission: 'default',
-        requestPermission: jest.fn().mockResolvedValue('granted'),
+        requestPermission: mock(() => Promise.resolve('granted' as const)),
       },
       writable: true,
       configurable: true,
@@ -62,15 +86,17 @@ describe('PushNotificationManager', () => {
 
     Object.defineProperty(navigator, 'serviceWorker', {
       value: {
-        register: jest.fn().mockResolvedValue({
-          scope: 'http://localhost/',
-          addEventListener: jest.fn(),
-          waiting: null,
-        }),
+        register: mock(() =>
+          Promise.resolve({
+            scope: 'http://localhost/',
+            addEventListener: mock(() => {}),
+            waiting: null,
+          }),
+        ),
         ready: Promise.resolve({
           pushManager: {
-            subscribe: jest.fn().mockResolvedValue(mockPushSubscription),
-            getSubscription: jest.fn().mockResolvedValue(null),
+            subscribe: mock(() => Promise.resolve(mockPushSubscription)),
+            getSubscription: mock(() => Promise.resolve(null)),
           },
         }),
       },
@@ -80,7 +106,7 @@ describe('PushNotificationManager', () => {
 
     // Mock window.atob for base64 decoding
     Object.defineProperty(window, 'atob', {
-      value: jest.fn().mockImplementation((str) => {
+      value: mock((str: string) => {
         return Buffer.from(str, 'base64').toString('binary');
       }),
       writable: true,
@@ -98,21 +124,24 @@ describe('PushNotificationManager', () => {
   describe('Feature Support Detection', () => {
     it('should not render when notifications are not supported', () => {
       // Mock missing Notification API
-      delete (window as any).Notification;
+      const mutableWindow = window as MutableWindowForFeatureChecks;
+      Reflect.deleteProperty(mutableWindow, 'Notification');
 
       const { container } = renderManager();
       expect(container.firstChild).toBeNull();
     });
 
     it('should not render when service workers are not supported', () => {
-      delete (navigator as any).serviceWorker;
+      const mutableNavigator = navigator as MutableNavigatorForFeatureChecks;
+      Reflect.deleteProperty(mutableNavigator, 'serviceWorker');
 
       const { container } = renderManager();
       expect(container.firstChild).toBeNull();
     });
 
     it('should not render when push manager is not supported', () => {
-      delete (window as any).PushManager;
+      const mutableWindow = window as MutableWindowForFeatureChecks;
+      Reflect.deleteProperty(mutableWindow, 'PushManager');
 
       const { container } = renderManager();
       expect(container.firstChild).toBeNull();
@@ -148,13 +177,13 @@ describe('PushNotificationManager', () => {
 
   describe('Permission Request Flow', () => {
     it('should request permission and subscribe when button is clicked', async () => {
-      const mockRequestPermission = jest.fn().mockResolvedValue('granted');
+      const mockRequestPermission = mock(() => Promise.resolve('granted' as const));
       Object.defineProperty(window.Notification, 'requestPermission', {
         value: mockRequestPermission,
         writable: true,
       });
 
-      mockActions.subscribeUser.mockResolvedValue({ success: true });
+      mockSubscribeUser.mockImplementation(() => Promise.resolve({ success: true }));
 
       renderManager();
 
@@ -171,7 +200,7 @@ describe('PushNotificationManager', () => {
     });
 
     it('should handle permission request failure', async () => {
-      const mockRequestPermission = jest.fn().mockResolvedValue('denied');
+      const mockRequestPermission = mock(() => Promise.resolve('denied' as const));
       Object.defineProperty(window.Notification, 'requestPermission', {
         value: mockRequestPermission,
         writable: true,
@@ -191,7 +220,7 @@ describe('PushNotificationManager', () => {
       });
 
       // Should not attempt to subscribe if permission denied
-      expect(mockActions.subscribeUser).not.toHaveBeenCalled();
+      expect(mockSubscribeUser).not.toHaveBeenCalled();
     });
   });
 
@@ -204,7 +233,7 @@ describe('PushNotificationManager', () => {
     });
 
     it('should successfully subscribe to push notifications', async () => {
-      mockActions.subscribeUser.mockResolvedValue({ success: true });
+      mockSubscribeUser.mockImplementation(() => Promise.resolve({ success: true }));
 
       renderManager();
 
@@ -216,7 +245,7 @@ describe('PushNotificationManager', () => {
       });
 
       await waitFor(() => {
-        expect(mockActions.subscribeUser).toHaveBeenCalledWith({
+        expect(mockSubscribeUser).toHaveBeenCalledWith({
           endpoint: 'https://fcm.googleapis.com/fcm/send/test-endpoint',
           keys: {
             p256dh: 'test-p256dh-key',
@@ -227,14 +256,14 @@ describe('PushNotificationManager', () => {
     });
 
     it('should handle subscription failure', async () => {
-      const mockSubscribe = jest.fn().mockRejectedValue(new Error('Subscription failed'));
+      const mockSubscribe = mock(() => Promise.reject(new Error('Subscription failed')));
 
       Object.defineProperty(navigator, 'serviceWorker', {
         value: {
           ready: Promise.resolve({
             pushManager: {
               subscribe: mockSubscribe,
-              getSubscription: jest.fn().mockResolvedValue(null),
+              getSubscription: mock(() => Promise.resolve(null)),
             },
           }),
         },
@@ -255,13 +284,15 @@ describe('PushNotificationManager', () => {
       });
 
       // Should not call subscribeUser if push subscription fails
-      expect(mockActions.subscribeUser).not.toHaveBeenCalled();
+      expect(mockSubscribeUser).not.toHaveBeenCalled();
     });
 
     it('should handle server subscription failure', async () => {
-      mockActions.subscribeUser.mockResolvedValue({
-        success: false,
-      });
+      mockSubscribeUser.mockImplementation(() =>
+        Promise.resolve({
+          success: false,
+        }),
+      );
 
       renderManager();
 
@@ -273,7 +304,7 @@ describe('PushNotificationManager', () => {
       });
 
       await waitFor(() => {
-        expect(mockActions.subscribeUser).toHaveBeenCalled();
+        expect(mockSubscribeUser).toHaveBeenCalled();
       });
     });
   });
@@ -291,16 +322,16 @@ describe('PushNotificationManager', () => {
         value: {
           ready: Promise.resolve({
             pushManager: {
-              subscribe: jest.fn().mockResolvedValue(mockPushSubscription),
-              getSubscription: jest.fn().mockResolvedValue(mockPushSubscription),
+              subscribe: mock(() => Promise.resolve(mockPushSubscription)),
+              getSubscription: mock(() => Promise.resolve(mockPushSubscription)),
             },
           }),
         },
         writable: true,
       });
 
-      mockActions.subscribeUser.mockResolvedValue({ success: true });
-      mockActions.unsubscribeUser.mockResolvedValue({ success: true });
+      mockSubscribeUser.mockImplementation(() => Promise.resolve({ success: true }));
+      mockUnsubscribeUser.mockImplementation(() => Promise.resolve({ success: true }));
 
       renderManager();
 
@@ -310,7 +341,7 @@ describe('PushNotificationManager', () => {
     });
 
     it('should not attempt to unsubscribe when no button is present', async () => {
-      const mockUnsubscribe = jest.fn().mockResolvedValue(false);
+      const mockUnsubscribe = mock(() => Promise.resolve(false));
       const mockSubscriptionWithFailure = {
         ...mockPushSubscription,
         unsubscribe: mockUnsubscribe,
@@ -320,16 +351,16 @@ describe('PushNotificationManager', () => {
         value: {
           ready: Promise.resolve({
             pushManager: {
-              subscribe: jest.fn().mockResolvedValue(mockSubscriptionWithFailure),
-              getSubscription: jest.fn().mockResolvedValue(mockSubscriptionWithFailure),
+              subscribe: mock(() => Promise.resolve(mockSubscriptionWithFailure)),
+              getSubscription: mock(() => Promise.resolve(mockSubscriptionWithFailure)),
             },
           }),
         },
         writable: true,
       });
 
-      mockActions.subscribeUser.mockResolvedValue({ success: true });
-      mockActions.unsubscribeUser.mockResolvedValue({ success: true });
+      mockSubscribeUser.mockImplementation(() => Promise.resolve({ success: true }));
+      mockUnsubscribeUser.mockImplementation(() => Promise.resolve({ success: true }));
 
       renderManager();
 
@@ -352,19 +383,19 @@ describe('PushNotificationManager', () => {
         value: {
           ready: Promise.resolve({
             pushManager: {
-              getSubscription: jest.fn().mockResolvedValue(mockPushSubscription),
+              getSubscription: mock(() => Promise.resolve(mockPushSubscription)),
             },
           }),
         },
         writable: true,
       });
 
-      mockActions.subscribeUser.mockResolvedValue({ success: true });
+      mockSubscribeUser.mockImplementation(() => Promise.resolve({ success: true }));
 
       renderManager();
 
       await waitFor(() => {
-        expect(mockActions.subscribeUser).toHaveBeenCalledWith({
+        expect(mockSubscribeUser).toHaveBeenCalledWith({
           endpoint: 'https://fcm.googleapis.com/fcm/send/test-endpoint',
           keys: {
             p256dh: 'test-p256dh-key',
@@ -384,19 +415,19 @@ describe('PushNotificationManager', () => {
         value: {
           ready: Promise.resolve({
             pushManager: {
-              getSubscription: jest.fn().mockResolvedValue(mockPushSubscription),
+              getSubscription: mock(() => Promise.resolve(mockPushSubscription)),
             },
           }),
         },
         writable: true,
       });
 
-      mockActions.subscribeUser.mockRejectedValue(new Error('Sync failed'));
+      mockSubscribeUser.mockImplementation(() => Promise.reject(new Error('Sync failed')));
 
       renderManager();
 
       await waitFor(() => {
-        expect(mockActions.subscribeUser).toHaveBeenCalled();
+        expect(mockSubscribeUser).toHaveBeenCalled();
       });
 
       // Component should hide the button even if sync fails
@@ -420,15 +451,15 @@ describe('PushNotificationManager', () => {
         value: {
           ready: Promise.resolve({
             pushManager: {
-              subscribe: jest.fn().mockResolvedValue(mockPushSubscription),
-              getSubscription: jest.fn().mockResolvedValue(null),
+              subscribe: mock(() => Promise.resolve(mockPushSubscription)),
+              getSubscription: mock(() => Promise.resolve(null)),
             },
           }),
         },
         writable: true,
       });
 
-      mockActions.subscribeUser.mockResolvedValue({ success: true });
+      mockSubscribeUser.mockImplementation(() => Promise.resolve({ success: true }));
 
       const enableButton = screen.getByRole('button', {
         name: /enable price alerts/i,
@@ -455,7 +486,8 @@ describe('PushNotificationManager', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText(/vapid key missing/i)).toBeInTheDocument();
+        const matches = screen.getAllByText(/vapid key missing/i);
+        expect(matches.length).toBeGreaterThan(0);
       });
 
       // Restore the environment variable
@@ -488,7 +520,7 @@ describe('PushNotificationManager', () => {
     it('should handle VAPID key conversion errors', async () => {
       // Mock atob to throw an error
       Object.defineProperty(window, 'atob', {
-        value: jest.fn().mockImplementation(() => {
+        value: mock(() => {
           throw new Error('Invalid base64');
         }),
         writable: true,

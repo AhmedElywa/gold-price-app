@@ -3,17 +3,19 @@
  * Tests the interaction between price change detection and notification sending
  */
 
-import { sendNotification } from '../../src/app/actions';
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
 // Mock the actions module
-jest.mock('../../src/app/actions', () => ({
-  sendNotification: jest.fn(),
+mock.module('../../src/app/actions', () => ({
+  sendNotification: mock(() =>
+    Promise.resolve({ success: true, message: 'Notifications sent to 1 subscribers (0 failed)' }),
+  ),
 }));
 
 // Mock web-push for integration tests
-jest.mock('web-push', () => ({
-  setVapidDetails: jest.fn(),
-  sendNotification: jest.fn(),
+mock.module('web-push', () => ({
+  setVapidDetails: mock(() => {}),
+  sendNotification: mock(() => Promise.resolve()),
 }));
 
 // Mock environment variables
@@ -21,15 +23,17 @@ process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY = 'test-vapid-public';
 process.env.VAPID_PRIVATE_KEY = 'test-vapid-private';
 process.env.EXCHANGE_RATE_API_KEY = 'test-exchange-rate-key';
 
+type SendNotificationAction = (typeof import('../../src/app/actions'))['sendNotification'];
+
+let sendNotification: SendNotificationAction;
+let mockSendNotification: ReturnType<typeof mock>;
+
 describe('Notification Flow Integration Tests', () => {
   // Mock the gold price API route logic
   let lastGoldPrice: number | null = null;
   let lastNotificationAt: number = 0;
   const NOTIFICATION_THRESHOLD_PERCENT = 0.25;
   const NOTIFICATION_COOLDOWN_MS = 3 * 60 * 60 * 1000;
-
-  // Get the mocked function with proper typing
-  const mockSendNotification = sendNotification as jest.MockedFunction<typeof sendNotification>;
 
   function shouldSendNotification(newPrice: number): boolean {
     if (lastGoldPrice === null) {
@@ -52,18 +56,24 @@ describe('Notification Flow Integration Tests', () => {
     return false;
   }
 
-  beforeEach(() => {
-    jest.clearAllMocks();
+  beforeEach(async () => {
+    const actionsModule = await import('../../src/app/actions');
+    sendNotification = actionsModule.sendNotification;
+    mockSendNotification = actionsModule.sendNotification as ReturnType<typeof mock>;
+
+    mockSendNotification.mockClear();
     lastGoldPrice = null;
     lastNotificationAt = 0;
   });
 
   describe('End-to-End Notification Flow', () => {
     it('should trigger notification when price change exceeds threshold', async () => {
-      mockSendNotification.mockResolvedValue({
-        success: true,
-        message: 'Notifications sent to 1 subscribers (0 failed)',
-      });
+      mockSendNotification.mockImplementation(() =>
+        Promise.resolve({
+          success: true,
+          message: 'Notifications sent to 1 subscribers (0 failed)',
+        }),
+      );
 
       // Simulate price updates that would trigger notification
       const initialPrice = 2650.0;
@@ -89,10 +99,12 @@ describe('Notification Flow Integration Tests', () => {
     });
 
     it('should not trigger notification during cooldown period', async () => {
-      mockSendNotification.mockResolvedValue({
-        success: true,
-        message: 'Notifications sent to 1 subscribers (0 failed)',
-      });
+      mockSendNotification.mockImplementation(() =>
+        Promise.resolve({
+          success: true,
+          message: 'Notifications sent to 1 subscribers (0 failed)',
+        }),
+      );
 
       // First significant price change
       shouldSendNotification(2650.0);
@@ -112,10 +124,12 @@ describe('Notification Flow Integration Tests', () => {
     });
 
     it('should handle notification sending failures gracefully', async () => {
-      mockSendNotification.mockResolvedValue({
-        success: false,
-        error: 'No subscriptions available',
-      });
+      mockSendNotification.mockImplementation(() =>
+        Promise.resolve({
+          success: false,
+          error: 'No subscriptions available',
+        }),
+      );
 
       shouldSendNotification(2650.0);
       const shouldNotify = shouldSendNotification(2656.63);
@@ -128,10 +142,12 @@ describe('Notification Flow Integration Tests', () => {
     });
 
     it('should handle multiple subscribers correctly', async () => {
-      mockSendNotification.mockResolvedValue({
-        success: true,
-        message: 'Notifications sent to 3 subscribers (0 failed)',
-      });
+      mockSendNotification.mockImplementation(() =>
+        Promise.resolve({
+          success: true,
+          message: 'Notifications sent to 3 subscribers (0 failed)',
+        }),
+      );
 
       shouldSendNotification(2650.0);
       const shouldNotify = shouldSendNotification(2656.63);
@@ -146,10 +162,12 @@ describe('Notification Flow Integration Tests', () => {
 
   describe('Price Change Scenarios', () => {
     it('should handle volatile market conditions', async () => {
-      mockSendNotification.mockResolvedValue({
-        success: true,
-        message: 'Notifications sent to 1 subscribers (0 failed)',
-      });
+      mockSendNotification.mockImplementation(() =>
+        Promise.resolve({
+          success: true,
+          message: 'Notifications sent to 1 subscribers (0 failed)',
+        }),
+      );
 
       const prices = [
         2650.0, // Initial price
@@ -175,10 +193,12 @@ describe('Notification Flow Integration Tests', () => {
     });
 
     it('should handle price spikes and recoveries', async () => {
-      mockSendNotification.mockResolvedValue({
-        success: true,
-        message: 'Notifications sent to 1 subscribers (0 failed)',
-      });
+      mockSendNotification.mockImplementation(() =>
+        Promise.resolve({
+          success: true,
+          message: 'Notifications sent to 1 subscribers (0 failed)',
+        }),
+      );
 
       // Initial price
       shouldSendNotification(2650.0);
@@ -200,10 +220,12 @@ describe('Notification Flow Integration Tests', () => {
 
   describe('Real-world Gold Price Simulations', () => {
     it('should handle typical daily gold price movements', async () => {
-      mockSendNotification.mockResolvedValue({
-        success: true,
-        message: 'Notifications sent to 2 subscribers (0 failed)',
-      });
+      mockSendNotification.mockImplementation(() =>
+        Promise.resolve({
+          success: true,
+          message: 'Notifications sent to 2 subscribers (0 failed)',
+        }),
+      );
 
       // Simulate a day of gold price movements (realistic data)
       const dayPrices = [
@@ -232,10 +254,12 @@ describe('Notification Flow Integration Tests', () => {
     });
 
     it('should handle weekend gap scenarios', async () => {
-      mockSendNotification.mockResolvedValue({
-        success: true,
-        message: 'Notifications sent to 1 subscribers (0 failed)',
-      });
+      mockSendNotification.mockImplementation(() =>
+        Promise.resolve({
+          success: true,
+          message: 'Notifications sent to 1 subscribers (0 failed)',
+        }),
+      );
 
       // Friday close
       shouldSendNotification(2650.0);
@@ -252,7 +276,7 @@ describe('Notification Flow Integration Tests', () => {
 
   describe('Error Handling in Flow', () => {
     it('should continue price tracking even when notifications fail', async () => {
-      mockSendNotification.mockRejectedValue(new Error('Network error'));
+      mockSendNotification.mockImplementation(() => Promise.reject(new Error('Network error')));
 
       shouldSendNotification(2650.0);
       const shouldNotify = shouldSendNotification(2656.63);
@@ -270,10 +294,12 @@ describe('Notification Flow Integration Tests', () => {
     });
 
     it('should handle partial notification failures', async () => {
-      mockSendNotification.mockResolvedValue({
-        success: true,
-        message: 'Notifications sent to 2 subscribers (1 failed)',
-      });
+      mockSendNotification.mockImplementation(() =>
+        Promise.resolve({
+          success: true,
+          message: 'Notifications sent to 2 subscribers (1 failed)',
+        }),
+      );
 
       shouldSendNotification(2650.0);
       const shouldNotify = shouldSendNotification(2656.63);
@@ -288,10 +314,12 @@ describe('Notification Flow Integration Tests', () => {
 
   describe('Subscription Management Integration', () => {
     it('should handle notifications when no subscribers exist', async () => {
-      mockSendNotification.mockResolvedValue({
-        success: false,
-        error: 'No subscriptions available',
-      });
+      mockSendNotification.mockImplementation(() =>
+        Promise.resolve({
+          success: false,
+          error: 'No subscriptions available',
+        }),
+      );
 
       shouldSendNotification(2650.0);
       const shouldNotify = shouldSendNotification(2656.63);
@@ -305,9 +333,19 @@ describe('Notification Flow Integration Tests', () => {
 
     it('should handle subscription cleanup during notification', async () => {
       // First call succeeds
-      mockSendNotification.mockResolvedValueOnce({
-        success: true,
-        message: 'Notifications sent to 1 subscribers (0 failed)',
+      let callCount = 0;
+      mockSendNotification.mockImplementation(() => {
+        callCount++;
+        if (callCount === 1) {
+          return Promise.resolve({
+            success: true,
+            message: 'Notifications sent to 1 subscribers (0 failed)',
+          });
+        }
+        return Promise.resolve({
+          success: false,
+          error: 'No subscriptions available',
+        });
       });
 
       shouldSendNotification(2650.0);
@@ -322,11 +360,6 @@ describe('Notification Flow Integration Tests', () => {
       lastNotificationAt = Date.now() - (NOTIFICATION_COOLDOWN_MS + 1000);
 
       // Second call has no subscriptions (they were cleaned up)
-      mockSendNotification.mockResolvedValueOnce({
-        success: false,
-        error: 'No subscriptions available',
-      });
-
       if (shouldSendNotification(2669.24)) {
         const result2 = await sendNotification('Second notification');
         expect(result2.success).toBe(false);
@@ -338,10 +371,12 @@ describe('Notification Flow Integration Tests', () => {
 
   describe('Performance and Timing', () => {
     it('should handle high-frequency price updates efficiently', async () => {
-      mockSendNotification.mockResolvedValue({
-        success: true,
-        message: 'Notifications sent to 1 subscribers (0 failed)',
-      });
+      mockSendNotification.mockImplementation(() =>
+        Promise.resolve({
+          success: true,
+          message: 'Notifications sent to 1 subscribers (0 failed)',
+        }),
+      );
 
       const startTime = Date.now();
 
@@ -350,7 +385,7 @@ describe('Notification Flow Integration Tests', () => {
       const basePrice = 2650.0;
 
       for (let i = 0; i < 100; i++) {
-        const variation = (Math.random() - 0.5) * 10; // ±$5 variation
+        const variation = (Math.random() - 0.5) * 10; // +/-$5 variation
         const price = basePrice + variation;
 
         if (shouldSendNotification(price)) {
@@ -368,10 +403,12 @@ describe('Notification Flow Integration Tests', () => {
     });
 
     it('should respect cooldown timing precisely', async () => {
-      mockSendNotification.mockResolvedValue({
-        success: true,
-        message: 'Notifications sent to 1 subscribers (0 failed)',
-      });
+      mockSendNotification.mockImplementation(() =>
+        Promise.resolve({
+          success: true,
+          message: 'Notifications sent to 1 subscribers (0 failed)',
+        }),
+      );
 
       // First notification
       shouldSendNotification(2650.0);
@@ -400,12 +437,12 @@ describe('Notification Flow Integration Tests', () => {
 
   describe('Service Worker Compatibility', () => {
     it('should handle JSON formatted push messages', async () => {
-      // This test verifies that the service worker can handle JSON messages
-      // The actual service worker is tested in browser, but we can verify the data format
-      mockSendNotification.mockResolvedValue({
-        success: true,
-        message: 'Notifications sent to 1 subscribers (0 failed)',
-      });
+      mockSendNotification.mockImplementation(() =>
+        Promise.resolve({
+          success: true,
+          message: 'Notifications sent to 1 subscribers (0 failed)',
+        }),
+      );
 
       shouldSendNotification(2650.0);
       const shouldNotify = shouldSendNotification(2656.63);
@@ -418,18 +455,17 @@ describe('Notification Flow Integration Tests', () => {
     });
 
     it('should handle plain text messages gracefully', async () => {
-      // This simulates the case where the service worker receives plain text
-      // instead of JSON (which was causing the original error)
-      mockSendNotification.mockResolvedValue({
-        success: true,
-        message: 'Notifications sent to 1 subscribers (0 failed)',
-      });
+      mockSendNotification.mockImplementation(() =>
+        Promise.resolve({
+          success: true,
+          message: 'Notifications sent to 1 subscribers (0 failed)',
+        }),
+      );
 
       shouldSendNotification(2650.0);
       const shouldNotify = shouldSendNotification(2656.63);
       expect(shouldNotify).toBe(true);
 
-      // Test with various plain text formats that might cause JSON parsing errors
       const plainTextMessages = [
         'Test push notification',
         'Simple message',
@@ -447,16 +483,17 @@ describe('Notification Flow Integration Tests', () => {
     });
 
     it('should handle malformed or empty messages', async () => {
-      mockSendNotification.mockResolvedValue({
-        success: true,
-        message: 'Notifications sent to 1 subscribers (0 failed)',
-      });
+      mockSendNotification.mockImplementation(() =>
+        Promise.resolve({
+          success: true,
+          message: 'Notifications sent to 1 subscribers (0 failed)',
+        }),
+      );
 
       shouldSendNotification(2650.0);
       const shouldNotify = shouldSendNotification(2656.63);
       expect(shouldNotify).toBe(true);
 
-      // Test edge cases that might break JSON parsing
       const edgeCaseMessages = [
         '', // Empty string
         ' ', // Whitespace only

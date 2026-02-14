@@ -17,6 +17,20 @@ const nextConfig: NextConfig = {
 
   // Security headers
   async headers() {
+    const isDev = process.env.NODE_ENV === 'development';
+    const cspValue = [
+      "default-src 'self'",
+      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob:",
+      "connect-src 'self' https://data-asg.goldprice.org https://v6.exchangerate-api.com",
+      "font-src 'self'",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "frame-ancestors 'none'",
+    ].join('; ');
+
     return [
       {
         source: '/(.*)',
@@ -32,6 +46,10 @@ const nextConfig: NextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: cspValue,
           },
         ],
       },

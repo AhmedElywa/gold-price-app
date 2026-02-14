@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from '../../hooks/use-toast';
 import { type SerializablePushSubscription, subscribeUser } from '../actions';
 
@@ -17,17 +17,7 @@ export function ServiceWorkerRegistration() {
   const [isDev, setIsDev] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
-  useEffect(() => {
-    setIsMounted(true);
-    setIsDev(process.env.TEST_NOTIFICATIONS === 'true');
-
-    // Safe to access browser APIs in useEffect
-    if ('serviceWorker' in navigator) {
-      registerSW();
-    }
-  }, [registerSW]);
-
-  async function registerSW() {
+  const registerSW = useCallback(async () => {
     try {
       const registration = await navigator.serviceWorker.register('/api/sw');
       console.log('Service Worker registered with scope:', registration.scope);
@@ -52,7 +42,17 @@ export function ServiceWorkerRegistration() {
     } catch (error) {
       console.error('Service Worker registration failed:', error);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    setIsMounted(true);
+    setIsDev(process.env.NEXT_PUBLIC_TEST_NOTIFICATIONS === 'true');
+
+    // Safe to access browser APIs in useEffect
+    if ('serviceWorker' in navigator) {
+      registerSW();
+    }
+  }, [registerSW]);
 
   async function unregisterSW() {
     if ('serviceWorker' in navigator) {
@@ -108,6 +108,24 @@ export function PushNotificationManager() {
   const [supported, setSupported] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
 
+  const checkExistingSubscription = useCallback(async () => {
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const existingSubscription = await registration.pushManager.getSubscription();
+      if (existingSubscription) {
+        setSubscription(existingSubscription);
+        // Ensure the server knows about this subscription (handles hot reloads / cold starts)
+        try {
+          await subscribeUser(serializeSubscription(existingSubscription));
+        } catch (err) {
+          console.error('Failed to sync existing subscription with server:', err);
+        }
+      }
+    } catch (error) {
+      console.error('Error checking for existing subscription:', error);
+    }
+  }, []);
+
   useEffect(() => {
     setIsMounted(true);
 
@@ -125,24 +143,6 @@ export function PushNotificationManager() {
       checkExistingSubscription();
     }
   }, [checkExistingSubscription]);
-
-  async function checkExistingSubscription() {
-    try {
-      const registration = await navigator.serviceWorker.ready;
-      const existingSubscription = await registration.pushManager.getSubscription();
-      if (existingSubscription) {
-        setSubscription(existingSubscription);
-        // Ensure the server knows about this subscription (handles hot reloads / cold starts)
-        try {
-          await subscribeUser(serializeSubscription(existingSubscription));
-        } catch (err) {
-          console.error('Failed to sync existing subscription with server:', err);
-        }
-      }
-    } catch (error) {
-      console.error('Error checking for existing subscription:', error);
-    }
-  }
 
   async function handleRequestPermission() {
     try {

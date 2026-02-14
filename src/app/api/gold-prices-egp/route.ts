@@ -11,6 +11,8 @@
  */
 
 import { NextResponse } from 'next/server';
+import { rateLimit } from '@/lib/rate-limit';
+import type { ApiResponseData } from '@/types/api';
 import { sendNotification } from '../../actions';
 
 /** troy‑ounce → gram */
@@ -31,28 +33,6 @@ const NOTIFICATION_THRESHOLD_PERCENT = 0.25;
 // Minimum time between notifications (3 hours in milliseconds)
 const NOTIFICATION_COOLDOWN_MS = 3 * 60 * 60 * 1000;
 
-/* ---------- response shape (unchanged for React client) ------------- */
-interface ApiResponseData {
-  source_data: {
-    gold_price_usd_per_gram: Record<'24k' | '22k' | '21k' | '20k' | '18k' | '16k' | '14k' | '10k', number>;
-    exchange_rates: Record<string, number>;
-    market_data: {
-      current_price: number;
-      prev_close_price?: number;
-      ch?: number;
-      chp?: number;
-      silver_price?: number;
-      silver_change?: number;
-      silver_change_percent?: number;
-      open_time: number;
-      exchange: string;
-      symbol: string;
-    };
-  };
-  gold_prices_egp_per_gram: Record<'24k' | '22k' | '21k' | '20k' | '18k' | '16k' | '14k' | '10k', number>;
-  last_updated: string;
-}
-
 /* ---------- helpers -------------------------------------------------- */
 function karatPricesFromOunce(ounceUsd: number) {
   const g24 = ounceUsd / OUNCE_TO_GRAM;
@@ -69,33 +49,43 @@ function karatPricesFromOunce(ounceUsd: number) {
   };
 }
 
-// Function to check if price change warrants a notification
-function shouldSendNotification(newPrice: number): boolean {
-  // If we don't have a previous price, update it but don't notify
-  if (lastGoldPrice === null) {
+type NotificationDecision = {
+  shouldNotify: boolean;
+  direction: 'increased' | 'decreased';
+  changePercent: number;
+};
+
+// Evaluate change before mutating price state so direction and delta are always correct.
+function evaluateNotificationDecision(newPrice: number): NotificationDecision {
+  const previousPrice = lastGoldPrice;
+
+  if (previousPrice === null) {
     lastGoldPrice = newPrice;
-    return false;
+    return {
+      shouldNotify: false,
+      direction: 'increased',
+      changePercent: 0,
+    };
   }
 
-  // Calculate percentage change
-  const priceDiffPercent = Math.abs(((newPrice - lastGoldPrice) / lastGoldPrice) * 100);
-
-  // Check if the price change exceeds threshold and if we're not in cooldown period
+  const direction = newPrice >= previousPrice ? 'increased' : 'decreased';
+  const priceDiffPercent = Math.abs(((newPrice - previousPrice) / previousPrice) * 100);
   const now = Date.now();
   const enoughTimeElapsed = now - lastNotificationAt > NOTIFICATION_COOLDOWN_MS;
   const significantChange = priceDiffPercent >= NOTIFICATION_THRESHOLD_PERCENT;
 
-  // If conditions are met, update the notification timestamp and return true
-  if (significantChange && enoughTimeElapsed) {
-    lastGoldPrice = newPrice;
+  const shouldNotify = significantChange && enoughTimeElapsed;
+  if (shouldNotify) {
     lastNotificationAt = now;
-    return true;
   }
 
-  // Update the last price regardless
   lastGoldPrice = newPrice;
 
-  return false;
+  return {
+    shouldNotify,
+    direction,
+    changePercent: priceDiffPercent,
+  };
 }
 
 /* ---------- goldprice.org fetch ------------------------------------- */
@@ -130,11 +120,6 @@ async function fetchOuncePriceUSD(): Promise<{
 }
 
 /* ---------- Exchange‑Rate API --------------------------------------- */
-const EXCHANGE_RATE_API_KEY = process.env.EXCHANGE_RATE_API_KEY;
-if (!EXCHANGE_RATE_API_KEY) {
-  throw new Error('EXCHANGE_RATE_API_KEY is not defined');
-}
-
 const SELECTED_CURRENCIES = [
   'EGP',
   'SAR',
@@ -164,6 +149,11 @@ async function fetchFxRates() {
     return fxCache.rates;
   }
 
+  const EXCHANGE_RATE_API_KEY = process.env.EXCHANGE_RATE_API_KEY;
+  if (!EXCHANGE_RATE_API_KEY) {
+    throw new Error('EXCHANGE_RATE_API_KEY is not defined');
+  }
+
   const url = `https://v6.exchangerate-api.com/v6/${EXCHANGE_RATE_API_KEY}/latest/USD`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`ExchangeRate-API HTTP ${res.status}`);
@@ -178,13 +168,20 @@ async function fetchFxRates() {
 }
 
 /* ---------- route handler ------------------------------------------- */
-export async function GET() {
+export async function GET(request: Request) {
+  const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+  if (!rateLimit(ip)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
   try {
     const { ounce, xagPrice, chgXau, chgXag, pcXau, pcXag, xauClose, ts } = await fetchOuncePriceUSD();
     const fxRates = await fetchFxRates();
 
     const goldGramUSD = karatPricesFromOunce(ounce);
-    const goldGramEGP = karatPricesFromOunce(ounce * fxRates.EGP);
+    const egpRate = fxRates.EGP;
+    if (egpRate === undefined) throw new Error('EGP rate not found in exchange rates');
+    const goldGramEGP = karatPricesFromOunce(ounce * egpRate);
 
     const payload: ApiResponseData = {
       source_data: {
@@ -208,17 +205,24 @@ export async function GET() {
     };
 
     // Check if we should send a notification about price change
-    if (shouldSendNotification(ounce)) {
-      const direction = lastGoldPrice && ounce > lastGoldPrice ? 'increased' : 'decreased';
-      const message = `Gold price has ${direction} to $${ounce.toFixed(2)} per ounce (EGP ${goldGramEGP['24k'].toFixed(2)} per gram for 24k)`;
+    const notificationDecision = evaluateNotificationDecision(ounce);
+    if (notificationDecision.shouldNotify) {
+      const message = `Gold price ${notificationDecision.direction} by ${notificationDecision.changePercent.toFixed(
+        2,
+      )}% to $${ounce.toFixed(2)} per ounce (EGP ${goldGramEGP['24k'].toFixed(2)} per gram for 24k)`;
 
-      // Send push notification to subscribers
-      try {
-        await sendNotification(message);
-        console.log('Price change notification sent:', message);
-      } catch (error) {
-        console.error('Failed to send price notification:', error);
-      }
+      // Send push notification asynchronously so API response is not blocked.
+      void sendNotification(message, process.env.CRON_SECRET)
+        .then((result) => {
+          if (!result.success) {
+            console.warn('Price change notification skipped:', 'error' in result ? result.error : result.message);
+            return;
+          }
+          console.log('Price change notification sent:', message);
+        })
+        .catch((error) => {
+          console.error('Failed to send price notification:', error);
+        });
     }
 
     return NextResponse.json(payload);

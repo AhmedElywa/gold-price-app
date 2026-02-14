@@ -185,6 +185,26 @@
     },
     "unregisterSW": "Deregistra SW"
   },
+  "about": {
+    "title": "About GoldTracker Pro",
+    "description": "Learn about our gold price tracking methodology and data sources.",
+    "content": "GoldTracker Pro provides live gold, silver, and currency exchange data for global users. Our goal is to make pricing information easy to understand and useful for daily decisions."
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "description": "How GoldTracker Pro handles your data and privacy.",
+    "content": "We collect minimal technical information necessary to deliver our service. We do not sell personal data. If you enable push alerts, your push subscription endpoint is stored to deliver price notifications and may be removed automatically when no longer valid."
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "description": "Terms and conditions for using GoldTracker Pro.",
+    "content": "Price information is provided for informational purposes only and should not be considered investment advice. Market data can be delayed, unavailable, or changed by data providers. You are responsible for verifying prices and rates with official sources before making financial decisions."
+  },
+  "historical": {
+    "title": "Historical Gold Prices",
+    "description": "View historical gold price trends and data.",
+    "content": "Historical charting and downloadable time-series data are being prepared. This page is reserved for extended trend analysis across gold karats, silver, and currency pairs."
+  },
   "footer": {
     "description": "La tua fonte affidabile per prezzi di oro, argento e tassi di cambio in tempo reale. Rimani informato con dati di prezzo accurati aggiornati ogni minuto.",
     "quickLinks": "Link Rapidi",

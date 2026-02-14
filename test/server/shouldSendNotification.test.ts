@@ -1,6 +1,12 @@
+import { beforeEach, describe, expect, it } from 'bun:test';
+
 /**
- * Test for shouldSendNotification function
- * This tests the price change notification logic
+ * Test for shouldSendNotification / evaluateNotificationDecision logic.
+ *
+ * NOTE: The real function is `evaluateNotificationDecision` inside
+ * src/app/api/gold-prices-egp/route.ts.  It is NOT exported, so we test a
+ * local copy here.  If the production logic changes, this test may diverge.
+ * Consider exporting evaluateNotificationDecision to enable direct testing.
  */
 
 describe('shouldSendNotification function', () => {
@@ -238,6 +244,43 @@ describe('shouldSendNotification function', () => {
       shouldSendNotification(100.1); // Below threshold
 
       expect(lastNotificationAt).toBe(originalTimestamp);
+    });
+  });
+
+  describe('Direction regression (mirrors evaluateNotificationDecision)', () => {
+    /**
+     * Regression: direction must be computed BEFORE mutating lastGoldPrice.
+     * The real evaluateNotificationDecision in gold-prices-egp/route.ts
+     * returns { shouldNotify, direction, changePercent }.
+     * We replicate the direction logic here to guard against a regression
+     * where direction is computed *after* lastGoldPrice is updated to newPrice,
+     * which would always yield "unchanged".
+     */
+    function evaluateDirection(newPrice: number): 'increased' | 'decreased' {
+      // Capture previousPrice BEFORE mutation
+      const previousPrice = lastGoldPrice;
+      // Mutate
+      lastGoldPrice = newPrice;
+      // Direction must use the pre-mutation value
+      return previousPrice !== null && newPrice >= previousPrice ? 'increased' : 'decreased';
+    }
+
+    it("should report 'increased' when price goes from 100 to 110", () => {
+      lastGoldPrice = 100;
+      const direction = evaluateDirection(110);
+      expect(direction).toBe('increased');
+    });
+
+    it("should report 'decreased' when price goes from 100 to 90", () => {
+      lastGoldPrice = 100;
+      const direction = evaluateDirection(90);
+      expect(direction).toBe('decreased');
+    });
+
+    it("should report 'increased' when price is unchanged", () => {
+      lastGoldPrice = 100;
+      const direction = evaluateDirection(100);
+      expect(direction).toBe('increased'); // >= means equal counts as increased
     });
   });
 });

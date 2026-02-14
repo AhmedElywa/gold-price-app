@@ -1,8 +1,8 @@
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import type React from 'react';
-import { createContext, useContext } from 'react';
+import { createContext, useCallback, useContext, useMemo } from 'react';
 import type { Locale } from '@/lib/i18n';
 
 type TranslationKeys = {
@@ -29,59 +29,67 @@ export function TranslationProvider({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const t = (key: string, params?: Record<string, string | number>): string => {
-    const keys = key.split('.');
-    let value: string | TranslationKeys = dictionary;
+  const t = useCallback(
+    (key: string, params?: Record<string, string | number>): string => {
+      const keys = key.split('.');
+      let value: string | TranslationKeys = dictionary;
 
-    for (const k of keys) {
-      if (value && typeof value === 'object' && k in value) {
-        value = value[k];
-      } else {
-        console.warn(`Translation key not found: ${key} for locale: ${locale}`);
+      for (const k of keys) {
+        if (value && typeof value === 'object' && k in value) {
+          const next = value[k] as string | TranslationKeys | undefined;
+          if (next === undefined) {
+            console.warn(`Translation key not found: ${key} for locale: ${locale}`);
+            return key;
+          }
+          value = next;
+        } else {
+          console.warn(`Translation key not found: ${key} for locale: ${locale}`);
+          return key;
+        }
+      }
+
+      if (typeof value !== 'string') {
+        console.warn(`Translation key "${key}" does not resolve to a string`);
         return key;
       }
-    }
 
-    if (typeof value !== 'string') {
-      console.warn(`Translation key "${key}" does not resolve to a string`);
-      return key;
-    }
+      // Replace parameters in the translation string
+      if (params) {
+        return value.replace(/\{(\w+)\}/g, (match, paramKey) => {
+          return params[paramKey]?.toString() || match;
+        });
+      }
 
-    // Replace parameters in the translation string
-    if (params) {
-      return value.replace(/\{(\w+)\}/g, (match, paramKey) => {
-        return params[paramKey]?.toString() || match;
-      });
-    }
+      return value;
+    },
+    [dictionary, locale],
+  );
 
-    return value;
-  };
+  const changeLanguage = useCallback(
+    (newLocale: Locale) => {
+      const segments = pathname.split('/');
 
-  const changeLanguage = (newLocale: Locale) => {
-    // For App Router, we need to navigate to the new locale URL
-    const segments = pathname.split('/');
+      if (segments.length > 1 && segments[1]?.length === 2) {
+        segments[1] = newLocale;
+      } else {
+        segments.splice(1, 0, newLocale);
+      }
 
-    // Replace the current locale (first segment after /) with new locale
-    if (segments.length > 1 && segments[1].length === 2) {
-      segments[1] = newLocale;
-    } else {
-      // If no locale in URL, add it
-      segments.splice(1, 0, newLocale);
-    }
+      const newPath = segments.join('/');
+      const query = searchParams.toString();
+      router.push(query ? `${newPath}?${query}` : newPath);
+    },
+    [router, pathname, searchParams],
+  );
 
-    const newPath = segments.join('/');
-    router.push(newPath);
-  };
+  const contextValue = useMemo(
+    () => ({ t, locale, changeLanguage, dictionary }),
+    [t, locale, changeLanguage, dictionary],
+  );
 
-  const value: TranslationContextValue = {
-    locale,
-    dictionary,
-    t,
-    changeLanguage,
-  };
-
-  return <TranslationContext.Provider value={value}>{children}</TranslationContext.Provider>;
+  return <TranslationContext.Provider value={contextValue}>{children}</TranslationContext.Provider>;
 }
 
 export function useTranslation() {

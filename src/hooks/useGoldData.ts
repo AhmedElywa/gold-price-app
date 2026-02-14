@@ -3,15 +3,73 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { ApiResponseData } from '@/types/api';
 
-export function useGoldData() {
-  const [data, setData] = useState<ApiResponseData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+type GoldDataState = {
+  data: ApiResponseData | null;
+  loading: boolean;
+  error: string | null;
+  lastUpdated: Date | null;
+};
 
-  const fetchData = useCallback(async () => {
+type Subscriber = (nextState: GoldDataState) => void;
+
+const REFRESH_INTERVAL_MS = 60 * 1000;
+
+const initialState: GoldDataState = {
+  data: null,
+  loading: true,
+  error: null,
+  lastUpdated: null,
+};
+
+let sharedState: GoldDataState = initialState;
+let refreshInterval: ReturnType<typeof setInterval> | null = null;
+let inFlightRequest: Promise<void> | null = null;
+let visibilityHandler: (() => void) | null = null;
+const subscribers = new Set<Subscriber>();
+
+function broadcast() {
+  for (const subscriber of subscribers) {
+    subscriber(sharedState);
+  }
+}
+
+function setSharedState(partial: Partial<GoldDataState>) {
+  sharedState = { ...sharedState, ...partial };
+  broadcast();
+}
+
+function parseApiLastUpdated(lastUpdated: string | undefined): Date | null {
+  if (!lastUpdated) {
+    return null;
+  }
+
+  const parsedDate = new Date(lastUpdated);
+  return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+}
+
+function buildSeedState(data: ApiResponseData): Partial<GoldDataState> {
+  return {
+    data,
+    loading: false,
+    error: null,
+    lastUpdated: parseApiLastUpdated(data.last_updated),
+  };
+}
+
+async function fetchSharedData(options: { showLoading?: boolean } = {}) {
+  if (inFlightRequest) {
+    return inFlightRequest;
+  }
+
+  const shouldShowLoading = options.showLoading === true || sharedState.data === null;
+  if (shouldShowLoading) {
+    setSharedState({ loading: true });
+  }
+
+  inFlightRequest = (async () => {
     try {
-      setError(null);
+      setSharedState({ error: null });
+
       const response = await fetch('/api/gold-prices-egp', {
         cache: 'no-store',
         headers: {
@@ -24,35 +82,108 @@ export function useGoldData() {
       }
 
       const apiData: ApiResponseData = await response.json();
-      setData(apiData);
-      setLastUpdated(new Date());
+      setSharedState({
+        data: apiData,
+        loading: false,
+        error: null,
+        lastUpdated: parseApiLastUpdated(apiData.last_updated) ?? new Date(),
+      });
     } catch (err) {
       console.error('Error fetching gold data:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch data');
+      setSharedState({
+        loading: false,
+        error: err instanceof Error ? err.message : 'Failed to fetch data',
+      });
     } finally {
-      setLoading(false);
+      inFlightRequest = null;
     }
-  }, []);
+  })();
 
-  const refresh = useCallback(() => {
-    setLoading(true);
-    fetchData();
-  }, [fetchData]);
+  return inFlightRequest;
+}
+
+function ensureRefreshLoop() {
+  if (refreshInterval) {
+    return;
+  }
+
+  void fetchSharedData({ showLoading: sharedState.data === null });
+  refreshInterval = setInterval(() => {
+    void fetchSharedData();
+  }, REFRESH_INTERVAL_MS);
+
+  // Visibility-aware polling: pause when tab is hidden, resume when visible
+  if (!visibilityHandler && typeof document !== 'undefined') {
+    visibilityHandler = () => {
+      if (subscribers.size === 0) {
+        return;
+      }
+
+      if (document.hidden) {
+        if (refreshInterval) {
+          clearInterval(refreshInterval);
+          refreshInterval = null;
+        }
+      } else {
+        void fetchSharedData(); // immediate fetch on return
+        if (!refreshInterval) {
+          refreshInterval = setInterval(() => {
+            void fetchSharedData();
+          }, REFRESH_INTERVAL_MS);
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', visibilityHandler);
+  }
+}
+
+function subscribe(listener: Subscriber) {
+  subscribers.add(listener);
+  listener(sharedState);
+  ensureRefreshLoop();
+
+  return () => {
+    subscribers.delete(listener);
+
+    if (subscribers.size === 0) {
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
+        refreshInterval = null;
+      }
+      if (visibilityHandler) {
+        document.removeEventListener('visibilitychange', visibilityHandler);
+        visibilityHandler = null;
+      }
+    }
+  };
+}
+
+export function useGoldData(initialData?: ApiResponseData | null) {
+  const [state, setState] = useState<GoldDataState>(() => {
+    if (!initialData || sharedState.data !== null) {
+      return sharedState;
+    }
+
+    return { ...sharedState, ...buildSeedState(initialData) };
+  });
 
   useEffect(() => {
-    fetchData();
+    if (initialData && sharedState.data === null) {
+      setSharedState(buildSeedState(initialData));
+    }
 
-    // Auto-refresh every 60 seconds
-    const interval = setInterval(fetchData, 60000);
+    return subscribe(setState);
+  }, [initialData]);
 
-    return () => clearInterval(interval);
-  }, [fetchData]);
+  const refresh = useCallback(() => {
+    return fetchSharedData({ showLoading: true });
+  }, []);
 
   return {
-    data,
-    loading,
-    error,
-    lastUpdated,
+    data: state.data,
+    loading: state.loading,
+    error: state.error,
+    lastUpdated: state.lastUpdated,
     refresh,
   };
 }

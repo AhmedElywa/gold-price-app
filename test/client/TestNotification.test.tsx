@@ -1,30 +1,50 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import * as actions from '../../src/app/actions';
-import { TestNotification } from '../../src/app/components/TestNotification';
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+
+type SendNotificationResult = {
+  success: boolean;
+  message?: string;
+  error?: string;
+};
 
 // Mock the actions module
-jest.mock('../../src/app/actions', () => ({
-  sendNotification: jest.fn(),
+mock.module('../../src/app/actions', () => ({
+  sendNotification: mock(() => Promise.resolve({ success: true, message: '' })),
+  subscribeUser: mock(() => Promise.resolve({ success: true })),
+  unsubscribeUser: mock(() => Promise.resolve({ success: true })),
 }));
 
 // Mock environment variables
 process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY = 'test-vapid-public';
 
-describe('TestNotification Component', () => {
-  const mockActions = actions as jest.Mocked<typeof actions>;
+type TestNotificationComponent = (typeof import('../../src/app/components/TestNotification'))['TestNotification'];
 
-  beforeEach(() => {
-    jest.clearAllMocks();
+let TestNotification: TestNotificationComponent;
+let mockSendNotification: ReturnType<typeof mock>;
+
+describe('TestNotification Component', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  beforeEach(async () => {
+    const actionsModule = await import('../../src/app/actions');
+    const componentsModule = await import('../../src/app/components/TestNotification');
+    TestNotification = componentsModule.TestNotification;
+    mockSendNotification = actionsModule.sendNotification as ReturnType<typeof mock>;
+
+    mockSendNotification.mockClear();
 
     // Mock navigator and window APIs
     Object.defineProperty(navigator, 'serviceWorker', {
       value: {
-        getRegistration: jest.fn().mockResolvedValue({
-          pushManager: {
-            getSubscription: jest.fn().mockResolvedValue(null),
-          },
-        }),
+        getRegistration: mock(() =>
+          Promise.resolve({
+            pushManager: {
+              getSubscription: mock(() => Promise.resolve(null)),
+            },
+          }),
+        ),
       },
       writable: true,
     });
@@ -73,10 +93,12 @@ describe('TestNotification Component', () => {
     });
 
     it('should clear input after successful send', async () => {
-      mockActions.sendNotification.mockResolvedValue({
-        success: true,
-        message: 'Notification sent successfully',
-      });
+      mockSendNotification.mockImplementation(() =>
+        Promise.resolve({
+          success: true,
+          message: 'Notification sent successfully',
+        }),
+      );
 
       render(<TestNotification />);
 
@@ -91,7 +113,7 @@ describe('TestNotification Component', () => {
       fireEvent.click(button);
 
       await waitFor(() => {
-        expect(mockActions.sendNotification).toHaveBeenCalledWith('Test message');
+        expect(mockSendNotification).toHaveBeenCalledWith('Test message');
       });
 
       await waitFor(() => {
@@ -102,10 +124,12 @@ describe('TestNotification Component', () => {
 
   describe('Send Notification', () => {
     it('should send notification with message when button is clicked', async () => {
-      mockActions.sendNotification.mockResolvedValue({
-        success: true,
-        message: 'Notification sent successfully',
-      });
+      mockSendNotification.mockImplementation(() =>
+        Promise.resolve({
+          success: true,
+          message: 'Notification sent successfully',
+        }),
+      );
 
       render(<TestNotification />);
 
@@ -122,7 +146,7 @@ describe('TestNotification Component', () => {
       fireEvent.click(button);
 
       await waitFor(() => {
-        expect(mockActions.sendNotification).toHaveBeenCalledWith('Test notification message');
+        expect(mockSendNotification).toHaveBeenCalledWith('Test notification message');
       });
     });
 
@@ -140,7 +164,7 @@ describe('TestNotification Component', () => {
         expect(screen.getByText(/please enter a message/i)).toBeInTheDocument();
       });
 
-      expect(mockActions.sendNotification).not.toHaveBeenCalled();
+      expect(mockSendNotification).not.toHaveBeenCalled();
     });
 
     it('should show error when trying to send whitespace-only message', async () => {
@@ -160,16 +184,16 @@ describe('TestNotification Component', () => {
         expect(screen.getByText(/please enter a message/i)).toBeInTheDocument();
       });
 
-      expect(mockActions.sendNotification).not.toHaveBeenCalled();
+      expect(mockSendNotification).not.toHaveBeenCalled();
     });
 
     it('should show loading state while sending', async () => {
-      let resolvePromise: (value: any) => void;
-      const promise = new Promise<any>((resolve) => {
+      let resolvePromise: ((value: SendNotificationResult) => void) | undefined;
+      const promise = new Promise<SendNotificationResult>((resolve) => {
         resolvePromise = resolve;
       });
 
-      mockActions.sendNotification.mockReturnValue(promise);
+      mockSendNotification.mockImplementation(() => promise);
 
       render(<TestNotification />);
 
@@ -191,7 +215,7 @@ describe('TestNotification Component', () => {
       expect(button).toBeDisabled();
 
       // Resolve the promise
-      resolvePromise!({ success: true, message: 'Sent successfully' });
+      resolvePromise?.({ success: true, message: 'Sent successfully' });
 
       await waitFor(() => {
         expect(screen.queryByText(/sending/i)).not.toBeInTheDocument();
@@ -201,10 +225,12 @@ describe('TestNotification Component', () => {
 
   describe('Status Messages', () => {
     it('should show success message when notification sends successfully', async () => {
-      mockActions.sendNotification.mockResolvedValue({
-        success: true,
-        message: 'Notifications sent to 2 subscribers (0 failed)',
-      });
+      mockSendNotification.mockImplementation(() =>
+        Promise.resolve({
+          success: true,
+          message: 'Notifications sent to 2 subscribers (0 failed)',
+        }),
+      );
 
       render(<TestNotification />);
 
@@ -228,10 +254,12 @@ describe('TestNotification Component', () => {
     });
 
     it('should show error message when notification fails', async () => {
-      mockActions.sendNotification.mockResolvedValue({
-        success: false,
-        error: 'No subscriptions available',
-      });
+      mockSendNotification.mockImplementation(() =>
+        Promise.resolve({
+          success: false,
+          error: 'No subscriptions available',
+        }),
+      );
 
       render(<TestNotification />);
 
@@ -255,7 +283,7 @@ describe('TestNotification Component', () => {
     });
 
     it('should handle promise rejection', async () => {
-      mockActions.sendNotification.mockRejectedValue(new Error('Network error'));
+      mockSendNotification.mockImplementation(() => Promise.reject(new Error('Network error')));
 
       render(<TestNotification />);
 
@@ -279,7 +307,7 @@ describe('TestNotification Component', () => {
     });
 
     it('should handle unknown error types', async () => {
-      mockActions.sendNotification.mockRejectedValue('Unknown error');
+      mockSendNotification.mockImplementation(() => Promise.reject('Unknown error'));
 
       render(<TestNotification />);
 
@@ -301,12 +329,12 @@ describe('TestNotification Component', () => {
 
   describe('UI Behavior', () => {
     it('should disable button during loading', async () => {
-      let resolvePromise: (value: any) => void;
-      const promise = new Promise<any>((resolve) => {
+      let resolvePromise: ((value: SendNotificationResult) => void) | undefined;
+      const promise = new Promise<SendNotificationResult>((resolve) => {
         resolvePromise = resolve;
       });
 
-      mockActions.sendNotification.mockReturnValue(promise);
+      mockSendNotification.mockImplementation(() => promise);
 
       render(<TestNotification />);
 
@@ -324,7 +352,7 @@ describe('TestNotification Component', () => {
         expect(button).toBeDisabled();
       });
 
-      resolvePromise!({ success: true, message: 'Success' });
+      resolvePromise?.({ success: true, message: 'Success' });
 
       await waitFor(() => {
         expect(button).not.toBeDisabled();
@@ -332,12 +360,12 @@ describe('TestNotification Component', () => {
     });
 
     it('should show different button styles for loading state', async () => {
-      let resolvePromise: (value: any) => void;
-      const promise = new Promise<any>((resolve) => {
+      let resolvePromise: ((value: SendNotificationResult) => void) | undefined;
+      const promise = new Promise<SendNotificationResult>((resolve) => {
         resolvePromise = resolve;
       });
 
-      mockActions.sendNotification.mockReturnValue(promise);
+      mockSendNotification.mockImplementation(() => promise);
 
       render(<TestNotification />);
 
@@ -359,7 +387,7 @@ describe('TestNotification Component', () => {
         expect(button).toHaveClass('bg-gray-400', 'cursor-not-allowed');
       });
 
-      resolvePromise!({ success: true, message: 'Success' });
+      resolvePromise?.({ success: true, message: 'Success' });
 
       // Back to normal state
       await waitFor(() => {

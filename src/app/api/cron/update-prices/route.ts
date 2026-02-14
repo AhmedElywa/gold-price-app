@@ -8,9 +8,9 @@ import { NextResponse } from 'next/server';
  * to hit this endpoint regularly.
  */
 export async function GET(request: Request) {
-  // Only allow specified sources to trigger this endpoint
-  // Add your cron service's IP or authentication method here for production
-  const isAuthorized = true; // Replace with actual authentication logic in production
+  const cronSecret = process.env.CRON_SECRET;
+  const authHeader = request.headers.get('authorization');
+  const isAuthorized = Boolean(cronSecret) && authHeader === `Bearer ${cronSecret}`;
 
   if (!isAuthorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -35,7 +35,7 @@ export async function GET(request: Request) {
       currentPrice: data.source_data.market_data.current_price,
     });
   } catch (error) {
-    console.error('Scheduled price update failed:', error);
-    return NextResponse.json({ error: 'Failed to update gold prices', details: String(error) }, { status: 500 });
+    console.error('Cron update failed:', error);
+    return NextResponse.json({ error: 'Failed to update gold prices' }, { status: 500 });
   }
 }

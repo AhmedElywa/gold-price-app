@@ -5,7 +5,7 @@ import { defaultLocale, isValidLocale, locales } from './src/lib/i18n';
 function getLocale(request: NextRequest): string {
   // Check if there is any supported locale in the pathname
   const { pathname } = request.nextUrl;
-  const pathnameLocale = pathname.split('/')[1];
+  const pathnameLocale = pathname.split('/')[1] ?? '';
 
   if (isValidLocale(pathnameLocale)) {
     return pathnameLocale;
@@ -17,11 +17,11 @@ function getLocale(request: NextRequest): string {
     // Parse accept-language header and find best match
     const languages = acceptLanguage
       .split(',')
-      .map((lang) => lang.split(';')[0].trim())
+      .map((lang) => lang.split(';')[0]?.trim() ?? '')
       .map((lang) => {
         // Handle both 'en-US' and 'en' formats
         if (lang.includes('-')) {
-          return lang.split('-')[0];
+          return lang.split('-')[0] ?? lang;
         }
         return lang;
       });

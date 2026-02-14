@@ -1,11 +1,13 @@
 import type { MetadataRoute } from 'next';
+import { getSiteUrl } from '@/lib/site';
 
 export default function robots(): MetadataRoute.Robots {
+  const siteUrl = getSiteUrl();
   return {
     rules: {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: 'https://gold.ahmedelywa.com/sitemap.xml', // Replace with your actual domain
+    sitemap: `${siteUrl}/sitemap.xml`,
   };
 }

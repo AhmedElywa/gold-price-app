@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { sendNotification } from '../actions';
 
 export function TestNotification() {
@@ -19,12 +19,7 @@ export function TestNotification() {
   } | null>(null);
   const [showDebug, setShowDebug] = useState(false);
 
-  useEffect(() => {
-    setIsMounted(true);
-    checkDebugInfo();
-  }, [checkDebugInfo]);
-
-  async function checkDebugInfo() {
+  const checkDebugInfo = useCallback(async () => {
     if (!('serviceWorker' in navigator) || !('Notification' in window)) {
       return;
     }
@@ -42,7 +37,12 @@ export function TestNotification() {
     } catch (error) {
       console.error('Error checking debug info:', error);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    setIsMounted(true);
+    checkDebugInfo();
+  }, [checkDebugInfo]);
 
   async function handleSendNotification() {
     if (!message.trim()) {
