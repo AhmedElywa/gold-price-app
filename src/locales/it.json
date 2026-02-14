@@ -11,7 +11,8 @@
     "live": "Live",
     "liveRate": "Tasso live",
     "justNow": "Proprio ora",
-    "today": "oggi"
+    "today": "oggi",
+    "ago": "fa"
   },
   "app": {
     "name": "Tracker Oro Globale",
@@ -218,5 +219,12 @@
     "copyright": "© {year} GoldTracker Pro. Tutti i diritti riservati.",
     "poweredBy": "Alimentato da Next.js e Tailwind CSS. Dati recuperati da API di mercato live.",
     "disclaimer": "Disclaimer: I prezzi sono indicativi e soggetti a fluttuazioni di mercato in tempo reale. Consultare sempre un consulente finanziario per le decisioni di investimento."
+  },
+  "mobileNav": {
+    "gold": "Oro",
+    "silver": "Argento",
+    "exchange": "Cambi",
+    "about": "Info",
+    "calc": "Calc"
   }
 }

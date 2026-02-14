@@ -11,7 +11,8 @@
     "live": "En direct",
     "liveRate": "Curs en direct",
     "justNow": "Gist ussa",
-    "today": "oz"
+    "today": "oz",
+    "ago": "avant"
   },
   "app": {
     "name": "Tracker global da l'aur",
@@ -204,5 +205,12 @@
     "copyright": "© {year} GoldTracker Pro. Tuts dretgs reservads.",
     "poweredBy": "Sustegnì da Next.js & Tailwind CSS. Datas retschavidas da APIs da martgà en direct.",
     "disclaimer": "Decleraziun: Ils pretschs èn indicativs e suttastattan a fluctuaziuns dal martgà en temp real. Consultescha adina in cusseglier finanzial per decisiuns d'investiment."
+  },
+  "mobileNav": {
+    "gold": "Aur",
+    "silver": "Argient",
+    "exchange": "Curs",
+    "about": "Info",
+    "calc": "Calc"
   }
 }

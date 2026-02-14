@@ -69,9 +69,9 @@ function CurrencySelectorImpl() {
 
   return (
     <Select value={selectedCurrency} onValueChange={handleCurrencyChange}>
-      <SelectTrigger className="w-44 bg-[#1A1A2E] border-[rgba(212,175,55,0.15)] text-[#E8E6E3]">
-        <DollarSign className="w-4 h-4 me-2 text-[#D4AF37]" />
-        <SelectValue />
+      <SelectTrigger className="w-9 lg:w-44 px-0 lg:px-3 justify-center lg:justify-between bg-[#1A1A2E] border-[rgba(212,175,55,0.15)] text-[#E8E6E3] [&>svg:last-of-type]:hidden lg:[&>svg:last-of-type]:inline">
+        <DollarSign className="w-4 h-4 shrink-0 text-[#D4AF37]" />
+        <span className="!hidden lg:!inline truncate"><SelectValue /></span>
       </SelectTrigger>
       <SelectContent>
         {/* Primary Currencies */}
@@ -109,9 +109,9 @@ function CurrencyFallback() {
 
   return (
     <Select defaultValue="egp">
-      <SelectTrigger className="w-44 bg-[#1A1A2E] border-[rgba(212,175,55,0.15)] text-[#E8E6E3]">
-        <DollarSign className="w-4 h-4 me-2 text-[#D4AF37]" />
-        <SelectValue />
+      <SelectTrigger className="w-9 lg:w-44 px-0 lg:px-3 justify-center lg:justify-between bg-[#1A1A2E] border-[rgba(212,175,55,0.15)] text-[#E8E6E3] [&>svg:last-of-type]:hidden lg:[&>svg:last-of-type]:inline">
+        <DollarSign className="w-4 h-4 shrink-0 text-[#D4AF37]" />
+        <span className="!hidden lg:!inline truncate"><SelectValue /></span>
       </SelectTrigger>
       <SelectContent>
         {primaryCurrencies.map((currency) => (

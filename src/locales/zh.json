@@ -11,7 +11,8 @@
     "live": "实时",
     "liveRate": "实时汇率",
     "justNow": "刚刚",
-    "today": "今天"
+    "today": "今天",
+    "ago": "前"
   },
   "app": {
     "name": "全球黄金追踪器",
@@ -218,5 +219,12 @@
     "copyright": "© {year} 黄金追踪专业版。保留所有权利。",
     "poweredBy": "由 Next.js 和 Tailwind CSS 提供支持。数据来自实时市场 API。",
     "disclaimer": "免责声明：价格仅供参考，受实时市场波动影响。投资决策请务必咨询财务顾问。"
+  },
+  "mobileNav": {
+    "gold": "黄金",
+    "silver": "白银",
+    "exchange": "汇率",
+    "about": "关于",
+    "calc": "计算"
   }
 }

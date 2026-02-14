@@ -11,7 +11,8 @@
     "live": "Live",
     "liveRate": "Live koers",
     "justNow": "Net nu",
-    "today": "vandaag"
+    "today": "vandaag",
+    "ago": "geleden"
   },
   "app": {
     "name": "Wereldwijde Goud Tracker",
@@ -218,5 +219,12 @@
     "copyright": "© {year} GoldTracker Pro. Alle rechten voorbehouden.",
     "poweredBy": "Aangedreven door Next.js & Tailwind CSS. Data opgehaald van live markt API's.",
     "disclaimer": "Disclaimer: Prijzen zijn indicatief en onderhevig aan real-time marktfluctuaties. Raadpleeg altijd een financieel adviseur voor investeringsbeslissingen."
+  },
+  "mobileNav": {
+    "gold": "Goud",
+    "silver": "Zilver",
+    "exchange": "Koers",
+    "about": "Info",
+    "calc": "Calc"
   }
 }

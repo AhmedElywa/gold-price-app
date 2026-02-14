@@ -106,49 +106,49 @@ export function GoldPrices({ initialData }: { initialData?: ApiResponseData | nu
     <section id="gold" className="py-12">
       <div className="container mx-auto px-4">
         <Card className="glass-card shadow-2xl">
-          <CardHeader className="border-b border-[rgba(212,175,55,0.15)]">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
+          <CardHeader className="border-b border-[rgba(212,175,55,0.15)] px-4 py-4 md:p-6">
+            <div className="flex items-center justify-between mb-3 md:mb-6">
               <div>
-                <CardTitle className="text-3xl font-bold font-serif gold-gradient-text mb-2">
+                <CardTitle className="text-xl md:text-3xl font-bold font-serif gold-gradient-text mb-0.5 md:mb-2">
                   {t('gold.title')}
                 </CardTitle>
-                <p className="text-[#8A8A8E]">{t('gold.subtitle')}</p>
+                <p className="text-xs md:text-base text-[#8A8A8E]">{t('gold.subtitle')}</p>
               </div>
 
-              <div className="flex items-center gap-4 mt-4 lg:mt-0">
+              <div className="flex items-center gap-3 md:gap-4">
                 <div className="text-center">
-                  <p className="text-xs text-[#8A8A8E] uppercase">{t('gold.market')}</p>
-                  <p className="text-sm font-semibold text-[#22C55E]">
-                    {loading ? t('common.loading') : t('common.active')}
+                  <p className="text-[10px] md:text-xs text-[#8A8A8E] uppercase">{t('gold.market')}</p>
+                  <p className="text-xs md:text-sm font-semibold text-[#22C55E]">
+                    {loading ? '...' : t('common.active')}
                   </p>
                 </div>
-                <div className="text-center">
+                <div className="hidden md:block text-center">
                   <p className="text-xs text-[#8A8A8E] uppercase">{t('gold.spread')}</p>
                   <p className="text-sm font-semibold font-mono text-[#E8E6E3]">0.5%</p>
                 </div>
-                <div className="text-center">
+                <div className="hidden md:block text-center">
                   <p className="text-xs text-[#8A8A8E] uppercase">{t('gold.volume')}</p>
                   <p className="text-sm font-semibold text-[#E8E6E3]">{t('gold.high')}</p>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div className="bg-[#1A1A2E] border border-[rgba(212,175,55,0.1)] rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-[#8A8A8E]">{t('gold.currencyDisplay')}</p>
-                    <p className="text-lg font-semibold text-[#E8E6E3]">{t(`currencies.names.${selectedCurrency}`)}</p>
+            <div className="grid grid-cols-2 gap-2 md:gap-4">
+              <div className="bg-[#1A1A2E] border border-[rgba(212,175,55,0.1)] rounded-lg p-2.5 md:p-4">
+                <div className="flex items-center justify-between gap-1">
+                  <div className="min-w-0">
+                    <p className="text-[10px] md:text-sm text-[#8A8A8E]">{t('gold.currencyDisplay')}</p>
+                    <p className="text-sm md:text-lg font-semibold text-[#E8E6E3] truncate">{t(`currencies.names.${selectedCurrency}`)}</p>
                   </div>
                   <CurrencySelector />
                 </div>
               </div>
 
-              <div className="bg-[#1A1A2E] border border-[rgba(212,175,55,0.1)] rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-[#8A8A8E]">{t('gold.lastUpdate')}</p>
-                    <p className="text-lg font-semibold text-[#E8E6E3]">{lastUpdatedDisplay}</p>
+              <div className="bg-[#1A1A2E] border border-[rgba(212,175,55,0.1)] rounded-lg p-2.5 md:p-4">
+                <div className="flex items-center justify-between gap-1">
+                  <div className="min-w-0">
+                    <p className="text-[10px] md:text-sm text-[#8A8A8E]">{t('gold.lastUpdate')}</p>
+                    <p className="text-sm md:text-lg font-semibold text-[#E8E6E3]">{lastUpdatedDisplay}</p>
                   </div>
                   <Button
                     className="bg-[#D4AF37] hover:bg-[#C9A96E] text-[#0A0A0F]"
@@ -165,32 +165,36 @@ export function GoldPrices({ initialData }: { initialData?: ApiResponseData | nu
 
           <CardContent className="p-6">
             {marketData && (
-              <div className="mb-6 text-center">
-                <div className="inline-flex items-center gap-4 bg-[#1A1A2E] border border-[rgba(212,175,55,0.1)] rounded-lg p-4">
-                  <div>
-                    <span className="text-sm text-[#8A8A8E]">{t('gold.currentOuncePrice')}</span>
-                    <div
-                      className={`text-2xl font-bold font-mono text-[#D4AF37] ${priceFlash ? 'animate-gold-flash' : ''}`}
-                    >
-                      ${marketData.current_price?.toFixed(2)}
+              <div className="mb-6">
+                <div className="bg-[#1A1A2E] border border-[rgba(212,175,55,0.1)] rounded-lg p-4 md:p-5">
+                  <div className="flex flex-col items-center gap-2 md:flex-row md:justify-between md:items-center">
+                    <div className="text-center md:text-start">
+                      <span className="text-xs text-[#8A8A8E] uppercase tracking-wide">{t('gold.currentOuncePrice')}</span>
+                      <div
+                        className={`text-3xl md:text-2xl font-bold font-mono text-[#D4AF37] mt-0.5 ${priceFlash ? 'animate-gold-flash' : ''}`}
+                      >
+                        ${marketData.current_price?.toFixed(2)}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-semibold font-mono ${isPositiveChange ? 'bg-[#22C55E]/10 text-[#22C55E]' : 'bg-[#EF4444]/10 text-[#EF4444]'}`}>
+                        {isPositiveChange ? (
+                          <TrendingUp className="w-3.5 h-3.5" />
+                        ) : (
+                          <TrendingDown className="w-3.5 h-3.5" />
+                        )}
+                        <span>
+                          {isPositiveChange ? '+' : ''}
+                          {marketData.ch?.toFixed(2) ?? '0.00'} ({changePercent.toFixed(2)}%)
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <div className={`flex items-center ${isPositiveChange ? 'text-[#22C55E]' : 'text-[#EF4444]'}`}>
-                    {isPositiveChange ? (
-                      <TrendingUp className="w-4 h-4 me-1" />
-                    ) : (
-                      <TrendingDown className="w-4 h-4 me-1" />
-                    )}
-                    <span className="font-semibold font-mono">
-                      {isPositiveChange ? '+' : ''}
-                      {marketData.ch?.toFixed(2) ?? '0.00'} ({changePercent.toFixed(2)}%)
-                    </span>
-                  </div>
-                  <div className="text-sm text-[#8A8A8E]">
+                  <p className="text-xs text-[#8A8A8E]/70 text-center md:text-end mt-2">
                     {marketData.open_time
                       ? `${t('gold.dataTimestamp')} ${new Date(marketData.open_time).toLocaleString()}`
                       : t('common.loading')}
-                  </div>
+                  </p>
                 </div>
               </div>
             )}

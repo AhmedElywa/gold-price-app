@@ -8,7 +8,7 @@ export function Footer() {
   const { t, locale } = useTranslation();
 
   return (
-    <footer className="bg-[#0A0A0F] border-t border-[rgba(212,175,55,0.15)]">
+    <footer className="hidden lg:block bg-[#0A0A0F] border-t border-[rgba(212,175,55,0.15)]">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">

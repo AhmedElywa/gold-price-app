@@ -11,7 +11,8 @@
     "live": "Langsung",
     "liveRate": "Kadar langsung",
     "justNow": "Baru sahaja",
-    "today": "hari ini"
+    "today": "hari ini",
+    "ago": "lalu"
   },
   "app": {
     "name": "Penjejak Emas Global",
@@ -204,5 +205,12 @@
     "copyright": "© {year} GoldTracker Pro. Hak cipta terpelihara.",
     "poweredBy": "Dikuasakan oleh Next.js & Tailwind CSS. Data diambil dari API pasaran langsung.",
     "disclaimer": "Penafian: Harga adalah indikatif dan tertakluk kepada turun naik pasaran masa nyata. Sentiasa berunding dengan penasihat kewangan untuk keputusan pelaburan."
+  },
+  "mobileNav": {
+    "gold": "Emas",
+    "silver": "Perak",
+    "exchange": "Kadar",
+    "about": "Info",
+    "calc": "Kira"
   }
 }

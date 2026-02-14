@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { MobileBottomNav } from '@/components/mobile-bottom-nav';
 import { Toaster } from '@/components/ui/toaster';
 import PwaClientWrapper from './PwaClientWrapper';
 
@@ -20,10 +21,10 @@ export default function BodyWrapper({ children }: BodyWrapperProps) {
   return (
     <>
       {children}
+      <MobileBottomNav />
       {isMounted && (
         <>
           <PwaClientWrapper />
-          {/* ServiceWorkerRegistration component already handles SW registration. */}
           <Toaster />
         </>
       )}

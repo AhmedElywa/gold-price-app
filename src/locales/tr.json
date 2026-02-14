@@ -11,7 +11,8 @@
     "live": "Canlı",
     "liveRate": "Canlı kur",
     "justNow": "Az önce",
-    "today": "bugün"
+    "today": "bugün",
+    "ago": "önce"
   },
   "app": {
     "name": "Küresel Altın Takipçisi",
@@ -218,5 +219,12 @@
     "copyright": "© {year} GoldTracker Pro. Tüm hakları saklıdır.",
     "poweredBy": "Next.js ve Tailwind CSS tarafından desteklenmektedir. Veriler canlı piyasa API'lerinden alınmaktadır.",
     "disclaimer": "Sorumluluk Reddi: Fiyatlar gösterge niteliğindedir ve gerçek zamanlı piyasa dalgalanmalarına tabidir. Yatırım kararları için her zaman bir finansal danışmana başvurun."
+  },
+  "mobileNav": {
+    "gold": "Altın",
+    "silver": "Gümüş",
+    "exchange": "Kur",
+    "about": "Hakkında",
+    "calc": "Hesap"
   }
 }

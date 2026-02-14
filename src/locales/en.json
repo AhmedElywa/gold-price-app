@@ -13,7 +13,8 @@
     "justNow": "Just now",
     "today": "today",
     "updatingSoon": "Updating soon...",
-    "lastUpdated": "Last updated"
+    "lastUpdated": "Last updated",
+    "ago": "ago"
   },
   "app": {
     "name": "Global Gold Tracker",
@@ -230,5 +231,12 @@
     "copyright": "© {year} GoldTracker Pro. All rights reserved.",
     "poweredBy": "Powered by Next.js & Tailwind CSS. Data fetched from live market APIs.",
     "disclaimer": "Disclaimer: Prices are indicative and subject to real-time market fluctuations. Always consult a financial advisor for investment decisions."
+  },
+  "mobileNav": {
+    "gold": "Gold",
+    "silver": "Silver",
+    "exchange": "Rates",
+    "about": "About",
+    "calc": "Calc"
   }
 }

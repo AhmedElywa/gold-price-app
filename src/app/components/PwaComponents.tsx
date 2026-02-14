@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from '../../hooks/use-toast';
+import { useTranslation } from '../../hooks/useTranslation';
 import { type SerializablePushSubscription, subscribeUser } from '../actions';
 
 // Add Window interface extension for workbox
@@ -103,6 +104,7 @@ function serializeSubscription(subscription: PushSubscription): SerializablePush
 
 // Component to handle push notification subscriptions
 export function PushNotificationManager() {
+  const { t } = useTranslation();
   const [permission, setPermission] = useState<NotificationPermission | 'default'>('default');
   const [subscription, setSubscription] = useState<PushSubscription | null>(null);
   const [supported, setSupported] = useState(true);
@@ -197,16 +199,17 @@ export function PushNotificationManager() {
   }
 
   return (
-    <div className="fixed bottom-4 end-4 z-50">
+    <div className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] lg:bottom-4 end-3 lg:end-4 z-40">
       <button
         onClick={handleRequestPermission}
         disabled={permission === 'denied'}
-        title={permission === 'denied' ? 'Notifications blocked – enable in browser settings.' : undefined}
-        className={`bg-yellow-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-yellow-600 ${
+        title={permission === 'denied' ? t('notifications.blocked') : t('notifications.enable')}
+        className={`bg-[#D4AF37] text-[#0A0A0F] font-semibold rounded-full shadow-lg shadow-[#D4AF37]/20 hover:bg-[#C9A96E] transition-colors w-11 h-11 flex items-center justify-center lg:w-auto lg:h-auto lg:px-4 lg:py-2.5 lg:rounded-xl lg:text-sm ${
           permission === 'denied' ? 'opacity-50 cursor-not-allowed' : ''
         }`}
       >
-        Enable Price Alerts
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 lg:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <span className="hidden lg:inline">{t('notifications.enable')}</span>
       </button>
     </div>
   );
@@ -245,14 +248,14 @@ export function InstallPrompt() {
   }
 
   return (
-    <div className="fixed bottom-0 start-0 end-0 bg-white p-4 shadow-md border-t border-gray-200 z-50">
-      <div className="flex items-center justify-between">
+    <div className="fixed bottom-16 lg:bottom-0 start-0 end-0 z-50 mx-3 mb-2 rounded-xl bg-[#14141F]/90 backdrop-blur-xl border border-[rgba(212,175,55,0.15)] p-4 shadow-2xl">
+      <div className="flex items-center justify-between gap-3">
         <div>
-          <h3 className="font-bold text-gray-800">Install Gold Price App</h3>
-          <p className="text-sm text-gray-600">Install this app on your home screen for a better experience.</p>
-          <p className="text-xs text-gray-500 mt-1">Tap the share icon and then &quot;Add to Home Screen&quot;</p>
+          <h3 className="font-bold font-serif text-[#E8E6E3]">Install Gold Price App</h3>
+          <p className="text-sm text-[#8A8A8E] mt-0.5">Install this app on your home screen for a better experience.</p>
+          <p className="text-xs text-[#8A8A8E]/70 mt-1">Tap the share icon and then &quot;Add to Home Screen&quot;</p>
         </div>
-        <button onClick={() => setShowPrompt(false)} className="text-gray-500 hover:text-gray-700">
+        <button onClick={() => setShowPrompt(false)} className="shrink-0 text-xs text-[#8A8A8E] hover:text-[#D4AF37] transition-colors px-3 py-1.5 rounded-lg border border-[rgba(212,175,55,0.15)] hover:border-[rgba(212,175,55,0.3)]">
           Dismiss
         </button>
       </div>

@@ -26,7 +26,7 @@ export default async function LandingPage({ params }: { params: Promise<{ lang: 
     <div className="min-h-screen bg-[#0A0A0F]">
       <Header />
 
-      <main>
+      <main className="pb-20 lg:pb-0">
         <div className="animate-fade-in-up">
           <Suspense fallback={<div className="py-12 text-center text-[#8A8A8E]">Loading gold prices...</div>}>
             <GoldPrices initialData={initialData} />

@@ -11,7 +11,8 @@
     "live": "Live",
     "liveRate": "Live-Kurs",
     "justNow": "Gerade jetzt",
-    "today": "heute"
+    "today": "heute",
+    "ago": "her"
   },
   "app": {
     "name": "Globaler Gold-Tracker",
@@ -218,5 +219,12 @@
     "copyright": "© {year} GoldTracker Pro. Alle Rechte vorbehalten.",
     "poweredBy": "Powered by Next.js & Tailwind CSS. Daten von Live-Markt-APIs abgerufen.",
     "disclaimer": "Haftungsausschluss: Preise sind indikativ und unterliegen Echtzeit-Marktschwankungen. Konsultieren Sie immer einen Finanzberater für Investitionsentscheidungen."
+  },
+  "mobileNav": {
+    "gold": "Gold",
+    "silver": "Silber",
+    "exchange": "Kurse",
+    "about": "Info",
+    "calc": "Rechner"
   }
 }
