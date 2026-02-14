@@ -38,6 +38,24 @@ function setSharedState(partial: Partial<GoldDataState>) {
   broadcast();
 }
 
+function parseApiLastUpdated(lastUpdated: string | undefined): Date | null {
+  if (!lastUpdated) {
+    return null;
+  }
+
+  const parsedDate = new Date(lastUpdated);
+  return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+}
+
+function buildSeedState(data: ApiResponseData): Partial<GoldDataState> {
+  return {
+    data,
+    loading: false,
+    error: null,
+    lastUpdated: parseApiLastUpdated(data.last_updated),
+  };
+}
+
 async function fetchSharedData(options: { showLoading?: boolean } = {}) {
   if (inFlightRequest) {
     return inFlightRequest;
@@ -68,7 +86,7 @@ async function fetchSharedData(options: { showLoading?: boolean } = {}) {
         data: apiData,
         loading: false,
         error: null,
-        lastUpdated: new Date(),
+        lastUpdated: parseApiLastUpdated(apiData.last_updated) ?? new Date(),
       });
     } catch (err) {
       console.error('Error fetching gold data:', err);
@@ -141,17 +159,21 @@ function subscribe(listener: Subscriber) {
 }
 
 export function useGoldData(initialData?: ApiResponseData | null) {
-  // Seed shared state from server-fetched data on first render
-  if (initialData && sharedState.data === null) {
-    sharedState.data = initialData;
-    sharedState.loading = false;
-  }
+  const [state, setState] = useState<GoldDataState>(() => {
+    if (!initialData || sharedState.data !== null) {
+      return sharedState;
+    }
 
-  const [state, setState] = useState<GoldDataState>(sharedState);
+    return { ...sharedState, ...buildSeedState(initialData) };
+  });
 
   useEffect(() => {
+    if (initialData && sharedState.data === null) {
+      setSharedState(buildSeedState(initialData));
+    }
+
     return subscribe(setState);
-  }, []);
+  }, [initialData]);
 
   const refresh = useCallback(() => {
     return fetchSharedData({ showLoading: true });

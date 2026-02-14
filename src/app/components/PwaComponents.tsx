@@ -46,7 +46,7 @@ export function ServiceWorkerRegistration() {
 
   useEffect(() => {
     setIsMounted(true);
-    setIsDev(process.env.TEST_NOTIFICATIONS === 'true');
+    setIsDev(process.env.NEXT_PUBLIC_TEST_NOTIFICATIONS === 'true');
 
     // Safe to access browser APIs in useEffect
     if ('serviceWorker' in navigator) {

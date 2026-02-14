@@ -22,12 +22,14 @@ export function GoldPrices({ initialData }: { initialData?: ApiResponseData | nu
   useEffect(() => {
     if (data) {
       const dataKey = JSON.stringify(data.source_data.market_data?.current_price);
-      if (prevDataRef.current !== null && prevDataRef.current !== dataKey) {
+      const hasChanged = prevDataRef.current !== null && prevDataRef.current !== dataKey;
+      prevDataRef.current = dataKey;
+
+      if (hasChanged) {
         setPriceFlash(true);
         const timer = setTimeout(() => setPriceFlash(false), 800);
         return () => clearTimeout(timer);
       }
-      prevDataRef.current = dataKey;
     }
   }, [data]);
 

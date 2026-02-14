@@ -1,8 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom/vitest';
-import * as actions from '../../src/app/actions';
-import { TestNotification } from '../../src/app/components/TestNotification';
 
 type SendNotificationResult = {
   success: boolean;
@@ -13,19 +10,29 @@ type SendNotificationResult = {
 // Mock the actions module
 mock.module('../../src/app/actions', () => ({
   sendNotification: mock(() => Promise.resolve({ success: true, message: '' })),
+  subscribeUser: mock(() => Promise.resolve({ success: true })),
+  unsubscribeUser: mock(() => Promise.resolve({ success: true })),
 }));
 
 // Mock environment variables
 process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY = 'test-vapid-public';
 
-describe('TestNotification Component', () => {
-  const mockSendNotification = actions.sendNotification as ReturnType<typeof mock>;
+type TestNotificationComponent = (typeof import('../../src/app/components/TestNotification'))['TestNotification'];
 
+let TestNotification: TestNotificationComponent;
+let mockSendNotification: ReturnType<typeof mock>;
+
+describe('TestNotification Component', () => {
   afterEach(() => {
     cleanup();
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    const actionsModule = await import('../../src/app/actions');
+    const componentsModule = await import('../../src/app/components/TestNotification');
+    TestNotification = componentsModule.TestNotification;
+    mockSendNotification = actionsModule.sendNotification as ReturnType<typeof mock>;
+
     mockSendNotification.mockClear();
 
     // Mock navigator and window APIs

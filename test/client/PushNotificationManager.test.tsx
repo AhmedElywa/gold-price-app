@@ -1,8 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom/vitest';
-import * as actions from '../../src/app/actions';
-import { PushNotificationManager } from '../../src/app/components/PwaComponents';
 import { Toaster } from '../../src/components/ui/toaster';
 
 type MutableWindowForFeatureChecks = Window & {
@@ -18,6 +15,7 @@ type MutableNavigatorForFeatureChecks = Navigator & {
 mock.module('../../src/app/actions', () => ({
   subscribeUser: mock(() => Promise.resolve({ success: true })),
   unsubscribeUser: mock(() => Promise.resolve({ success: true })),
+  sendNotification: mock(() => Promise.resolve({ success: true, message: '' })),
 }));
 
 // Mock environment variables
@@ -35,6 +33,13 @@ const mockPushSubscription = {
   }),
   unsubscribe: mock(() => Promise.resolve(true)),
 };
+
+type PushNotificationManagerComponent =
+  (typeof import('../../src/app/components/PwaComponents'))['PushNotificationManager'];
+
+let PushNotificationManager: PushNotificationManagerComponent;
+let mockSubscribeUser: ReturnType<typeof mock>;
+let mockUnsubscribeUser: ReturnType<typeof mock>;
 
 // Helper function to convert string to Uint8Array (used in component)
 function _urlBase64ToUint8Array(base64String: string) {
@@ -55,14 +60,17 @@ function renderManager() {
 }
 
 describe('PushNotificationManager', () => {
-  const mockSubscribeUser = actions.subscribeUser as ReturnType<typeof mock>;
-  const mockUnsubscribeUser = actions.unsubscribeUser as ReturnType<typeof mock>;
-
   afterEach(() => {
     cleanup();
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    const actionsModule = await import('../../src/app/actions');
+    const componentsModule = await import('../../src/app/components/PwaComponents');
+    PushNotificationManager = componentsModule.PushNotificationManager;
+    mockSubscribeUser = actionsModule.subscribeUser as ReturnType<typeof mock>;
+    mockUnsubscribeUser = actionsModule.unsubscribeUser as ReturnType<typeof mock>;
+
     mockSubscribeUser.mockClear();
     mockUnsubscribeUser.mockClear();
 

@@ -186,24 +186,24 @@
     "unregisterSW": "Отменить регистрацию SW"
   },
   "about": {
-    "title": "About GoldTracker Pro",
-    "description": "Learn about our gold price tracking methodology and data sources.",
-    "content": "GoldTracker Pro provides live gold, silver, and currency exchange data for global users. Our goal is to make pricing information easy to understand and useful for daily decisions."
+    "title": "О GoldTracker Pro",
+    "description": "Узнайте о нашей методологии отслеживания цен на золото и источниках данных.",
+    "content": "GoldTracker Pro предоставляет пользователям по всему миру данные о ценах на золото, серебро и валютные курсы в реальном времени. Наша цель — сделать ценовую информацию понятной и полезной для ежедневных решений."
   },
   "privacy": {
-    "title": "Privacy Policy",
-    "description": "How GoldTracker Pro handles your data and privacy.",
-    "content": "We collect minimal technical information necessary to deliver our service. We do not sell personal data. If you enable push alerts, your push subscription endpoint is stored to deliver price notifications and may be removed automatically when no longer valid."
+    "title": "Политика конфиденциальности",
+    "description": "Как GoldTracker Pro обрабатывает ваши данные и защищает конфиденциальность.",
+    "content": "Мы собираем только минимальную техническую информацию, необходимую для предоставления сервиса. Мы не продаем персональные данные. Если вы включаете push-уведомления, ваш endpoint подписки сохраняется для отправки ценовых оповещений и может быть автоматически удален, когда станет недействительным."
   },
   "terms": {
-    "title": "Terms of Service",
-    "description": "Terms and conditions for using GoldTracker Pro.",
-    "content": "Price information is provided for informational purposes only and should not be considered investment advice. Market data can be delayed, unavailable, or changed by data providers. You are responsible for verifying prices and rates with official sources before making financial decisions."
+    "title": "Условия использования",
+    "description": "Правила и условия использования GoldTracker Pro.",
+    "content": "Информация о ценах предоставляется только в ознакомительных целях и не является инвестиционной рекомендацией. Рыночные данные могут поступать с задержкой, быть недоступными или изменяться поставщиками данных. Перед принятием финансовых решений вы несете ответственность за проверку цен и курсов по официальным источникам."
   },
   "historical": {
-    "title": "Historical Gold Prices",
-    "description": "View historical gold price trends and data.",
-    "content": "Historical charting and downloadable time-series data are being prepared. This page is reserved for extended trend analysis across gold karats, silver, and currency pairs."
+    "title": "Исторические цены на золото",
+    "description": "Просматривайте исторические тренды и данные по ценам на золото.",
+    "content": "Исторические графики и загружаемые временные ряды находятся в подготовке. Эта страница предназначена для расширенного анализа трендов по пробам золота, серебру и валютным парам."
   },
   "footer": {
     "description": "Ваш надежный источник курсов золота, серебра и валют в реальном времени. Оставайтесь в курсе с точными ценовыми данными, обновляемыми каждую минуту.",

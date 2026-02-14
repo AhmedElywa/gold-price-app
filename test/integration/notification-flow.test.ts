@@ -4,7 +4,6 @@
  */
 
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
-import { sendNotification } from '../../src/app/actions';
 
 // Mock the actions module
 mock.module('../../src/app/actions', () => ({
@@ -24,15 +23,17 @@ process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY = 'test-vapid-public';
 process.env.VAPID_PRIVATE_KEY = 'test-vapid-private';
 process.env.EXCHANGE_RATE_API_KEY = 'test-exchange-rate-key';
 
+type SendNotificationAction = (typeof import('../../src/app/actions'))['sendNotification'];
+
+let sendNotification: SendNotificationAction;
+let mockSendNotification: ReturnType<typeof mock>;
+
 describe('Notification Flow Integration Tests', () => {
   // Mock the gold price API route logic
   let lastGoldPrice: number | null = null;
   let lastNotificationAt: number = 0;
   const NOTIFICATION_THRESHOLD_PERCENT = 0.25;
   const NOTIFICATION_COOLDOWN_MS = 3 * 60 * 60 * 1000;
-
-  // Get the mocked function with proper typing
-  const mockSendNotification = sendNotification as ReturnType<typeof mock>;
 
   function shouldSendNotification(newPrice: number): boolean {
     if (lastGoldPrice === null) {
@@ -55,7 +56,11 @@ describe('Notification Flow Integration Tests', () => {
     return false;
   }
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    const actionsModule = await import('../../src/app/actions');
+    sendNotification = actionsModule.sendNotification;
+    mockSendNotification = actionsModule.sendNotification as ReturnType<typeof mock>;
+
     mockSendNotification.mockClear();
     lastGoldPrice = null;
     lastNotificationAt = 0;

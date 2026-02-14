@@ -186,24 +186,24 @@
     "unregisterSW": "注销 SW"
   },
   "about": {
-    "title": "About GoldTracker Pro",
-    "description": "Learn about our gold price tracking methodology and data sources.",
-    "content": "GoldTracker Pro provides live gold, silver, and currency exchange data for global users. Our goal is to make pricing information easy to understand and useful for daily decisions."
+    "title": "关于 GoldTracker Pro",
+    "description": "了解我们的黄金价格跟踪方法和数据来源。",
+    "content": "GoldTracker Pro 为全球用户提供实时黄金、白银和汇率数据。我们的目标是让价格信息更易理解，并对日常决策更有帮助。"
   },
   "privacy": {
-    "title": "Privacy Policy",
-    "description": "How GoldTracker Pro handles your data and privacy.",
-    "content": "We collect minimal technical information necessary to deliver our service. We do not sell personal data. If you enable push alerts, your push subscription endpoint is stored to deliver price notifications and may be removed automatically when no longer valid."
+    "title": "隐私政策",
+    "description": "GoldTracker Pro 如何处理您的数据与隐私。",
+    "content": "我们仅收集提供服务所需的最少技术信息。我们不会出售个人数据。如果您启用推送提醒，我们会存储您的推送订阅端点以发送价格通知，并在其失效后自动删除。"
   },
   "terms": {
-    "title": "Terms of Service",
-    "description": "Terms and conditions for using GoldTracker Pro.",
-    "content": "Price information is provided for informational purposes only and should not be considered investment advice. Market data can be delayed, unavailable, or changed by data providers. You are responsible for verifying prices and rates with official sources before making financial decisions."
+    "title": "服务条款",
+    "description": "使用 GoldTracker Pro 的条款与条件。",
+    "content": "价格信息仅供参考，不应被视为投资建议。市场数据可能延迟、不可用，或由数据提供方调整。在做出财务决策前，您有责任通过官方渠道核实价格和汇率。"
   },
   "historical": {
-    "title": "Historical Gold Prices",
-    "description": "View historical gold price trends and data.",
-    "content": "Historical charting and downloadable time-series data are being prepared. This page is reserved for extended trend analysis across gold karats, silver, and currency pairs."
+    "title": "历史黄金价格",
+    "description": "查看历史黄金价格趋势和数据。",
+    "content": "历史图表和可下载的时间序列数据正在准备中。此页面将用于黄金成色、白银和货币对的扩展趋势分析。"
   },
   "footer": {
     "description": "您可信赖的实时黄金、白银和货币汇率信息来源。通过每分钟更新的准确价格数据保持知情。",

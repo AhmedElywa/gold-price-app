@@ -97,15 +97,19 @@ function isValidPushEndpoint(endpoint: string): boolean {
   try {
     const url = new URL(endpoint);
     if (url.protocol !== 'https:') return false;
-    const allowedHosts = ['fcm.googleapis.com', 'updates.push.services.mozilla.com', 'web.push.apple.com'];
-    return allowedHosts.some(
-      (host) =>
+    const allowedHosts: Record<string, string[]> = {
+      'fcm.googleapis.com': ['.windows.com', '.microsoft.com', '.notify.windows.com'],
+      'updates.push.services.mozilla.com': [],
+      'web.push.apple.com': [],
+    };
+
+    return Object.entries(allowedHosts).some(([host, allowedSuffixes]) => {
+      return (
         url.hostname === host ||
         url.hostname.endsWith(`.${host}`) ||
-        url.hostname.endsWith('.windows.com') ||
-        url.hostname.endsWith('.microsoft.com') ||
-        url.hostname.endsWith('.notify.windows.com'),
-    );
+        allowedSuffixes.some((suffix) => url.hostname.endsWith(suffix))
+      );
+    });
   } catch {
     return false;
   }

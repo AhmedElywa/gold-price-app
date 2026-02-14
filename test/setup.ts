@@ -1,9 +1,10 @@
-import { mock } from 'bun:test';
+import { expect, mock } from 'bun:test';
 import { GlobalRegistrator } from '@happy-dom/global-registrator';
-import '@testing-library/jest-dom/vitest';
+import * as matchers from '@testing-library/jest-dom/matchers';
 
 // Register happy-dom for DOM APIs (client tests)
 GlobalRegistrator.register();
+expect.extend(matchers);
 
 // Mock next/navigation
 mock.module('next/navigation', () => ({

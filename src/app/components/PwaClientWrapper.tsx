@@ -13,7 +13,7 @@ export default function PwaClientWrapper() {
   useEffect(() => {
     // Now we're safely on the client
     setIsMounted(true);
-    setIsDevelopment(process.env.TEST_NOTIFICATIONS === 'true');
+    setIsDevelopment(process.env.NEXT_PUBLIC_TEST_NOTIFICATIONS === 'true');
   }, []);
 
   // Don't render anything during SSR or initial client render

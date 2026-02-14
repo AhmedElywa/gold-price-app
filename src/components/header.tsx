@@ -12,15 +12,15 @@ export function Header() {
 
   const navLinks = (
     <>
-      <a href="#gold" className="text-[#8A8A8E] hover:text-[#D4AF37] transition-colors">
+      <Link href={`/${locale}#gold`} className="text-[#8A8A8E] hover:text-[#D4AF37] transition-colors">
         {t('navigation.goldPrices')}
-      </a>
-      <a href="#silver" className="text-[#8A8A8E] hover:text-[#D4AF37] transition-colors">
+      </Link>
+      <Link href={`/${locale}#silver`} className="text-[#8A8A8E] hover:text-[#D4AF37] transition-colors">
         {t('navigation.silverPrices')}
-      </a>
-      <a href="#exchange" className="text-[#8A8A8E] hover:text-[#D4AF37] transition-colors">
+      </Link>
+      <Link href={`/${locale}#exchange`} className="text-[#8A8A8E] hover:text-[#D4AF37] transition-colors">
         {t('navigation.exchangeRates')}
-      </a>
+      </Link>
       <Link href={`/${locale}/about`} className="text-[#8A8A8E] hover:text-[#D4AF37] transition-colors">
         {t('navigation.about')}
       </Link>
@@ -45,7 +45,7 @@ export function Header() {
 
           {/* Mobile/tablet hamburger */}
           <Sheet>
-            <SheetTrigger className="lg:hidden p-2 text-[#8A8A8E] hover:text-[#D4AF37] transition-colors">
+            <SheetTrigger aria-label="Open menu" className="lg:hidden p-2 text-[#8A8A8E] hover:text-[#D4AF37] transition-colors">
               <Menu className="w-6 h-6" />
             </SheetTrigger>
             <SheetContent side="right" className="bg-[#0A0A0F] border-l border-[rgba(212,175,55,0.15)] w-72">

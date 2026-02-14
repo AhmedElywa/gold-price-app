@@ -186,24 +186,24 @@
     "unregisterSW": "SW Kaydını Sil"
   },
   "about": {
-    "title": "About GoldTracker Pro",
-    "description": "Learn about our gold price tracking methodology and data sources.",
-    "content": "GoldTracker Pro provides live gold, silver, and currency exchange data for global users. Our goal is to make pricing information easy to understand and useful for daily decisions."
+    "title": "GoldTracker Pro Hakkında",
+    "description": "Altın fiyatı takip metodolojimizi ve veri kaynaklarımızı öğrenin.",
+    "content": "GoldTracker Pro, dünya genelindeki kullanıcılar için canlı altın, gümüş ve döviz kuru verileri sunar. Amacımız fiyat bilgisini günlük kararlar için anlaşılır ve kullanışlı hale getirmektir."
   },
   "privacy": {
-    "title": "Privacy Policy",
-    "description": "How GoldTracker Pro handles your data and privacy.",
-    "content": "We collect minimal technical information necessary to deliver our service. We do not sell personal data. If you enable push alerts, your push subscription endpoint is stored to deliver price notifications and may be removed automatically when no longer valid."
+    "title": "Gizlilik Politikası",
+    "description": "GoldTracker Pro verilerinizi ve gizliliğinizi nasıl işler.",
+    "content": "Hizmetimizi sunmak için gerekli olan minimum teknik bilgiyi toplarız. Kişisel verileri satmayız. Anlık bildirim uyarılarını etkinleştirirseniz, fiyat bildirimlerini göndermek için abonelik uç noktanız saklanır ve artık geçerli olmadığında otomatik olarak kaldırılabilir."
   },
   "terms": {
-    "title": "Terms of Service",
-    "description": "Terms and conditions for using GoldTracker Pro.",
-    "content": "Price information is provided for informational purposes only and should not be considered investment advice. Market data can be delayed, unavailable, or changed by data providers. You are responsible for verifying prices and rates with official sources before making financial decisions."
+    "title": "Hizmet Şartları",
+    "description": "GoldTracker Pro kullanımına ilişkin şartlar ve koşullar.",
+    "content": "Fiyat bilgileri yalnızca bilgilendirme amaçlıdır ve yatırım tavsiyesi olarak değerlendirilmemelidir. Piyasa verileri gecikebilir, kullanılamaz hale gelebilir veya veri sağlayıcılar tarafından değiştirilebilir. Finansal kararlar almadan önce fiyatları ve kurları resmi kaynaklardan doğrulamak sizin sorumluluğunuzdadır."
   },
   "historical": {
-    "title": "Historical Gold Prices",
-    "description": "View historical gold price trends and data.",
-    "content": "Historical charting and downloadable time-series data are being prepared. This page is reserved for extended trend analysis across gold karats, silver, and currency pairs."
+    "title": "Geçmiş Altın Fiyatları",
+    "description": "Geçmiş altın fiyatı trendlerini ve verilerini görüntüleyin.",
+    "content": "Geçmiş grafikler ve indirilebilir zaman serisi verileri hazırlanmaktadır. Bu sayfa, altın ayarları, gümüş ve döviz çiftleri için genişletilmiş trend analizi amacıyla ayrılmıştır."
   },
   "footer": {
     "description": "Gerçek zamanlı altın, gümüş ve döviz kurları için güvenilir kaynağınız. Her dakika güncellenen doğru fiyat verileriyle bilgili kalın.",
