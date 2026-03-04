@@ -30,6 +30,13 @@ jobs:
           cp -r .next/static .next/standalone/.next/static
           cp -r public .next/standalone/public
 
+      - name: Setup Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
@@ -54,4 +61,4 @@ jobs:
             echo 'EXCHANGE_RATE_API_KEY=$EXCHANGE_RATE_API_KEY' > .env.local && \
             echo 'VAPID_PRIVATE_KEY=$VAPID_PRIVATE_KEY' >> .env.local && \
             pm2 delete gold-price-app 2>/dev/null || true && \
-            PORT=3002 pm2 start server.js --name gold-price-app"
+            PORT=3002 HOSTNAME=127.0.0.1 pm2 start server.js --name gold-price-app"
