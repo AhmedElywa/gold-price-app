@@ -17,6 +17,23 @@ import { sendNotification } from '../../actions';
 
 /** troy‑ounce → gram */
 const OUNCE_TO_GRAM = 31.1034768;
+/** 60‑second cache for gold prices — avoids hammering goldprice.org */
+const GOLD_CACHE_MS = 60 * 1000;
+interface GoldCache {
+  data: {
+    ounce: number;
+    xagPrice: number;
+    chgXau: number;
+    chgXag: number;
+    pcXau: number;
+    pcXag: number;
+    xauClose: number;
+    ts: number;
+  };
+  fetchedAt: number;
+}
+let goldCache: GoldCache | null = null;
+
 /** 30‑minute cache for FX rates only */
 const FX_CACHE_MS = 30 * 60 * 1000;
 interface FxCache {
@@ -89,7 +106,7 @@ function evaluateNotificationDecision(newPrice: number): NotificationDecision {
 }
 
 /* ---------- goldprice.org fetch ------------------------------------- */
-async function fetchOuncePriceUSD(): Promise<{
+type GoldPriceResult = {
   ounce: number;
   xagPrice: number;
   chgXau: number;
@@ -98,16 +115,23 @@ async function fetchOuncePriceUSD(): Promise<{
   pcXag: number;
   xauClose: number;
   ts: number;
-}> {
+};
+
+async function fetchOuncePriceUSD(): Promise<GoldPriceResult> {
+  const now = Date.now();
+  if (goldCache && now - goldCache.fetchedAt < GOLD_CACHE_MS) {
+    return goldCache.data;
+  }
+
   const res = await fetch('https://data-asg.goldprice.org/dbXRates/USD', {
-    next: { revalidate: 60 }, // optional cache hint for Next.js
+    next: { revalidate: 60 },
   });
   if (!res.ok) throw new Error(`goldprice.org HTTP ${res.status}`);
   const j = await res.json();
   const ounce = j?.items?.[0]?.xauPrice;
   if (!ounce) throw new Error('XAU price not found in payload');
   const ts = j?.ts ?? Date.now();
-  return {
+  const data: GoldPriceResult = {
     ounce: parseFloat(ounce),
     xagPrice: parseFloat(j?.items?.[0]?.xagPrice ?? 0),
     chgXau: parseFloat(j?.items?.[0]?.chgXau ?? 0),
@@ -117,6 +141,9 @@ async function fetchOuncePriceUSD(): Promise<{
     xauClose: parseFloat(j?.items?.[0]?.xauClose ?? ounce),
     ts,
   };
+
+  goldCache = { data, fetchedAt: now };
+  return data;
 }
 
 /* ---------- Exchange‑Rate API --------------------------------------- */
