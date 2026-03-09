@@ -105,7 +105,7 @@ function evaluateNotificationDecision(newPrice: number): NotificationDecision {
   };
 }
 
-/* ---------- goldprice.org fetch ------------------------------------- */
+/* ---------- gold price fetch with fallback -------------------------- */
 type GoldPriceResult = {
   ounce: number;
   xagPrice: number;
@@ -117,12 +117,7 @@ type GoldPriceResult = {
   ts: number;
 };
 
-async function fetchOuncePriceUSD(): Promise<GoldPriceResult> {
-  const now = Date.now();
-  if (goldCache && now - goldCache.fetchedAt < GOLD_CACHE_MS) {
-    return goldCache.data;
-  }
-
+async function fetchFromGoldpriceOrg(): Promise<GoldPriceResult> {
   const res = await fetch('https://data-asg.goldprice.org/dbXRates/USD', {
     next: { revalidate: 60 },
   });
@@ -131,7 +126,7 @@ async function fetchOuncePriceUSD(): Promise<GoldPriceResult> {
   const ounce = j?.items?.[0]?.xauPrice;
   if (!ounce) throw new Error('XAU price not found in payload');
   const ts = j?.ts ?? Date.now();
-  const data: GoldPriceResult = {
+  return {
     ounce: parseFloat(ounce),
     xagPrice: parseFloat(j?.items?.[0]?.xagPrice ?? 0),
     chgXau: parseFloat(j?.items?.[0]?.chgXau ?? 0),
@@ -141,6 +136,54 @@ async function fetchOuncePriceUSD(): Promise<GoldPriceResult> {
     xauClose: parseFloat(j?.items?.[0]?.xauClose ?? ounce),
     ts,
   };
+}
+
+/** Fallback: Swissquote public forex feed (no API key, no rate limits) */
+async function fetchFromSwissquote(): Promise<GoldPriceResult> {
+  const [xauRes, xagRes] = await Promise.all([
+    fetch('https://forex-data-feed.swissquote.com/public-quotes/bboquotes/instrument/XAU/USD'),
+    fetch('https://forex-data-feed.swissquote.com/public-quotes/bboquotes/instrument/XAG/USD'),
+  ]);
+  if (!xauRes.ok) throw new Error(`Swissquote XAU HTTP ${xauRes.status}`);
+  if (!xagRes.ok) throw new Error(`Swissquote XAG HTTP ${xagRes.status}`);
+
+  const xauData = await xauRes.json();
+  const xagData = await xagRes.json();
+
+  // Use mid-price from the first platform's premium spread profile
+  const xauSpread = xauData?.[0]?.spreadProfilePrices?.[0];
+  const xagSpread = xagData?.[0]?.spreadProfilePrices?.[0];
+  if (!xauSpread) throw new Error('Swissquote XAU data missing');
+
+  const ounce = (xauSpread.bid + xauSpread.ask) / 2;
+  const xagPrice = xagSpread ? (xagSpread.bid + xagSpread.ask) / 2 : 0;
+  const ts = xauData?.[0]?.ts ?? Date.now();
+
+  // Swissquote doesn't provide change data — use 0 (UI handles this gracefully)
+  return {
+    ounce,
+    xagPrice,
+    chgXau: 0,
+    chgXag: 0,
+    pcXau: 0,
+    pcXag: 0,
+    xauClose: ounce,
+    ts,
+  };
+}
+
+async function fetchOuncePriceUSD(): Promise<GoldPriceResult> {
+  const now = Date.now();
+  if (goldCache && now - goldCache.fetchedAt < GOLD_CACHE_MS) {
+    return goldCache.data;
+  }
+
+  let data: GoldPriceResult;
+  try {
+    data = await fetchFromGoldpriceOrg();
+  } catch {
+    data = await fetchFromSwissquote();
+  }
 
   goldCache = { data, fetchedAt: now };
   return data;
@@ -223,7 +266,7 @@ export async function GET(request: Request) {
           silver_change: chgXag,
           silver_change_percent: pcXag,
           open_time: ts,
-          exchange: 'goldprice.org',
+          exchange: chgXau === 0 && pcXau === 0 ? 'swissquote.com' : 'goldprice.org',
           symbol: 'XAUUSD',
         },
       },
